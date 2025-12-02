@@ -7,6 +7,27 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
+    :root {
+      --primary-purple: #8b5cf6;
+      --purple-50: #f5f3ff;
+      --purple-100: #ede9fe;
+      --purple-600: #9333ea;
+      --purple-700: #7c3aed;
+      --purple-900: #581c87;
+    }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .sidebar-collapsed { transform: translateX(-100%); }
+    .nav-item { transition: all 0.2s ease; }
+    .nav-item:hover { transform: translateX(4px); }
+    .nav-active { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border-left: 3px solid #fbbf24; }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .fade-in { animation: fadeIn 0.5s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .breadcrumb { @apply text-sm text-gray-500; }
+    .breadcrumb a { @apply text-purple-600 hover:text-purple-700 font-medium transition; }
+    .breadcrumb .separator { @apply mx-2 text-gray-400; }
     .calendar-day { min-height: 110px; }
     .today { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white !important; }
     .has-event::after {
@@ -21,250 +42,342 @@
     .progress-circle { transition: stroke-dashoffset 0.6s ease; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex overflow-hidden">
 
-  <!-- Header -->
-  <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">TF</div>
-        <h1 class="text-2xl font-bold text-blue-900">TaskFlow Pro</h1>
+  <!-- Sidebar Toggle -->
+  <input type="checkbox" id="sidebar-toggle" class="hidden peer">
+
+  <!-- Sidebar -->
+  <aside class="sidebar w-64 bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 text-white fixed h-full z-40 shadow-2xl flex flex-col peer-checked:sidebar-collapsed lg:translate-x-0">
+    <!-- Logo -->
+    <div class="p-6 border-b border-purple-800 flex items-center gap-3">
+      <i class="fas fa-tasks text-3xl text-yellow-400"></i>
+      <h1 class="text-xl font-bold tracking-tight">TaskFlow Pro</h1>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-1 mt-6 overflow-y-auto">
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200 nav-active">
+        <i class="fas fa-chart-line text-lg"></i>
+        <span class="font-medium">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-folder-open text-lg"></i>
+        <span class="font-medium">Projects</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-tasks text-lg"></i>
+        <span class="font-medium">Tasks</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-calendar-alt text-lg"></i>
+        <span class="font-medium">Calendar</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-users text-lg"></i>
+        <span class="font-medium">Employees</span>
+      </a>
+      <div class="mt-8 pt-4 border-t border-purple-800">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+          <i class="fas fa-chart-bar text-lg"></i>
+          <span class="font-medium">Reports</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+          <i class="fas fa-cog text-lg"></i>
+          <span class="font-medium">Settings</span>
+        </a>
       </div>
-      <div class="text-right">
-        <div class="text-xl font-semibold">Wednesday, December 2, 2025</div>
-        <div class="text-blue-600">Today</div>
+    </nav>
+
+    <!-- User Profile -->
+    <div class="p-4 border-t border-purple-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+          JD
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-white truncate">John Doe</p>
+          <p class="text-xs text-purple-300">Administrator</p>
+        </div>
+        <i class="fas fa-chevron-down text-purple-300 cursor-pointer"></i>
       </div>
     </div>
-  </header>
+  </aside>
 
-  <div class="max-w-7xl mx-auto px-6 py-8">
+  <!-- Mobile Menu Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden peer-checked:hidden"></div>
 
-    <!-- Main Layout: Calendar + Employee Overview -->
-    <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+  <!-- Main Content -->
+  <main class="flex-1 ml-0 lg:ml-64 transition-all duration-300 overflow-auto">
+    
+    <!-- Mobile Sidebar Toggle -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+      <label for="sidebar-toggle" class="bg-white p-3 rounded-full shadow-lg cursor-pointer hover:bg-gray-50">
+        <i class="fas fa-bars text-purple-600"></i>
+      </label>
+    </div>
 
-      <!-- LEFT: Calendar + Today's Summary -->
-      <div class="xl:col-span-3 space-y-8">
-
-        <!-- Monthly Calendar -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
-              Calendar December 2025
-            </h2>
-            <div class="flex gap-2">
-              <button class="p-3 hover:bg-gray-100 rounded-xl"><Chevron Left</button>
-              <button class="p-3 hover:bg-gray-100 rounded-xl"><Chevron Right</button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-7 gap-3 text-center text-sm">
-            <div class="font-bold text-gray-500 py-3">Sun</div>
-            <div class="font-bold text-gray-500 py-3">Mon</div>
-            <div class="font-bold text-gray-500 py-3">Tue</div>
-            <div class="font-bold text-gray-500 py-3">Wed</div>
-            <div class="font-bold text-gray-500 py-3">Thu</div>
-            <div class="font-bold text-gray-500 py-3">Fri</div>
-            <div class="font-bold text-gray-500 py-3">Sat</div>
-
-            <!-- Blank cells -->
-            <div></div><div></div><div></div><div></div><div></div><div></div>
-
-            <!-- Day 1 -->
-            <div class="calendar-day bg-gray-50 rounded-xl p-3 text-gray-400 text-xs">1</div>
-
-            <!-- TODAY: Dec 2 -->
-            <div id="today" class="calendar-day relative rounded-xl p-3 font-bold has-event">
-              <div class="text-lg">2</div>
-              <div class="text-xs space-y-1 mt-2 text-white">
-                <div class="bg-white bg-opacity-30 px-2 py-1 rounded">Call Sarah</div>
-                <div class="bg-yellow-400 text-blue-900 px-2 py-1 rounded font-bold">Client Meet</div>
-                <div class="bg-green-500 text-white px-2 py-1 rounded">Team Sync</div>
-              </div>
-            </div>
-
-            <!-- Sample other days -->
-            <div class="calendar-day bg-white rounded-xl p-3 border border-gray-200 has-event">
-              <div class="text-lg font-semibold">3</div>
-              <div class="text-xs text-gray-600 mt-2">Q4 Review</div>
-            </div>
-            <div class="calendar-day bg-white rounded-xl p-3 border border-gray-200">
-              <div class="text-lg font-semibold">4</div>
-            </div>
-            <div class="calendar-day bg-white rounded-xl p-3 border border-gray-200 has-event">
-              <div class="text-lg font-semibold">5</div>
-              <div class="text-xs text-blue-600 mt-2">Follow-up ×3</div>
-            </div>
-            <!-- Continue as needed -->
-          </div>
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">TF</div>
+          <h1 class="text-2xl font-bold text-blue-900">TaskFlow Pro</h1>
         </div>
-
-        <!-- Today's Summary -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <!-- Today's Tasks -->
-          <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <h3 class="text-xl font-bold text-blue-900 mb-6 flex items-center gap-3">
-              Today's Tasks (12)
-            </h3>
-            <div class="space-y-4">
-              <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-xl">
-                <input type="checkbox" checked class="w-5 h-5 rounded accent-blue-600"/>
-                <div class="flex-1">
-                  <div class="font-medium line-through opacity-70">Morning Standup</div>
-                  <div class="text-xs text-gray-600">9:00 AM</div>
-                </div>
-                <img src="https://i.pravatar.cc/32?img=1" class="w-8 h-8 rounded-full">
-              </div>
-              <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl">
-                <input type="checkbox" class="w-5 h-5 rounded"/>
-                <div class="flex-1">
-                  <div class="font-bold">Client Call – Sarah Connor</div>
-                  <div class="text-xs opacity-90">2:00 PM – 3:00 PM</div>
-                </div>
-                <span class="bg-yellow-400 text-blue-900 px-2 py-1 rounded text-xs font-bold">HIGH</span>
-              </div>
-              <div class="flex items-center gap-4 p-4 bg-white border border-gray-300 rounded-xl">
-                <input type="checkbox" class="w-5 h-5 rounded accent-blue-600"/>
-                <div class="flex-1 font-medium">Send Proposal to Marcus Holt</div>
-                <img src="https://i.pravatar.cc/32?img=3" class="w-8 h-8 rounded-full">
-              </div>
-            </div>
-          </div>
-
-          <!-- Follow-up Calls -->
-          <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <h3 class="text-xl font-bold text-blue-900 mb-6 flex items-center gap-3">
-              Follow-up Calls Today
-            </h3>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border-l-4 border-blue-600">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">SC</div>
-                  <div>
-                    <div class="font-semibold">Sarah Connor</div>
-                    <div class="text-xs text-gray-600">Website Project</div>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <div class="text-sm font-bold text-blue-600">2:00 PM</div>
-                  <button class="text-xs text-blue-600 hover:underline">Call Now</button>
-                </div>
-              </div>
-              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-gray-500 text-white rounded-full flex items-center justify-center text-sm font-bold">MH</div>
-                  <div>
-                    <div class="font-semibold">Marcus Holt</div>
-                    <div class="text-xs text-gray-600">Brand Proposal</div>
-                  </div>
-                </div>
-                <div class="text-sm font-bold">3:30 PM</div>
-              </div>
-            </div>
-          </div>
+        <div class="text-right">
+          <div class="text-xl font-semibold">Wednesday, December 2, 2025</div>
+          <div class="text-blue-600">Today</div>
         </div>
       </div>
+    </header>
 
-      <!-- RIGHT: Employee Task Overview -->
-      <div class="space-y-8">
+    <div class="max-w-7xl mx-auto px-6 py-8 fade-in">
 
-        <!-- Employee Cards -->
-        <div class="space-y-6">
-          <!-- Ahmed Al Balushi -->
-          <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
-              <div class="flex items-center gap-4">
-                <img src="https://i.pravatar.cc/80?img=1" class="w-16 h-16 rounded-full ring-4 ring-white">
-                <div>
-                  <h3 class="font-bold">Ahmed Al Balushi</h3>
-                  <p class="text-sm opacity-90">Senior Account Manager</p>
-                </div>
+      <!-- Main Layout: Calendar + Employee Overview -->
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+
+        <!-- LEFT: Calendar + Today's Summary -->
+        <div class="xl:col-span-3 space-y-8">
+
+          <!-- Monthly Calendar -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 card-hover">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                Calendar December 2025
+              </h2>
+              <div class="flex gap-2">
+                <button class="p-3 hover:bg-gray-100 rounded-xl"><i class="fas fa-chevron-left"></i></button>
+                <button class="p-3 hover:bg-gray-100 rounded-xl"><i class="fas fa-chevron-right"></i></button>
               </div>
             </div>
-            <div class="p-6 space-y-5">
-              <div>
-                <div class="flex justify-between text-sm mb-2">
-                  <span class="font-semibold">Today's Tasks</span>
-                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">7 / 10</span>
-                </div>
-                <div class="text-xs space-y-2">
-                  <div class="flex items-center gap-2"><span class="text-green-600">Check</span> Client Call (2:00 PM)</div>
-                  <div class="flex items-center gap-2"><span class="text-green-600">Check</span> Send Proposal</div>
-                </div>
-              </div>
-              <div class="border-t pt-4">
-                <div class="flex justify-between text-sm mb-2">
-                  <span class="font-semibold">Pending Overall</span>
-                  <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">14</span>
-                </div>
-                <div class="text-xs">
-                  <div class="bg-red-50 p-2 rounded border-l-4 border-red-500">Q4 Report – Overdue</div>
-                  <div class="bg-orange-50 p-2 rounded mt-2">Follow-up Al Jazira – Due Tomorrow</div>
-                </div>
-              </div>
-              <div class="flex justify-center relative">
-                <svg class="w-28 h-28 progress-ring">
-                  <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="56" cy="56"/>
-                  <circle class="text-blue-600 progress-circle" stroke-width="10" stroke-linecap="round" fill="transparent" r="50" cx="56" cy="56"
-                    stroke-dasharray="314" stroke-dashoffset="94"/>
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="text-2xl font-black text-blue-600">70%</span>
+
+            <div class="grid grid-cols-7 gap-3 text-center text-sm">
+              <div class="font-bold text-gray-500 py-3">Sun</div>
+              <div class="font-bold text-gray-500 py-3">Mon</div>
+              <div class="font-bold text-gray-500 py-3">Tue</div>
+              <div class="font-bold text-gray-500 py-3">Wed</div>
+              <div class="font-bold text-gray-500 py-3">Thu</div>
+              <div class="font-bold text-gray-500 py-3">Fri</div>
+              <div class="font-bold text-gray-500 py-3">Sat</div>
+
+              <!-- Blank cells -->
+              <div></div><div></div><div></div><div></div><div></div><div></div>
+
+              <!-- Day 1 -->
+              <div class="calendar-day bg-gray-50 rounded-xl p-3 text-gray-400 text-xs">1</div>
+
+              <!-- TODAY: Dec 2 -->
+              <div id="today" class="calendar-day relative rounded-xl p-3 font-bold has-event">
+                <div class="text-lg">2</div>
+                <div class="text-xs space-y-1 mt-2 text-white">
+                  <div class="bg-white bg-opacity-30 px-2 py-1 rounded">Call Sarah</div>
+                  <div class="bg-yellow-400 text-blue-900 px-2 py-1 rounded font-bold">Client Meet</div>
+                  <div class="bg-green-500 text-white px-2 py-1 rounded">Team Sync</div>
                 </div>
               </div>
+
+              <!-- Sample other days -->
+              <div class="calendar-day bg-white rounded-xl p-3 border border-gray-200 has-event">
+                <div class="text-lg font-semibold">3</div>
+                <div class="text-xs text-gray-600 mt-2">Q4 Review</div>
+              </div>
+              <div class="calendar-day bg-white rounded-xl p-3 border border-gray-200">
+                <div class="text-lg font-semibold">4</div>
+              </div>
+              <div class="calendar-day bg-white rounded-xl p-3 border border-gray-200 has-event">
+                <div class="text-lg font-semibold">5</div>
+                <div class="text-xs text-blue-600 mt-2">Follow-up ×3</div>
+              </div>
+              <!-- Continue as needed -->
             </div>
           </div>
 
-          <!-- Sara Ahmed -->
-          <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
-              <div class="flex items-center gap-4">
-                <img src="https://i.pravatar.cc/80?img=3" class="w-16 h-16 rounded-full ring-4 ring-white">
-                <div>
-                  <h3 class="font-bold">Sara Ahmed</h3>
-                  <p class="text-sm opacity-90">Project Coordinator</p>
+          <!-- Today's Summary -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Today's Tasks -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 card-hover">
+              <h3 class="text-xl font-bold text-blue-900 mb-6 flex items-center gap-3">
+                Today's Tasks (12)
+              </h3>
+              <div class="space-y-4">
+                <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-xl">
+                  <input type="checkbox" checked class="w-5 h-5 rounded accent-blue-600"/>
+                  <div class="flex-1">
+                    <div class="font-medium line-through opacity-70">Morning Standup</div>
+                    <div class="text-xs text-gray-600">9:00 AM</div>
+                  </div>
+                  <img src="https://i.pravatar.cc/32?img=1" class="w-8 h-8 rounded-full">
+                </div>
+                <div class="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl">
+                  <input type="checkbox" class="w-5 h-5 rounded"/>
+                  <div class="flex-1">
+                    <div class="font-bold">Client Call – Sarah Connor</div>
+                    <div class="text-xs opacity-90">2:00 PM – 3:00 PM</div>
+                  </div>
+                  <span class="bg-yellow-400 text-blue-900 px-2 py-1 rounded text-xs font-bold">HIGH</span>
+                </div>
+                <div class="flex items-center gap-4 p-4 bg-white border border-gray-300 rounded-xl">
+                  <input type="checkbox" class="w-5 h-5 rounded accent-blue-600"/>
+                  <div class="flex-1 font-medium">Send Proposal to Marcus Holt</div>
+                  <img src="https://i.pravatar.cc/32?img=3" class="w-8 h-8 rounded-full">
                 </div>
               </div>
             </div>
-            <div class="p-6 space-y-5">
-              <div>
-                <div class="flex justify-between text-sm mb-2">
-                  <span class="font-semibold">Today's Tasks</span>
-                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">9 / 11</span>
+
+            <!-- Follow-up Calls -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 card-hover">
+              <h3 class="text-xl font-bold text-blue-900 mb-6 flex items-center gap-3">
+                Follow-up Calls Today
+              </h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl border-l-4 border-blue-600">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">SC</div>
+                    <div>
+                      <div class="font-semibold">Sarah Connor</div>
+                      <div class="text-xs text-gray-600">Website Project</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-bold text-blue-600">2:00 PM</div>
+                    <button class="text-xs text-blue-600 hover:underline">Call Now</button>
+                  </div>
                 </div>
-              </div>
-              <div class="border-t pt-4">
-                <div class="flex justify-between text-sm mb-2">
-                  <span class="font-semibold">Pending Overall</span>
-                  <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">8</span>
-                </div>
-              </div>
-              <div class="flex justify-center relative">
-                <svg class="w-28 h-28 progress-ring">
-                  <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="56" cy="56"/>
-                  <circle class="text-purple-600 progress-circle" stroke-width="10" stroke-linecap="round" fill="transparent" r="50" cx="56" cy="56"
-                    stroke-dasharray="314" stroke-dashoffset="62.8"/>
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="text-2xl font-black text-purple-600">80%</span>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gray-500 text-white rounded-full flex items-center justify-center text-sm font-bold">MH</div>
+                    <div>
+                      <div class="font-semibold">Marcus Holt</div>
+                      <div class="text-xs text-gray-600">Brand Proposal</div>
+                    </div>
+                  </div>
+                  <div class="text-sm font-bold">3:30 PM</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Quick Stats -->
-        <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-2xl p-8 text-center">
-          <div class="text-5xl font-black mb-2">94%</div>
-          <div class="text-lg opacity-90">On-Time Delivery</div>
-          <div class="mt-4 text-sm">This Month • Excellent!</div>
+        <!-- RIGHT: Employee Task Overview -->
+        <div class="space-y-8">
+
+          <!-- Employee Cards -->
+          <div class="space-y-6">
+            <!-- Ahmed Al Balushi -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden card-hover">
+              <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+                <div class="flex items-center gap-4">
+                  <img src="https://i.pravatar.cc/80?img=1" class="w-16 h-16 rounded-full ring-4 ring-white">
+                  <div>
+                    <h3 class="font-bold">Ahmed Al Balushi</h3>
+                    <p class="text-sm opacity-90">Senior Account Manager</p>
+                  </div>
+                </div>
+              </div>
+              <div class="p-6 space-y-5">
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="font-semibold">Today's Tasks</span>
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">7 / 10</span>
+                  </div>
+                  <div class="text-xs space-y-2">
+                    <div class="flex items-center gap-2"><span class="text-green-600">Check</span> Client Call (2:00 PM)</div>
+                    <div class="flex items-center gap-2"><span class="text-green-600">Check</span> Send Proposal</div>
+                  </div>
+                </div>
+                <div class="border-t pt-4">
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="font-semibold">Pending Overall</span>
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">14</span>
+                  </div>
+                  <div class="text-xs">
+                    <div class="bg-red-50 p-2 rounded border-l-4 border-red-500">Q4 Report – Overdue</div>
+                    <div class="bg-orange-50 p-2 rounded mt-2">Follow-up Al Jazira – Due Tomorrow</div>
+                  </div>
+                </div>
+                <div class="flex justify-center relative">
+                  <svg class="w-28 h-28 progress-ring">
+                    <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="56" cy="56"/>
+                    <circle class="text-blue-600 progress-circle" stroke-width="10" stroke-linecap="round" fill="transparent" r="50" cx="56" cy="56"
+                      stroke-dasharray="314" stroke-dashoffset="94"/>
+                  </svg>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-black text-blue-600">70%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sara Ahmed -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden card-hover">
+              <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
+                <div class="flex items-center gap-4">
+                  <img src="https://i.pravatar.cc/80?img=3" class="w-16 h-16 rounded-full ring-4 ring-white">
+                  <div>
+                    <h3 class="font-bold">Sara Ahmed</h3>
+                    <p class="text-sm opacity-90">Project Coordinator</p>
+                  </div>
+                </div>
+              </div>
+              <div class="p-6 space-y-5">
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="font-semibold">Today's Tasks</span>
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">9 / 11</span>
+                  </div>
+                </div>
+                <div class="border-t pt-4">
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="font-semibold">Pending Overall</span>
+                    <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold">8</span>
+                  </div>
+                </div>
+                <div class="flex justify-center relative">
+                  <svg class="w-28 h-28 progress-ring">
+                    <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="56" cy="56"/>
+                    <circle class="text-purple-600 progress-circle" stroke-width="10" stroke-linecap="round" fill="transparent" r="50" cx="56" cy="56"
+                      stroke-dasharray="314" stroke-dashoffset="62.8"/>
+                  </svg>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-black text-purple-600">80%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-2xl p-8 text-center card-hover">
+            <div class="text-5xl font-black mb-2">94%</div>
+            <div class="text-lg opacity-90">On-Time Delivery</div>
+            <div class="mt-4 text-sm">This Month • Excellent!</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+  </main>
 
   <!-- Highlight Today -->
   <script>
     document.getElementById('today')?.classList.add('today');
+
+    // Smooth interactions
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-active'));
+        item.classList.add('nav-active');
+      });
+    });
+
+    // Close sidebar on mobile when tapping overlay
+    const overlay = document.querySelector('.peer-checked\\:hidden');
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        document.getElementById('sidebar-toggle').checked = false;
+      });
+    }
   </script>
+
 </body>
 </html>
