@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar - Kanban View</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-purple: #8b5cf6;
+      --purple-50: #f5f3ff;
+      --purple-100: #ede9fe;
+      --purple-600: #9333ea;
+      --purple-700: #7c3aed;
+      --purple-900: #581c87;
+    }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .sidebar-collapsed { transform: translateX(-100%); }
+    .nav-item { transition: all 0.2s ease; }
+    .nav-item:hover { transform: translateX(4px); }
+    .nav-active { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border-left: 3px solid #fbbf24; }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+    .tab-label { cursor: pointer; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .calendar-day { min-height: 120px; }
+    .today { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white !important; }
+    .has-event::after {
+      content: '';
+      position: absolute;
+      bottom: 6px; left: 50%; transform: translateX(-50%);
+      width: 7px; height: 7px;
+      background: #ef4444;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex overflow-hidden">
+
+  <!-- Sidebar Toggle -->
+  <input type="checkbox" id="sidebar-toggle" class="hidden peer">
+
+  <!-- Sidebar -->
+  <aside class="sidebar w-64 bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 text-white fixed h-full z-40 shadow-2xl flex flex-col peer-checked:sidebar-collapsed lg:translate-x-0">
+    <!-- Logo -->
+    <div class="p-6 border-b border-purple-800 flex items-center gap-3">
+      <i class="fas fa-tasks text-3xl text-yellow-400"></i>
+      <h1 class="text-xl font-bold tracking-tight">TaskFlow Pro</h1>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-1 mt-6 overflow-y-auto">
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-chart-line text-lg"></i>
+        <span class="font-medium">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-folder-open text-lg"></i>
+        <span class="font-medium">Projects</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-tasks text-lg"></i>
+        <span class="font-medium">Scheduled Activities</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-video text-lg"></i>
+        <span class="font-medium">Meetings</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-white bg-purple-700/50 border-l-4 border-purple-400 font-semibold">
+        <i class="fas fa-calendar-alt text-lg"></i>
+        <span class="font-semibold">Calendar</span>
+      </a>
+      <div class="mt-8 pt-4 border-t border-purple-800">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+          <i class="fas fa-chart-bar text-lg"></i>
+          <span class="font-medium">Reports</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+          <i class="fas fa-cog text-lg"></i>
+          <span class="font-medium">Settings</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- User Profile -->
+    <div class="p-4 border-t border-purple-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+          JD
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-white truncate">John Doe</p>
+          <p class="text-xs text-purple-300">Administrator</p>
+        </div>
+        <i class="fas fa-chevron-down text-purple-300 cursor-pointer"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden peer-checked:hidden"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 ml-0 lg:ml-64 transition-all duration-300 overflow-auto">
+    
+    <!-- Mobile Sidebar Toggle -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+      <label for="sidebar-toggle" class="bg-white p-3 rounded-full shadow-lg cursor-pointer hover:bg-gray-50">
+        <i class="fas fa-bars text-purple-600"></i>
+      </label>
+    </div>
+
+    <!-- View State -->
+    <input type="radio" name="view" id="kanban" checked>
+    <input type="radio" name="view" id="list">
+
+    <!-- Modal State -->
+    <input type="radio" name="modal" id="open-modal">
+    <input type="radio" name="modal" id="close-modal" checked>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+        <h2 class="text-2xl font-bold flex items-center gap-3">
+          <i class="fas fa-calendar-alt text-purple-600"></i>
+          Calendar
+        </h2>
+        <label for="open-modal" class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl cursor-pointer flex items-center gap-2 transition transform hover:scale-105">
+          <i class="fas fa-plus"></i> New Event
+        </label>
+      </div>
+    </header>
+
+    <!-- Search & Filters -->
+    <div class="bg-white border-b border-gray-200 shadow-sm">
+      <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <input type="text" placeholder="Search events..." class="flex-1 px-6 py-4 bg-gray-50 rounded-full text-gray-600 focus:outline-none focus:ring-4 focus:ring-purple-100 focus:bg-white transition">
+        <div class="flex items-center gap-4">
+          <select class="px-6 py-4 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option>All Events</option>
+            <option>Meetings</option>
+            <option>Activities</option>
+            <option>Deadlines</option>
+          </select>
+          <input type="month" class="px-6 py-4 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500" value="2025-12">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex gap-12 py-4">
+          <label for="kanban" class="cursor-pointer px-4 pb-4 text-purple-600 border-b-4 border-purple-600 font-bold text-lg">
+            Weekly Kanban
+          </label>
+          <label for="list" class="cursor-pointer px-4 pb-4 text-gray-500 hover:text-gray-700 font-medium text-lg [#list:checked~&]:text-purple-600 [#list:checked~&]:border-b-4 [#list:checked~&]:border-purple-600">
+            Monthly List
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Kanban View (Days as Columns) -->
+    <div class="p-6 [#kanban:checked~&]:block [#list:checked~&]:hidden">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6">
+        <!-- Monday -->
+        <div class="bg-gray-50 rounded-2xl p-4">
+          <h3 class="font-bold text-sm mb-3 text-gray-700">Monday, Dec 1</h3>
+          <div class="space-y-3 min-h-64">
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-blue-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Project Kickoff</h4>
+              <p class="text-xs text-gray-600">10:00 AM - 11:00 AM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tuesday -->
+        <div class="bg-gray-50 rounded-2xl p-4">
+          <h3 class="font-bold text-sm mb-3 text-gray-700">Tuesday, Dec 2</h3>
+          <div class="space-y-3 min-h-64">
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-green-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Team Sync</h4>
+              <p class="text-xs text-gray-600">9:00 AM - 10:00 AM</p>
+            </div>
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-yellow-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Client Call - Sarah</h4>
+              <p class="text-xs text-gray-600">2:00 PM - 3:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wednesday (Today) -->
+        <div class="bg-purple-50 rounded-2xl p-4 border border-purple-200">
+          <h3 class="font-bold text-sm mb-3 text-purple-700">Wednesday, Dec 3 (Today)</h3>
+          <div class="space-y-3 min-h-64">
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-red-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Follow-up Meeting</h4>
+              <p class="text-xs text-gray-600">11:00 AM - 12:00 PM</p>
+            </div>
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-blue-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Design Review</h4>
+              <p class="text-xs text-gray-600">4:00 PM - 5:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thursday -->
+        <div class="bg-gray-50 rounded-2xl p-4">
+          <h3 class="font-bold text-sm mb-3 text-gray-700">Thursday, Dec 4</h3>
+          <div class="space-y-3 min-h-64">
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-green-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Weekly Standup</h4>
+              <p class="text-xs text-gray-600">9:30 AM - 10:30 AM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Friday -->
+        <div class="bg-gray-50 rounded-2xl p-4">
+          <h3 class="font-bold text-sm mb-3 text-gray-700">Friday, Dec 5</h3>
+          <div class="space-y-3 min-h-64">
+            <div class="bg-white p-3 rounded-xl shadow hover:shadow-xl cursor-pointer border-l-4 border-orange-500 transition transform hover:-translate-y-1 card-hover">
+              <h4 class="font-bold text-gray-800 text-xs">Proposal Deadline</h4>
+              <p class="text-xs text-gray-600">All Day</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saturday -->
+        <div class="bg-gray-50 rounded-2xl p-4">
+          <h3 class="font-bold text-sm mb-3 text-gray-700">Saturday, Dec 6</h3>
+          <div class="space-y-3 min-h-64">
+            <!-- No events -->
+          </div>
+        </div>
+
+        <!-- Sunday -->
+        <div class="bg-gray-50 rounded-2xl p-4">
+          <h3 class="font-bold text-sm mb-3 text-gray-700">Sunday, Dec 7</h3>
+          <div class="space-y-3 min-h-64">
+            <!-- No events -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly List View (Table of Events) -->
+    <div class="p-6 [#list:checked~&]:block hidden">
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-purple-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Event</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Time</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Related To</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 1</td>
+              <td class="px-6 py-4 text-sm font-medium">Project Kickoff</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">10:00 AM - 11:00 AM</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Website Project</td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 2 (Today)</td>
+              <td class="px-6 py-4 text-sm font-medium">Team Sync</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9:00 AM - 10:00 AM</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Internal</td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Scheduled</span>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 2 (Today)</td>
+              <td class="px-6 py-4 text-sm font-medium">Client Call - Sarah</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2:00 PM - 3:00 PM</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Sarah Connor</td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Upcoming</span>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dec 3</td>
+              <td class="px-6 py-4 text-sm font-medium">Follow-up Meeting</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">11:00 AM - 12:00 PM</td>
+              <td class="px-6 py-4 text-sm text-gray-900">Project Team</td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Pending</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- New Event Modal -->
+    <div class="fixed inset-0 bg-black bg-opacity-60 z-50 items-center justify-center hidden [#open-modal:checked~&]:flex">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl mx-6">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-8 rounded-t-3xl flex justify-between items-center">
+          <h2 class="text-3xl font-bold">New Calendar Event</h2>
+          <label for="close-modal" class="text-5xl cursor-pointer hover:opacity-80">&times;</label>
+        </div>
+        <div class="p-10 space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <input type="date" class="px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none" value="2025-12-03">
+            <input type="time" class="px-6 py-4 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none" value="10:00">
+            <input type="text" placeholder="Event Title" class="px-6 py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <select class="px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+              <option>Meeting</option>
+              <option>Activity</option>
+              <option>Deadline</option>
+            </select>
+            <input type="text" placeholder="Related To (e.g., Client Name)" class="px-6 py-4 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <textarea rows="3" placeholder="Description..." class="col-span-2 w-full px-6 py-5 border-2 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end gap-6 p-8 bg-gray-50 rounded-b-3xl">
+          <label for="close-modal" class="px-12 py-4 border-2 border-gray-400 rounded-xl font-bold text-gray-700 hover:bg-gray-100 cursor-pointer">Cancel</label>
+          <button class="px-16 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl">Save Event</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Smooth interactions
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-active'));
+        item.classList.add('nav-active');
+      });
+    });
+
+    // Close sidebar on mobile when tapping overlay
+    const overlay = document.querySelector('.peer-checked\\:hidden');
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        document.getElementById('sidebar-toggle').checked = false;
+      });
+    }
+  </script>
+
+</body>
+</html>
