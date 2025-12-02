@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeFlow Pro - Timesheets</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-purple: #8b5cf6;
+      --purple-50: #f5f3ff;
+      --purple-100: #ede9fe;
+      --purple-600: #9333ea;
+      --purple-700: #7c3aed;
+      --purple-900: #581c87;
+    }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .sidebar-collapsed { transform: translateX(-100%); }
+    .nav-item { transition: all 0.2s ease; }
+    .nav-item:hover { transform: translateX(4px); }
+    .nav-active { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border-left: 3px solid #fbbf24; }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .running { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); } 50% { opacity: 0.9; box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); } }
+    .fade-in { animation: fadeIn 0.5s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .breadcrumb { @apply text-sm text-gray-500; }
+    .breadcrumb a { @apply text-purple-600 hover:text-purple-700 font-medium transition; }
+    .breadcrumb .separator { @apply mx-2 text-gray-400; }
+    /* Mobile Table Card View */
+    @media (max-width: 640px) {
+      .mobile-card { display: block; }
+      .desktop-table { display: none; }
+    }
+    @media (min-width: 641px) {
+      .mobile-card { display: none; }
+      .desktop-table { display: table; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex overflow-hidden">
+
+  <!-- Sidebar Toggle -->
+  <input type="checkbox" id="sidebar-toggle" class="hidden peer">
+
+  <!-- Sidebar -->
+  <aside class="sidebar w-64 bg-gradient-to-b from-purple-900 via-purple-800 to-purple-900 text-white fixed h-full z-40 shadow-2xl flex flex-col peer-checked:sidebar-collapsed lg:translate-x-0">
+    <!-- Logo -->
+    <div class="p-6 border-b border-purple-800 flex items-center gap-3">
+      <i class="fas fa-clock text-3xl text-yellow-400"></i>
+      <h1 class="text-xl font-bold tracking-tight">TimeFlow Pro</h1>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-1 mt-6 overflow-y-auto">
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-chart-line text-lg"></i>
+        <span class="font-medium">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-folder-open text-lg"></i>
+        <span class="font-medium">Projects</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-tasks text-lg"></i>
+        <span class="font-medium">Tasks</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200 nav-active">
+        <i class="fas fa-calendar-alt text-lg"></i>
+        <span class="font-medium">Calendar</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+        <i class="fas fa-users text-lg"></i>
+        <span class="font-medium">Employees</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-white bg-purple-700/50 border-l-4 border-purple-400 font-semibold">
+        <i class="fas fa-clock text-lg"></i>
+        <span class="font-semibold">Timesheets</span>
+      </a>
+      <div class="mt-8 pt-4 border-t border-purple-800">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+          <i class="fas fa-chart-bar text-lg"></i>
+          <span class="font-medium">Reports</span>
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-lg text-purple-200">
+          <i class="fas fa-cog text-lg"></i>
+          <span class="font-medium">Settings</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- User Profile -->
+    <div class="p-4 border-t border-purple-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+          JD
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-white truncate">John Doe</p>
+          <p class="text-xs text-purple-300">Administrator</p>
+        </div>
+        <i class="fas fa-chevron-down text-purple-300 cursor-pointer"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden peer-checked:hidden"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 ml-0 lg:ml-64 transition-all duration-300 overflow-auto">
+    
+    <!-- Mobile Sidebar Toggle -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+      <label for="sidebar-toggle" class="bg-white p-3 rounded-full shadow-lg cursor-pointer hover:bg-gray-50">
+        <i class="fas fa-bars text-purple-600"></i>
+      </label>
+    </div>
+
+    <!-- Hidden Inputs for States -->
+    <input type="radio" name="view" id="list" class="hidden" checked>
+    <input type="radio" name="modal" id="open-modal" class="hidden">
+    <input type="radio" name="modal" id="close-modal" class="hidden" checked>
+    <input type="radio" name="c1" id="c1-stopped" class="hidden" checked>
+    <input type="radio" name="c1" id="c1-running" class="hidden">
+
+    <!-- Header with Breadcrumb -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center space-x-2 mb-4 breadcrumb hidden sm:flex" aria-label="Breadcrumb">
+          <a href="#" class="flex items-center gap-1">
+            <i class="fas fa-home text-gray-400"></i>
+            <span>Dashboard</span>
+          </a>
+          <span class="separator">/</span>
+          <a href="#" class="flex items-center gap-1">
+            <i class="fas fa-clock text-purple-600"></i>
+            <span>Timesheets</span>
+          </a>
+        </nav>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3 flex-1">
+            <i class="fas fa-clock text-2xl text-purple-600"></i>
+            <h1 class="text-2xl font-bold text-gray-900">Timesheets</h1>
+          </div>
+          <div class="flex items-center gap-4">
+            <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+              <i class="fas fa-download mr-1"></i> Export
+            </button>
+            <label for="open-modal" class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl cursor-pointer flex items-center gap-2 transition transform hover:scale-105">
+              <i class="fas fa-plus"></i> New Entry
+            </label>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Search & Filters -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div class="flex-1 max-w-md w-full">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              <input type="text" placeholder="Search timesheets..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+            </div>
+          </div>
+          <div class="flex items-center gap-3 flex-wrap w-full lg:w-auto">
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <input type="date" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <span class="text-sm text-gray-500 hidden sm:inline">to</span>
+              <input type="date" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            <select class="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full lg:w-auto">
+              <option>All Employees</option>
+              <option>John Doe</option>
+              <option>Sarah Connor</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card-hover">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">This Week</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1">41.5h</p>
+            </div>
+            <i class="fas fa-calendar-week text-3xl text-purple-500"></i>
+          </div>
+          <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-purple-500 h-2 rounded-full" style="width: 78%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">78% of 53h goal</p>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card-hover">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Overtime</p>
+              <p class="text-3xl font-bold text-red-600 mt-1">+4.5h</p>
+            </div>
+            <i class="fas fa-clock text-3xl text-red-500"></i>
+          </div>
+          <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-red-500 h-2 rounded-full" style="width: 45%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Alert: Review allocation</p>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card-hover">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">December Total</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1">168h</p>
+            </div>
+            <i class="fas fa-calendar text-3xl text-indigo-500"></i>
+          </div>
+          <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-indigo-500 h-2 rounded-full" style="width: 92%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">92% of 183h target</p>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 card-hover">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">On Time</p>
+              <p class="text-3xl font-bold text-green-600 mt-1">98%</p>
+            </div>
+            <i class="fas fa-check-circle text-3xl text-green-500"></i>
+          </div>
+          <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full" style="width: 98%"></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Excellent performance</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 fade-in">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        
+        <!-- Desktop Table -->
+        <div class="desktop-table overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee</th>
+                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Project / Task</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Time Range</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Hours</th>
+                <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Overtime</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr class="bg-purple-50 running hover:bg-purple-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-800">
+                  <div>December 2, 2025</div>
+                  <div class="text-xs text-purple-600">Today</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold text-sm mr-3">JD</div>
+                    <div>John Doe</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <div class="font-medium">Payment Gateway</div>
+                  <div class="text-sm text-gray-500">Backend Integration</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <i class="fas fa-play mr-1"></i> Running
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">08:30 AM → Live</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-purple-600 text-center">9.5h</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="text-red-600 font-semibold">+1.5h</span>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">December 1, 2025</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm mr-3">JD</div>
+                    John Doe
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <div class="font-medium">Client Portal v2</div>
+                  <div class="text-sm text-gray-500">UI/UX Refinement</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-check mr-1"></i> Completed
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">09:00 AM – 05:30 PM</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600 text-center">8.5h</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-gray-500">—</td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">November 30, 2025</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-semibold text-sm mr-3">SC</div>
+                    Sarah Connor
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  <div class="font-medium">Mobile App Testing</div>
+                  <div class="text-sm text-gray-500">QA & Bug Fixes</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-check mr-1"></i> Completed
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10:00 AM – 06:30 PM</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600 text-center">8.5h</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-gray-500">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-card space-y-4 px-4 py-6">
+          <div class="bg-purple-50 running p-4 rounded-xl border border-purple-200">
+            <div class="flex justify-between items-start mb-2">
+              <div class="font-medium text-purple-800">December 2, 2025 <span class="text-xs block text-purple-600">Today</span></div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <i class="fas fa-play mr-1"></i> Running
+              </span>
+            </div>
+            <div class="flex items-center mb-2">
+              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold text-sm mr-3 flex-shrink-0">JD</div>
+              <div class="font-medium">John Doe</div>
+            </div>
+            <div class="mb-2">
+              <div class="font-medium">Payment Gateway</div>
+              <div class="text-sm text-gray-500">Backend Integration</div>
+            </div>
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <span>08:30 AM → Live</span>
+              <span class="text-purple-600 font-semibold">9.5h</span>
+              <span class="text-red-600 font-semibold">+1.5h</span>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+            <div class="flex justify-between items-start mb-2">
+              <div class="font-medium text-gray-900">December 1, 2025</div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <i class="fas fa-check mr-1"></i> Completed
+              </span>
+            </div>
+            <div class="flex items-center mb-2">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm mr-3 flex-shrink-0">JD</div>
+              <div class="font-medium">John Doe</div>
+            </div>
+            <div class="mb-2">
+              <div class="font-medium">Client Portal v2</div>
+              <div class="text-sm text-gray-500">UI/UX Refinement</div>
+            </div>
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <span>09:00 AM – 05:30 PM</span>
+              <span class="text-green-600 font-semibold">8.5h</span>
+              <span>—</span>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+            <div class="flex justify-between items-start mb-2">
+              <div class="font-medium text-gray-900">November 30, 2025</div>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <i class="fas fa-check mr-1"></i> Completed
+              </span>
+            </div>
+            <div class="flex items-center mb-2">
+              <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-semibold text-sm mr-3 flex-shrink-0">SC</div>
+              <div class="font-medium">Sarah Connor</div>
+            </div>
+            <div class="mb-2">
+              <div class="font-medium">Mobile App Testing</div>
+              <div class="text-sm text-gray-500">QA & Bug Fixes</div>
+            </div>
+            <div class="flex justify-between items-center text-sm text-gray-500">
+              <span>10:00 AM – 06:30 PM</span>
+              <span class="text-green-600 font-semibold">8.5h</span>
+              <span>—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-4 sm:px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex flex-1 justify-between sm:hidden">
+              <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</button>
+              <button class="relative ml-3 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</button>
+            </div>
+            <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700">Showing <span class="font-medium">1</span> to <span class="font-medium">3</span> of <span class="font-medium">12</span> results</p>
+              </div>
+              <div>
+                <nav class="isolate z-1 inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                  <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                    <span class="sr-only">Previous</span>
+                    <i class="fas fa-chevron-left"></i>
+                  </a>
+                  <!-- Current: "This is the first" -->
+                  <a href="#" aria-current="page" class="relative z-10 inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600 focus:z-20 focus:outline-offset-0">1</a>
+                  <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 z-0">2</span>
+                  <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 z-0">...</span>
+                  <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 z-0">10</span>
+                  <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                    <span class="sr-only">Next</span>
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Entry Modal -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4 [#open-modal:checked~&]:flex">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 rounded-t-2xl">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold">New Timesheet Entry</h2>
+            <label for="close-modal" class="text-3xl cursor-pointer hover:opacity-75">&times;</label>
+          </div>
+        </div>
+        <div class="p-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <input type="date" value="2025-12-02" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Employee</label>
+              <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                <option>John Doe</option>
+                <option>Sarah Connor</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Project</label>
+              <input type="text" placeholder="e.g., Payment Gateway" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Task</label>
+              <input type="text" placeholder="e.g., Backend Integration" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+              <input type="time" value="09:00" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">End Time</label>
+              <input type="time" value="17:30" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+            <textarea rows="3" placeholder="Add any additional notes..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"></textarea>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 rounded-b-2xl">
+          <label for="close-modal" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+            Cancel
+          </label>
+          <button class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg shadow-lg hover:shadow-xl transition">
+            Save Entry
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Auto-start timer simulation
+    setTimeout(() => {
+      document.getElementById('c1-running').checked = true;
+    }, 2000);
+
+    // Smooth scrolling and other interactions
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('nav-active'));
+        item.classList.add('nav-active');
+      });
+    });
+
+    // Close sidebar on mobile when tapping overlay
+    document.querySelector('.peer-checked\\:hidden').addEventListener('click', () => {
+      document.getElementById('sidebar-toggle').checked = false;
+    });
+  </script>
+
+</body>
+</html>
