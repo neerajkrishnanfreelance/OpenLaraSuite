@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-
-const Timesheets = ({ stats, timesheets, employees, currentEmployee, initialSidebarState }) => {
+import React from "react";
+import Header from "@/Components/Header";
+const Timesheets = () => {
+  return (<>
   
-  return (
-    <div className="bg-gray-50 min-h-screen flex overflow-hidden">
-
+   <Header></Header>
+    <div className="bg-gray-50 min-h-screen flex flex-col overflow-hidden">
+    
     </div>
+  </>
+   
   );
 };
 
