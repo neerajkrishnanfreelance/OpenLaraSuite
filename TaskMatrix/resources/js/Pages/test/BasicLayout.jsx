@@ -1,97 +1,187 @@
-import React, { useState } from 'react';
-// Assuming components are placed in the 'Components' directory
-import Sidebar from '@/Components/Sidebar';
-import Header from '@/Components/Header';
-import StatsCards from '@/Components/StatsCards';
-import TimesheetTable from '@/Components/TimesheetTable';
-import NewEntryModal from '@/Components/NewEntryModal';
+import React, { useState, useEffect, useCallback } from 'react';
+// Assuming these paths are correct in your project structure
+import Sidebar from '@/Layouts/Sidebar'; 
+import TopBar from '@/Layouts/TopBar';
+import SheetContainer from '@/Layouts/SheetContainer';
+import ChatterBox from '@/Layouts/Chatter';
+import ActivityScheduler from '@/Layouts/ActivityScheduler';
+import SmartButton from '@/Layouts/SmartButton';
 
-/**
- * Inertia Page Component for Timesheets.
- * Receives all data (stats, timesheets, employees) as props from the Laravel Controller.
- */
-const Timesheets = ({ stats, timesheets, employees, currentEmployee, initialSidebarState }) => {
+// --- Placeholder Components (Required by renderMainContent) ---
+const TimesheetList = () => <SheetContainer title="Timesheet List"><p className="p-4 text-gray-500">List view content...</p></SheetContainer>;
+const TimesheetKanban = () => <SheetContainer title="Timesheet Kanban"><p className="p-4 text-gray-500">Kanban board content...</p></SheetContainer>;
+// -----------------------------------------------------------
+
+const App = () => {
+
+
   
-  // UI State (kept client-side as it is purely presentation)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(initialSidebarState || false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sections, setSections] = useState([]); // Dynamic sections
+  const [activeItem, setActiveItem] = useState('timesheets'); 
+  const [searchValue, setSearchValue] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
+  const [activeView, setActiveView] = useState('List'); // Kanban or List
+
+  // Action Handlers
+  const handleCreate = useCallback(() => alert('Creating a new item!'), []);
+  const handleEdit = useCallback(() => alert('Editing selected item...'), []);
+  const handleDelete = useCallback(() => alert('Confirm deletion.'), []);
   
-  // State for the 'running' row animation (client-side simulation)
-  const [isC1Running, setIsC1Running] = useState(true); 
+  // Theme Toggle (Added for TopBar functionality)
+  const toggleDarkMode = useCallback(() => setDarkMode(prev => !prev), []);
+
+const [viewMode, setViewMode] = useState('list');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const viewOptions = [
+    { label: 'List View', value: 'list' },
+    { label: 'Grid View', value: 'grid' },
+    { label: 'Kanban', value: 'kanban' },
+  ];
+
+
+
+
+
+
+
+const handleSave = () => {
+    setIsSaving(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsSaving(false);
+      alert('Changes saved successfully!');
+    }, 1500);
+  };
+  useEffect(() => {
+    // Dynamic sections setup
+    const dynamicSections = [
+      { id: 'project', title: 'Project', items: [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+        { id: 'projects', label: 'Projects', icon: '📁' },
+        { id: 'tasks', label: 'Tasks', icon: '📝' },
+        { id: 'calendar', label: 'Calendar', icon: '📅' },
+        { id: 'employees', label: 'Employees', icon: '👥' },
+      ]},
+      { id: 'timesheets', title: 'Timesheets', items: [
+        { id: 'timesheets', label: 'Timesheets', icon: '⏱️' }
+      ]},
+      { id: 'reports', title: 'Reports', items: [
+        { id: 'reports', label: 'Reports', icon: '📈' }
+      ]},
+      { id: 'settings', title: 'Settings', items: [
+        { id: 'settings', label: 'Settings', icon: '⚙️' },
+        { id: 'logout', label: 'Logout', icon: '🚪' }
+      ]}
+    ];
+    setSections(dynamicSections);
+  }, []);
+
+  const toggleSidebar = useCallback(() => setIsSidebarOpen(prev => !prev), []);
+
+  const handleItemClick = useCallback((id) => {
+    setActiveItem(id);
+    if (window.innerWidth < 1024) setIsSidebarOpen(false);
+  }, []);
+
+  const handleSearchChange = useCallback((value) => setSearchValue(value), []);
+
+  const handleViewChange = useCallback((view) => setActiveView(view), []);
+
+
+  const renderMainContent = () => {
+    if (activeItem === 'timesheets') {
+        // Corrected the two-column layout using Tailwind Flex utilities
+      return (
+        <div className="flex p-4 gap-4 h-full">
+            {/* Left Column (Approx. 2/3 width) - Task/Sheet Data */}
+            <div className="flex-2 w-full lg:w-2/3">
+            
+                <SheetContainer
+                    title="Time Entries"
+                    onCreate={handleCreate}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                >
+                    <ul className="space-y-3">
+                        <li className="p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700">Task 1: Build Sidebar</li>
+                        <li className="p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700">Task 2: Finish TopBar</li>
+                        <li className="p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700">Task 3: Integrate SheetContainer</li>
+                    </ul>
+                    <p className="mt-4 text-gray-500 text-sm">Showing 3 out of 10 entries.</p>
+                </SheetContainer>
+
+<ActivityScheduler></ActivityScheduler>
+
+
+                {/* Fallback views based on activeView (if needed) */}
+                {/* {activeView === 'List' ? <TimesheetList /> : <TimesheetKanban />} */}
+            </div>
+
+            {/* Right Column (Approx. 1/3 width) - Chatter/Activity */}
+            <div className="flex-1 w-full lg:w-1/3">
+                {/* Ensure ChatterBox fills the container */}
+                <ChatterBox recordId="ENTRY-345" /> 
+            </div>
+        </div>
+      );
+    }
+
+    // Default content for other menu items
+    return (
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          Content for {activeItem}
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300">Placeholder content for the {activeItem} view.</p>
+      </div>
+    );
+  };
+
 
   return (
-    <div className="bg-gray-50 min-h-screen flex overflow-hidden">
-      
-      {/* 1. Sidebar */}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        currentEmployee={currentEmployee}
+    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gray-50'}`}>
+      <TopBar 
+        onToggle={toggleSidebar} 
+        searchValue={searchValue} 
+        onSearchChange={handleSearchChange}
+        // Passed darkMode state and toggle function for the Moon/Sun icon
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
       />
-
-      {/* 2. Mobile Menu Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        ></div>
-      )}
-
-      {/* 3. Main Content Area */}
-      {/* The ml-64 class ensures the main content moves over when the sidebar is open on large screens */}
-      <main className={`flex-1 ${isSidebarOpen ? 'ml-0' : 'ml-0 lg:ml-64'} transition-all duration-300 overflow-auto`}>
-        
-        {/* Mobile Sidebar Toggle (Floating button on top-left for small screens) */}
-        <div className="lg:hidden fixed top-4 left-4 z-50">
-          <label 
-            onClick={() => setIsSidebarOpen(true)}
-            className="bg-white p-3 rounded-full shadow-lg cursor-pointer hover:bg-gray-50"
-          >
-            <i className="fas fa-bars text-purple-600"></i>
-          </label>
-        </div>
-
-        {/* Header with Breadcrumb and Actions */}
-        <Header openModal={() => setIsModalOpen(true)} />
-
-        {/* Search & Filters */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              <div className="flex-1 max-w-md w-full">
-                <div className="relative">
-                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                  <input type="text" placeholder="Search timesheets..." className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition" />
-                </div>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap w-full lg:w-auto">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <input type="date" className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                  <span className="text-sm text-gray-500 hidden sm:inline">to</span>
-                  <input type="date" className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                </div>
-                <select className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-full lg:w-auto">
-                  <option>All Employees</option>
-                  {/* Mapping employees from Inertia props */}
-                  {employees && employees.map(emp => <option key={emp.id}>{emp.name}</option>)}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Stats Cards - Receives data via props */}
-        <StatsCards statsData={stats} />
-
-        {/* List View (Table) - Receives data via props */}
-        <TimesheetTable timesheetData={timesheets} isC1Running={isC1Running} />
-
-        {/* New Entry Modal - Uses UI state and receives data for form options */}
-        {/* <NewEntryModal isOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} employees={employees} /> */}
-
-      </main>
+    
+      <div className="flex">
+        <Sidebar 
+          isOpen={isSidebarOpen} 
+          onToggle={toggleSidebar}
+          sections={sections}
+          activeItem={activeItem}
+          onItemClick={handleItemClick}
+        />
+        <SmartButton 
+          onClick={handleSave} 
+          loading={isSaving} 
+          color="success"
+        >
+          Save Changes
+        </SmartButton>
+        <SmartButton color="danger" onClick={() => alert('Deleting...')}>
+          Delete Item
+        </SmartButton>
+        <SmartButton color="secondary" disabled>
+          Disabled Action
+        </SmartButton>
+        {/* Main Content Area */}
+        <main 
+          className={`flex-1 transition-all duration-300 overflow-y-auto ${isSidebarOpen ? 'lg:pl-64' : ''} pt-[60px]`}
+        >
+            {/* Render the content based on the active sidebar item */}
+            {renderMainContent()}
+        </main>
+      </div>
     </div>
   );
 };
 
-export default Timesheets;
+export default App;
