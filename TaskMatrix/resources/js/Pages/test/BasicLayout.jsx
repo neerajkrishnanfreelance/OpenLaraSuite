@@ -5,7 +5,7 @@ import TopBar from '@/Layouts/TopBar';
 import SheetContainer from '@/Layouts/SheetContainer';
 import ChatterBox from '@/Layouts/Chatter';
 import ActivityScheduler from '@/Layouts/ActivityScheduler';
-import SmartButton from '@/Layouts/SmartButton';
+import  ButtonBar from '@/Layouts/SmartButton';
 
 // --- Placeholder Components (Required by renderMainContent) ---
 const TimesheetList = () => <SheetContainer title="Timesheet List"><p className="p-4 text-gray-500">List view content...</p></SheetContainer>;
@@ -42,7 +42,7 @@ const [viewMode, setViewMode] = useState('list');
 
 
 
-
+  // 2. SMART LOGIC/SIDE EFFECTS: Function to handle the change and perform an action (e.g., fetching data).
 
 
 
@@ -87,7 +87,7 @@ const handleSave = () => {
 
   const handleSearchChange = useCallback((value) => setSearchValue(value), []);
 
-  const handleViewChange = useCallback((view) => setActiveView(view), []);
+  const handleViewChange = useCallback((view) => alert(view), []);
 
 
   const renderMainContent = () => {
@@ -97,7 +97,6 @@ const handleSave = () => {
         <div className="flex p-4 gap-4 h-full">
             {/* Left Column (Approx. 2/3 width) - Task/Sheet Data */}
             <div className="flex-2 w-full lg:w-2/3">
-            
                 <SheetContainer
                     title="Time Entries"
                     onCreate={handleCreate}
@@ -159,23 +158,18 @@ const handleSave = () => {
           activeItem={activeItem}
           onItemClick={handleItemClick}
         />
-        <SmartButton 
-          onClick={handleSave} 
-          loading={isSaving} 
-          color="success"
-        >
-          Save Changes
-        </SmartButton>
-        <SmartButton color="danger" onClick={() => alert('Deleting...')}>
-          Delete Item
-        </SmartButton>
-        <SmartButton color="secondary" disabled>
-          Disabled Action
-        </SmartButton>
-        {/* Main Content Area */}
+ 
         <main 
+        
           className={`flex-1 transition-all duration-300 overflow-y-auto ${isSidebarOpen ? 'lg:pl-64' : ''} pt-[60px]`}
         >
+<ButtonBar 
+        options={viewOptions}
+        activeOption={viewMode} // Passes the current state down
+        onChange={handleViewChange} // Passes the "smart" handler down
+      />    
+
+
             {/* Render the content based on the active sidebar item */}
             {renderMainContent()}
         </main>
