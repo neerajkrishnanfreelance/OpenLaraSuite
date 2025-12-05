@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 
 // --- Icons (Using Heroicons style for clarity) ---
 const ClockIcon = (props) => (
@@ -10,7 +11,7 @@ const ArrowLeftIcon = (props) => (
 const ArrowRightIcon = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
 );
-const PlusIcon = (props) => ( // Added Plus Icon for Create Button
+const PlusIcon = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
   </svg>
@@ -25,22 +26,69 @@ const DUMMY_ACTIVITIES = [
 ];
 
 // --- Helper Functions ---
-
-const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric',
-    });
+const formatDate = (dateString, options = {}) => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    ...options,
+  }).format(new Date(dateString));
 };
 
 const formatTime = (dateString) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-        hour: '2-digit', minute: '2-digit', hour12: true
-    });
+  return new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date(dateString));
 };
 
-const ActivitySchedule = ({ activities = DUMMY_ACTIVITIES }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState('Day'); // Simplified to Day/Week for navigation
+const ActivityItem = React.memo(({ activity, onClick }) => (
+  <li 
+    role="button"
+    tabIndex={0}
+    className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-100 transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 cursor-pointer"
+    onClick={() => onClick(activity)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onClick(activity);
+      }
+    }}
+  >
+    {/* Color Bar */}
+    <div className={`w-2 h-10 ${activity.color} rounded-full flex-shrink-0`} aria-hidden="true"></div>
+    
+    <div className="flex-1 min-w-0">
+      <p className="text-base font-medium text-gray-800 truncate" title={activity.title}>
+        {activity.title}
+      </p>
+      <p className="flex items-center text-sm text-gray-500 mt-0.5">
+        <ClockIcon className="w-4 h-4 mr-1 text-gray-400 flex-shrink-0" aria-hidden="true" />
+        <span aria-label={`From ${formatTime(activity.start)} to ${formatTime(activity.end)}`}>
+          {formatTime(activity.start)} - {formatTime(activity.end)}
+        </span>
+      </p>
+    </div>
+  </li>
+));
+
+ActivityItem.propTypes = {
+  activity: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    start: PropTypes.string.isRequired,
+    end: PropTypes.string.isRequired,
+    color: PropTypes.string.isRequired,
+  }).isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
+ActivityItem.displayName = 'ActivityItem';
+
+const ActivitySchedule = React.memo(({ activities = DUMMY_ACTIVITIES, onActivityClick, onCreateNew }) => {
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [view, setView] = useState('Day');
 
   // --- Grouping and Sorting Logic ---
   const groupedActivities = useMemo(() => {
@@ -49,187 +97,241 @@ const ActivitySchedule = ({ activities = DUMMY_ACTIVITIES }) => {
 
     // 2. Group activities by date
     const groups = sorted.reduce((acc, activity) => {
-        const dateKey = formatDate(activity.start);
-        if (!acc[dateKey]) {
-            acc[dateKey] = [];
-        }
-        acc[dateKey].push(activity);
-        return acc;
+      const dateKey = formatDate(activity.start);
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(activity);
+      return acc;
     }, {});
     
-    // 3. Convert object to array for easy rendering
-    return Object.keys(groups).map(date => ({
-        date: date,
-        activities: groups[date]
-    }));
+    // 3. Convert object to array for easy rendering, sorted by date
+    return Object.keys(groups)
+      .sort()
+      .map(date => ({
+        date,
+        activities: groups[date],
+      }));
   }, [activities]);
 
-  // --- Navigation Controls (Now only shifts the focused date for filtering) ---
-  const handleNext = useCallback(() => setCurrentDate(prev => {
+  // --- Navigation Controls ---
+  const handleNext = useCallback(() => {
+    setCurrentDate(prev => {
       const nextDate = new Date(prev);
       const step = view === 'Day' ? 1 : 7;
       nextDate.setDate(prev.getDate() + step);
       return nextDate;
-  }), [view]);
+    });
+  }, [view]);
 
-  const handlePrev = useCallback(() => setCurrentDate(prev => {
+  const handlePrev = useCallback(() => {
+    setCurrentDate(prev => {
       const prevDate = new Date(prev);
       const step = view === 'Day' ? 1 : 7;
       prevDate.setDate(prev.getDate() - step);
       return prevDate;
-  }), [view]);
-  
-  // Filter activities based on the current date/view (simple date comparison)
+    });
+  }, [view]);
+
+  // --- Filter Logic ---
   const filteredActivities = useMemo(() => {
-      // For simplicity, we'll only show activities that match the current date's grouping.
-      const currentFormattedDate = formatDate(currentDate);
-      
-      return groupedActivities.filter(group => {
-          if (view === 'Day') {
-              return group.date === currentFormattedDate;
-          }
-          // For 'Week' view, show all activities
-          return true;
-      });
+    const currentFormattedDate = formatDate(currentDate);
+
+    if (view === 'Day') {
+      const dayGroup = groupedActivities.find(group => group.date === currentFormattedDate);
+      return dayGroup ? [dayGroup] : [];
+    }
+
+    // For Week view: Filter to activities within the current week
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Assuming week starts on Sunday
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    return groupedActivities.filter(group => {
+      const groupDate = new Date(group.date);
+      return groupDate >= startOfWeek && groupDate <= endOfWeek;
+    });
   }, [groupedActivities, currentDate, view]);
 
   // --- Create New Handler ---
-  const handleCreateNew = () => {
-    alert("Opening modal to create a new activity!");
-  };
+  const handleCreateNewInternal = useCallback(() => {
+    onCreateNew?.();
+  }, [onCreateNew]);
+
+  // --- Activity Click Handler ---
+  const handleActivityClick = useCallback((activity) => {
+    onActivityClick?.(activity);
+  }, [onActivityClick]);
+
+  // --- Header Title ---
+  const headerTitle = useMemo(() => {
+    if (view === 'Day') {
+      return currentDate.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    // For Week: Show week range
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    return `${formatDate(startOfWeek, { month: 'short', day: 'numeric' })} - ${formatDate(endOfWeek, { month: 'short', day: 'numeric' })}`;
+  }, [currentDate, view]);
+
+  // --- Empty State ---
+  const renderEmptyState = () => (
+    <div className="flex flex-col items-center justify-center p-10 text-center text-gray-500">
+      <ClockIcon className="w-12 h-12 text-gray-300 mb-4" aria-hidden="true" />
+      <h3 className="text-lg font-medium text-gray-600 mb-2">
+        {view === 'Day' ? 'No activities scheduled' : 'No activities this week'}
+      </h3>
+      <p className="text-sm text-gray-400">
+        {view === 'Day' ? `for ${headerTitle.toLowerCase()}.` : 'Get started by creating a new activity.'}
+      </p>
+    </div>
+  );
 
   // --- Rendering the List View ---
   const renderListView = () => {
-    if (filteredActivities.length === 0 && view === 'Day') {
-        return (
-            <div className="p-10 text-center text-gray-500 italic">
-                No scheduled activities for this day.
-            </div>
-        );
+    if (filteredActivities.length === 0) {
+      return renderEmptyState();
     }
-    if (groupedActivities.length === 0 && view === 'Week') {
-        return (
-            <div className="p-10 text-center text-gray-500 italic">
-                No scheduled activities found.
-            </div>
-        );
-    }
-
-    // Use groupedActivities for Week view, and filteredActivities for Day view
-    const activitiesToRender = view === 'Day' ? filteredActivities : groupedActivities;
 
     return (
-      <div className="space-y-6">
-        {activitiesToRender.map(dayGroup => (
-          <div key={dayGroup.date}>
+      <div className="space-y-6" role="list">
+        {filteredActivities.map(dayGroup => (
+          <section key={dayGroup.date} aria-labelledby={`date-${dayGroup.date}`}>
             {/* Date Separator */}
-            <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-4 sticky top-0 bg-white z-10">
+            <h3 
+              id={`date-${dayGroup.date}`}
+              className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-1 mb-4 sticky top-0 bg-white z-10"
+            >
               {dayGroup.date}
             </h3>
             
             {/* Activities for the Day */}
-            <ul className="space-y-4">
+            <ul className="space-y-4" role="list">
               {dayGroup.activities.map(activity => (
-                <li 
+                <ActivityItem 
                   key={activity.id} 
-                  className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-100 transition-shadow hover:shadow-md cursor-pointer"
-                  onClick={() => alert(`Details for: ${activity.title}`)}
-                >
-                  {/* Color Dot/Bar */}
-                  <div className={`w-2 h-10 ${activity.color} rounded-full flex-shrink-0`}></div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <p className="text-base font-medium text-gray-800 truncate">{activity.title}</p>
-                    <p className="flex items-center text-sm text-gray-500 mt-0.5">
-                        <ClockIcon className="w-4 h-4 mr-1 text-gray-400" />
-                        <span>{formatTime(activity.start)} - {formatTime(activity.end)}</span>
-                    </p>
-                  </div>
-                </li>
+                  activity={activity}
+                  onClick={handleActivityClick}
+                />
               ))}
             </ul>
-          </div>
+          </section>
         ))}
       </div>
     );
   };
-  
-  const headerTitle = useMemo(() => {
-    if (view === 'Day') {
-        return currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    }
-    return `Scheduled Activities`;
-  }, [currentDate, view]);
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl border border-gray-100 m-4 lg:m-8 flex flex-col h-[80vh] min-h-[600px]">
+    <div 
+      className="bg-white rounded-xl shadow-xl border border-gray-200 mt-4 lg:m-8 flex flex-col min-h-[600px] overflow-hidden"
+      role="main"
+      aria-label="Activity Schedule"
+    >
       
       {/* 1. Header Bar (Top Row) */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-        <h2 className="text-2xl font-bold text-gray-800">Activity Schedule</h2>
+      <header className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+        <h1 className="text-2xl font-bold text-gray-900">Activity Schedule</h1>
         
         {/* Create New Button */}
         <button
-            onClick={handleCreateNew}
-            className="flex items-center space-x-1 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-md"
+          type="button"
+          onClick={handleCreateNewInternal}
+          className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 shadow-sm"
+          aria-label="Create a new activity"
         >
-            <PlusIcon className="w-5 h-5" />
-            <span>Create New</span>
+          <PlusIcon className="w-4 h-4" />
+          <span>Create New</span>
         </button>
-      </div>
+      </header>
       
       {/* 2. Secondary Bar (Navigation and View Selectors) */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center space-x-4">
-            {/* View Selectors */}
-            <div className="inline-flex rounded-md shadow-sm" role="group">
-                {['Day', 'Week'].map(v => (
-                    <button
-                        key={v}
-                        onClick={() => setView(v)}
-                        className={`px-3 py-1.5 text-sm font-medium border transition-colors 
-                            ${v === view ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}
-                            ${v === 'Day' ? 'rounded-l-lg' : ''}
-                            ${v === 'Week' ? 'rounded-r-lg' : ''}
-                        `}
-                    >
-                        {v}
-                    </button>
-                ))}
-            </div>
-            {/* Current Date Title */}
-            <span className="text-lg font-medium text-gray-700 hidden sm:block">
-              {headerTitle}
-            </span>
+          {/* View Selectors */}
+          <div className="inline-flex rounded-md shadow-sm" role="radiogroup" aria-label="View selector">
+            {['Day', 'Week'].map(v => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                className={`px-4 py-2 text-sm font-medium border transition-colors duration-200 
+                  ${v === view 
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
+                  }
+                  ${v === 'Day' ? 'rounded-l-md' : 'rounded-r-md'}
+                `}
+                aria-checked={v === view}
+                role="radio"
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+          
+          {/* Current Date Title */}
+          <span className="text-lg font-medium text-gray-700 hidden sm:block" aria-live="polite">
+            {headerTitle}
+          </span>
         </div>
-        
 
         {/* Navigation Buttons */}
-        <div className="flex space-x-1">
-            <button
-                onClick={handlePrev}
-                className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
-                title="Previous Period"
-            >
-                <ArrowLeftIcon className="w-5 h-5" />
-            </button>
-            <button
-                onClick={handleNext}
-                className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
-                title="Next Period"
-            >
-                <ArrowRightIcon className="w-5 h-5" />
-            </button>
+        <div className="flex space-x-1" role="group" aria-label="Navigation">
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-full transition-colors duration-200"
+            aria-label="Previous period"
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            className="p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-full transition-colors duration-200"
+            aria-label="Next period"
+          >
+            <ArrowRightIcon className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
-      {/* 3. Content Area - Simple scrollable list */}
-      <div className="flex-1 overflow-y-auto p-4">
+      {/* 3. Content Area - Scrollable list */}
+      <div className="flex-1 overflow-y-auto p-4" role="region" aria-label="Activities list">
         {renderListView()}
       </div>
       
     </div>
   );
+});
+
+ActivitySchedule.displayName = 'ActivitySchedule';
+
+ActivitySchedule.propTypes = {
+  activities: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      start: PropTypes.string.isRequired,
+      end: PropTypes.string.isRequired,
+      color: PropTypes.string.isRequired,
+    })
+  ),
+  onActivityClick: PropTypes.func,
+  onCreateNew: PropTypes.func,
+};
+
+ActivitySchedule.defaultProps = {
+  activities: [],
+  onActivityClick: null,
+  onCreateNew: null,
 };
 
 export default ActivitySchedule;

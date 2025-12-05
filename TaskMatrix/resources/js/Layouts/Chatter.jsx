@@ -95,7 +95,7 @@ const ChatterBox = ({ recordId = 'TASK-101' }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100/80 w-full max-w-xl mx-auto my-6 flex flex-col h-full">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100/80 w-full max-w-xl mx-auto  flex flex-col">
       
       {/* --- 1. Comment/Post Box (Always Visible) --- */}
       <div className="p-4 border-b border-gray-100 bg-gray-50/50">
