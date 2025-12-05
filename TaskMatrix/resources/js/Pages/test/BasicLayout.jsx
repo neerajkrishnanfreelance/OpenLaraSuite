@@ -6,14 +6,38 @@ import SheetContainer from '@/Layouts/SheetContainer';
 import ChatterBox from '@/Layouts/Chatter';
 import ActivityScheduler from '@/Layouts/ActivityScheduler';
 import  ButtonBar from '@/Layouts/SmartButton';
+import  StatusBar from '@/Layouts/StatusBar';
+
 
 // --- Placeholder Components (Required by renderMainContent) ---
 const TimesheetList = () => <SheetContainer title="Timesheet List"><p className="p-4 text-gray-500">List view content...</p></SheetContainer>;
 const TimesheetKanban = () => <SheetContainer title="Timesheet Kanban"><p className="p-4 text-gray-500">Kanban board content...</p></SheetContainer>;
 // -----------------------------------------------------------
 
+
+
+
+
+
+const demoSteps = [
+  "Account Creation",
+  "Profile Details & Bio",
+  "Upload Documents & Verification",
+  "Review & Finalize",
+  "Process Complete"
+];
+
+
+
+
+
+
+
+
+
 const App = () => {
 
+  const [currentStep, setCurrentStep] = useState(0);
 
   
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -45,7 +69,10 @@ const [viewMode, setViewMode] = useState('list');
   // 2. SMART LOGIC/SIDE EFFECTS: Function to handle the change and perform an action (e.g., fetching data).
 
 
-
+ const handleReboot = () => {
+        alert('Simulating system reboot...');
+        console.log('System reboot initiated.');
+    };
 const handleSave = () => {
     setIsSaving(true);
     // Simulate API call
@@ -163,11 +190,17 @@ const handleSave = () => {
         
           className={`flex-1 transition-all duration-300 overflow-y-auto ${isSidebarOpen ? 'lg:pl-64' : ''} pt-[60px]`}
         >
-<ButtonBar 
+  <ButtonBar 
         options={viewOptions}
         activeOption={viewMode} // Passes the current state down
         onChange={handleViewChange} // Passes the "smart" handler down
-      />    
+    />
+    <br></br>    
+      <div className='p-4 m-2'>
+     <StatusBar steps={demoSteps} currentStep={currentStep} />
+      </div>
+         
+
 
 
             {/* Render the content based on the active sidebar item */}
