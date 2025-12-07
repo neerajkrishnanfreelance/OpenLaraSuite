@@ -9,6 +9,7 @@ import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import StatusBadge from '@/Components/StatusBadge';
+import TimerWidget from '@/Components/TimerWidget';
 
 const locales = {
     'en-US': enUS,
@@ -22,7 +23,7 @@ const localizer = dateFnsLocalizer({
     locales,
 });
 
-export default function Dashboard({ auth, stats, charts, todays_tasks, calendar_events }) {
+export default function Dashboard({ auth, stats, charts, todays_tasks, calendar_events, tasks, users }) {
     const COLORS = ['#9333ea', '#10b981', '#f59e0b', '#ef4444']; // Purple, Emerald, Amber, Red
 
     const taskData = charts.task_status.map(item => ({
@@ -141,6 +142,13 @@ export default function Dashboard({ auth, stats, charts, todays_tasks, calendar_
 
                 {/* Sidebar Column (1/3) */}
                 <div className="space-y-8">
+                    {/* Timer Widget */}
+                    <TimerWidget
+                        tasks={tasks || []}
+                        users={users || []}
+                        currentUser={auth.user}
+                    />
+
                     {/* Today's Tasks */}
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-96 overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">

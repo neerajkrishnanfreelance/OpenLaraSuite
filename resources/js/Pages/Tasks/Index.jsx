@@ -4,6 +4,7 @@ import DataTable from '@/Components/DataTable';
 import StatusBadge from '@/Components/StatusBadge';
 import PriorityLabel from '@/Components/PriorityLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
+import ClickableLink from '@/Components/ClickableLink';
 import { useState } from 'react';
 
 export default function Index({ auth, tasks, projects, users, filters }) {
@@ -21,20 +22,21 @@ export default function Index({ auth, tasks, projects, users, filters }) {
     };
 
     const columns = [
-        { key: 'title', label: 'Title', render: (item) => <Link href={route('tasks.edit', item.id)} className="font-semibold text-indigo-600 hover:underline">{item.title}</Link> },
-        { key: 'project', label: 'Project', render: (item) => item.project?.name || '-' },
-        { key: 'assigned_to', label: 'Assigned To', render: (item) => item.assigned_user?.name || 'Unassigned' },
+        { key: 'title', label: 'Title', render: (item) => <ClickableLink routeName="tasks.show" params={item.id}>{item.title}</ClickableLink> },
+        { key: 'project', label: 'Project', render: (item) => item.project ? <ClickableLink routeName="projects.show" params={item.project.id}>{item.project.name}</ClickableLink> : '-' },
+        { key: 'assigned_to', label: 'Assigned To', render: (item) => item.assigned_user ? <ClickableLink routeName="employees.show" params={item.assigned_user.id}>{item.assigned_user.name}</ClickableLink> : 'Unassigned' },
         { key: 'priority', label: 'Priority', render: (item) => <PriorityLabel priority={item.priority} /> },
         { key: 'status', label: 'Status', render: (item) => <StatusBadge status={item.status} /> },
         { key: 'due_date', label: 'Due Date', render: (item) => item.due_date ? new Date(item.due_date).toLocaleDateString() : '-' },
     ];
 
     const actions = (item) => (
-        <div className="flex space-x-2">
+        <div className="flex space-x-4 justify-end">
+            <Link href={route('tasks.show', item.id)} className="text-indigo-600 hover:text-indigo-900">View</Link>
             <Link href={route('tasks.edit', item.id)} className="text-gray-600 hover:text-gray-900">Edit</Link>
             <button
                 onClick={() => {
-                    if (confirm('Are you sure you want to delete this task?')) {
+                    if (confirm(`Are you sure you want to delete task "${item.title}"?`)) {
                         router.delete(route('tasks.destroy', item.id));
                     }
                 }}
@@ -125,10 +127,12 @@ export default function Index({ auth, tasks, projects, users, filters }) {
                                                     <PriorityLabel priority={task.priority} />
                                                     <span className="text-xs text-gray-400">#{task.id}</span>
                                                 </div>
-                                                <Link href={route('tasks.edit', task.id)} className="font-medium text-gray-900 hover:text-indigo-600 block mb-1">
+                                                <ClickableLink routeName="tasks.show" params={task.id} className="font-medium text-gray-900 hover:text-indigo-600 block mb-1">
                                                     {task.title}
-                                                </Link>
-                                                <div className="text-xs text-gray-500 mb-2">{task.project?.name}</div>
+                                                </ClickableLink>
+                                                <div className="text-xs text-gray-500 mb-2">
+                                                    {task.project ? <ClickableLink routeName="projects.show" params={task.project.id}>{task.project.name}</ClickableLink> : '-'}
+                                                </div>
                                                 <div className="flex justify-between items-center mt-3">
                                                     <div className="text-xs font-semibold text-gray-600">
                                                         {task.assigned_user?.name ? task.assigned_user.name.split(' ')[0] : 'Unassigned'}

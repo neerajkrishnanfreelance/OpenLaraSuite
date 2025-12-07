@@ -132,7 +132,7 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        $task->load(['chatterMessages.user', 'chatterMessages.documents', 'relatedMeetings.organizer', 'documents']);
+        $task->load(['chatterMessages.user', 'chatterMessages.documents', 'relatedMeetings.organizer', 'documents', 'timesheets.user']);
 
         return Inertia::render('Tasks/Edit', [
             'task' => $task,
@@ -141,6 +141,7 @@ class TaskController extends Controller
             'chatter_data' => $task->chatterMessages,
             'meetings_data' => $task->relatedMeetings,
             'documents' => $task->documents,
+            'timesheets_data' => $task->timesheets,
         ]);
     }
 
@@ -217,5 +218,27 @@ class TaskController extends Controller
         ]);
 
         return redirect()->back()->with('message', 'Message sent.');
+    }
+
+    public function storeTimesheet(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'date' => 'required|date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i',
+            'hours' => 'required|numeric|min:0.01|max:24',
+            'description' => 'nullable|string',
+            'is_overtime' => 'nullable|boolean',
+        ]);
+
+        $validated['project_id'] = $task->project_id;
+        $validated['task_id'] = $task->id;
+        $validated['status'] = 'pending';
+        $validated['is_overtime'] = $validated['is_overtime'] ?? false;
+
+        \App\Models\Timesheet::create($validated);
+
+        return redirect()->back()->with('message', 'Timesheet entry created successfully.');
     }
 }

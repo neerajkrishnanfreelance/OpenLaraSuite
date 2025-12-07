@@ -4,8 +4,13 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import FormHeader from '@/Components/FormHeader';
 import FormPageLayout from '@/Components/FormPageLayout';
 import TaskStepper from '@/Components/TaskStepper';
+import TimesheetEntry from '@/Components/TimesheetEntry';
+import CreateMeetingModal from '@/Components/CreateMeetingModal';
+import { useState } from 'react';
 
-export default function Edit({ auth, task, projects, users, chatter_data, meetings_data, documents }) {
+export default function Edit({ auth, task, projects, users, chatter_data, meetings_data, documents, timesheets_data }) {
+    const [showMeetingModal, setShowMeetingModal] = useState(false);
+
     const { data, setData, put, processing, errors } = useForm({
         project_id: task.project_id || '',
         assigned_to: task.assigned_to || '',
@@ -81,8 +86,26 @@ export default function Edit({ auth, task, projects, users, chatter_data, meetin
                         onDeleteDocument={handleDeleteDocument}
                         onFilesChange={handleFilesChange}
                     />
+
+                    <div className="mt-6">
+                        <TimesheetEntry
+                            task={task}
+                            timesheets={timesheets_data || []}
+                            users={users}
+                            auth={auth}
+                        />
+                    </div>
                 </FormPageLayout>
             </div>
+
+            {/* Meeting Modal */}
+            <CreateMeetingModal
+                show={showMeetingModal}
+                onClose={() => setShowMeetingModal(false)}
+                users={users}
+                relatedId={task.id}
+                relatedType="App\\Models\\Task"
+            />
         </AuthenticatedLayout>
     );
 }

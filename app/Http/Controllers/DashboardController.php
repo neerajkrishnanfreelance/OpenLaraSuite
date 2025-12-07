@@ -86,6 +86,8 @@ class DashboardController extends Controller
             ],
             'todays_tasks' => $todaysTasks,
             'calendar_events' => $meetings,
+            'tasks' => Task::with('project:id,name')->where('status', '!=', 'done')->get(),
+            'users' => \App\Models\User::select('id', 'name')->get(),
         ]);
     }
 }

@@ -1,14 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import DataTable from '@/Components/DataTable';
 import StatusBadge from '@/Components/StatusBadge';
 import PrimaryButton from '@/Components/PrimaryButton';
+import ClickableLink from '@/Components/ClickableLink';
 
 export default function Index({ auth, projects }) {
     const { flash } = usePage().props;
     console.log(flash)
     const columns = [
-        { key: 'name', label: 'Name' },
+        { key: 'name', label: 'Name', render: (item) => <ClickableLink routeName="projects.show" params={item.id}>{item.name}</ClickableLink> },
         {
             key: 'status',
             label: 'Status',
@@ -49,6 +50,16 @@ export default function Index({ auth, projects }) {
         <div className="flex space-x-4 justify-end">
             <Link href={route('projects.show', item.id)} className="text-indigo-600 hover:text-indigo-900">View</Link>
             <Link href={route('projects.edit', item.id)} className="text-gray-600 hover:text-gray-900">Edit</Link>
+            <button
+                onClick={() => {
+                    if (confirm(`Are you sure you want to delete project "${item.name}"? This will also delete all associated tasks and timesheets.`)) {
+                        router.delete(route('projects.destroy', item.id));
+                    }
+                }}
+                className="text-red-600 hover:text-red-900"
+            >
+                Delete
+            </button>
         </div>
     );
 

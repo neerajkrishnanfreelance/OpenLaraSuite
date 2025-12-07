@@ -1,12 +1,20 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import DataTable from '@/Components/DataTable';
 import StatusBadge from '@/Components/StatusBadge';
 import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
+import ClickableLink from '@/Components/ClickableLink';
+import { useState } from 'react';
 
-export default function Index({ auth, timesheets, projects }) {
+export default function Index({ auth, timesheets, projects, users, filters }) {
     const { put } = useForm();
+    const [filterData, setFilterData] = useState({
+        project_id: filters?.project_id || '',
+        user_id: filters?.user_id || '',
+        status: filters?.status || '',
+        date_from: filters?.date_from || '',
+        date_to: filters?.date_to || '',
+    });
 
     const handleAction = (id, status) => {
         if (confirm(`Are you sure you want to ${status} this timesheet?`)) {
@@ -14,14 +22,70 @@ export default function Index({ auth, timesheets, projects }) {
         }
     };
 
+    const handleFilterChange = (key, value) => {
+        const newFilters = { ...filterData, [key]: value };
+        setFilterData(newFilters);
+        router.get(route('timesheets.index'), newFilters, { preserveState: true, replace: true });
+    };
+
+    const clearFilters = () => {
+        setFilterData({
+            project_id: '',
+            user_id: '',
+            status: '',
+            date_from: '',
+            date_to: '',
+        });
+        router.get(route('timesheets.index'), {}, { preserveState: true, replace: true });
+    };
+
     const isManager = auth.user.roles.some(r => ['admin', 'manager'].includes(r.name));
 
     const columns = [
         { key: 'date', label: 'Date', render: (item) => new Date(item.date).toLocaleDateString() },
-        { key: 'user_name', label: 'Employee', render: (item) => item.user?.name },
-        { key: 'project_name', label: 'Project', render: (item) => item.project?.name },
-        { key: 'hours', label: 'Hours' },
-        { key: 'description', label: 'Description', render: (item) => <span className="text-xs truncate block max-w-xs" title={item.description}>{item.description}</span> },
+        {
+            key: 'user_name',
+            label: 'Employee',
+            render: (item) => item.user ? <ClickableLink routeName="employees.show" params={item.user.id}>{item.user.name}</ClickableLink> : '-'
+        },
+        {
+            key: 'project_name',
+            label: 'Project',
+            render: (item) => item.project ? <ClickableLink routeName="projects.show" params={item.project.id}>{item.project.name}</ClickableLink> : '-'
+        },
+        {
+            key: 'task_name',
+            label: 'Task',
+            render: (item) => item.task ? <ClickableLink routeName="tasks.show" params={item.task.id}>{item.task.title}</ClickableLink> : '-'
+        },
+        {
+            key: 'time',
+            label: 'Time',
+            render: (item) => (
+                <div className="text-sm">
+                    {item.start_time && item.end_time ? (
+                        <span className="text-gray-600">{item.start_time} - {item.end_time}</span>
+                    ) : (
+                        <span className="text-gray-400">-</span>
+                    )}
+                </div>
+            )
+        },
+        {
+            key: 'hours',
+            label: 'Hours',
+            render: (item) => (
+                <div className="flex items-center">
+                    <span className="font-medium">{item.hours}h</span>
+                    {item.is_overtime && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                            OT
+                        </span>
+                    )}
+                </div>
+            )
+        },
+        { key: 'description', label: 'Description', render: (item) => <span className="text-xs truncate block max-w-xs" title={item.description}>{item.description || '-'}</span> },
         { key: 'status', label: 'Status', render: (item) => <StatusBadge status={item.status} /> },
     ];
 
@@ -43,7 +107,16 @@ export default function Index({ auth, timesheets, projects }) {
                     </button>
                 </>
             )}
-            {/* Allow own edit if pending? Not implemented in UI to keep simple, backend allows it */}
+            <button
+                onClick={() => {
+                    if (confirm('Are you sure you want to delete this timesheet entry?')) {
+                        router.delete(route('timesheets.destroy', item.id));
+                    }
+                }}
+                className="text-red-600 hover:text-red-900 font-medium text-xs uppercase"
+            >
+                Delete
+            </button>
         </div>
     );
 
@@ -60,6 +133,73 @@ export default function Index({ auth, timesheets, projects }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {/* Filters */}
+                    <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+                        <div className="flex flex-wrap gap-4 items-end">
+                            <div className="flex-1 min-w-[200px]">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Project</label>
+                                <select
+                                    className="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                    value={filterData.project_id}
+                                    onChange={(e) => handleFilterChange('project_id', e.target.value)}
+                                >
+                                    <option value="">All Projects</option>
+                                    {projects?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="flex-1 min-w-[200px]">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Employee</label>
+                                <select
+                                    className="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                    value={filterData.user_id}
+                                    onChange={(e) => handleFilterChange('user_id', e.target.value)}
+                                >
+                                    <option value="">All Employees</option>
+                                    {users?.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="flex-1 min-w-[150px]">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                                <select
+                                    className="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                    value={filterData.status}
+                                    onChange={(e) => handleFilterChange('status', e.target.value)}
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div className="flex-1 min-w-[150px]">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">From Date</label>
+                                <input
+                                    type="date"
+                                    className="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                    value={filterData.date_from}
+                                    onChange={(e) => handleFilterChange('date_from', e.target.value)}
+                                />
+                            </div>
+                            <div className="flex-1 min-w-[150px]">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">To Date</label>
+                                <input
+                                    type="date"
+                                    className="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                    value={filterData.date_to}
+                                    onChange={(e) => handleFilterChange('date_to', e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <button
+                                    onClick={clearFilters}
+                                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <DataTable
                         columns={columns}
                         data={timesheets.data}

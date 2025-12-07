@@ -23,19 +23,37 @@ class TimesheetController extends Controller
             $query->where('user_id', $user->id);
         }
 
+        // Filter by project
         if ($request->filled('project_id')) {
             $query->where('project_id', $request->project_id);
         }
 
-        if ($request->filled('date')) {
-            $query->where('date', $request->date);
+        // Filter by user
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
-        $timesheets = $query->latest()->paginate(10)->withQueryString();
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        $timesheets = $query->latest()->paginate(15)->withQueryString();
 
         return Inertia::render('Timesheets/Index', [
             'timesheets' => $timesheets,
             'projects' => Project::select('id', 'name')->get(),
+            'users' => \App\Models\User::select('id', 'name')->get(),
+            'filters' => $request->only(['project_id', 'user_id', 'status', 'date_from', 'date_to']),
         ]);
     }
 
@@ -108,13 +126,23 @@ class TimesheetController extends Controller
             return redirect()->back()->with('message', 'Timesheet status updated.');
         }
 
+        // If updating end_time (from timer)
+        if ($request->has('end_time')) {
+            $validated = $request->validate([
+                'end_time' => 'required|date_format:H:i',
+                'hours' => 'required|numeric|min:0.01|max:24',
+            ]);
+            $timesheet->update($validated);
+            return redirect()->back()->with('message', 'Timer stopped and hours calculated.');
+        }
+
         // If owner and pending, can edit details
         if ($timesheet->user_id === $user->id && $timesheet->status === 'pending') {
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'task_id' => 'nullable|exists:tasks,id',
                 'date' => 'required|date',
-                'hours' => 'required|numeric|min:0.5|max:24',
+                'hours' => 'required|numeric|min:0.01|max:24',
                 'description' => 'nullable|string',
             ]);
             $timesheet->update($validated);

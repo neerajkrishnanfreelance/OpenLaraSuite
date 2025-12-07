@@ -76,6 +76,8 @@ public function index(Request $request)
 
         return Inertia::render('Projects/Show', [
             'project' => $project,
+            'users' => User::all(),
+            'projects' => Project::all(),
         ]);
     }
 

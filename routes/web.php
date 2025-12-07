@@ -41,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
     Route::get('/tasks/export', [App\Http\Controllers\ImportExportController::class, 'exportTasks'])->name('tasks.export');
     Route::post('/tasks/import', [App\Http\Controllers\ImportExportController::class, 'importTasks'])->name('tasks.import');
+    Route::post('/tasks/{task}/timesheets', [TaskController::class, 'storeTimesheet'])->name('tasks.timesheets.store');
 });
 
 Route::middleware('auth')->group(function () {

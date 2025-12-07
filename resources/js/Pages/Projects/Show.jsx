@@ -1,9 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
+import CreateTaskModal from '@/Components/CreateTaskModal';
+import CreateMeetingModal from '@/Components/CreateMeetingModal';
+import { useState } from 'react';
 
+export default function Show({ auth, project, users = [], projects = [] }) {
+    const [showTaskModal, setShowTaskModal] = useState(false);
+    const [showMeetingModal, setShowMeetingModal] = useState(false);
 
-export default function Show({ auth, project }) {
     // Helper to render a field in "form-like" style
     const Field = ({ label, value, fullWidth = false }) => (
         <div className={`mb-4 ${fullWidth ? 'col-span-2' : ''}`}>
@@ -76,7 +81,12 @@ export default function Show({ auth, project }) {
                                 <svg className="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                                 Tasks ({project.tasks ? project.tasks.length : 0})
                             </h3>
-                            <Link href={route('tasks.create', { project_id: project.id })} className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Add</Link>
+                            <button
+                                onClick={() => setShowTaskModal(true)}
+                                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                            >
+                                + Add Task
+                            </button>
                         </div>
 
                         <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
@@ -129,6 +139,23 @@ export default function Show({ auth, project }) {
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            <CreateTaskModal
+                show={showTaskModal}
+                onClose={() => setShowTaskModal(false)}
+                projectId={project.id}
+                projects={projects}
+                users={users}
+            />
+
+            <CreateMeetingModal
+                show={showMeetingModal}
+                onClose={() => setShowMeetingModal(false)}
+                users={users}
+                relatedId={project.id}
+                relatedType="App\\Models\\Project"
+            />
         </AuthenticatedLayout>
     );
 }

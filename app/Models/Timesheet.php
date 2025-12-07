@@ -17,14 +17,20 @@ class Timesheet extends Model
         'project_id',
         'task_id',
         'date',
+        'start_time',
+        'end_time',
         'hours',
         'description',
         'status',
+        'is_overtime',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
         'hours' => 'decimal:2',
+        'is_overtime' => 'boolean',
     ];
 
     public function user()
