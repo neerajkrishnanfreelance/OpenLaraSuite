@@ -80,7 +80,7 @@ export default function TimesheetTimerWidget({ projects, activeTimer }) {
                              but assuming projects list has it now. */}
                         {activeTimer.task_id && (
                             <p className="text-xs text-indigo-600 font-medium mb-1">
-                                Task: {projects.find(p => p.id === activeTimer.project_id)?.tasks?.find(t => t.id === activeTimer.task_id)?.name || 'Task #' + activeTimer.task_id}
+                                Task: {projects.find(p => p.id === activeTimer.project_id)?.tasks?.find(t => t.id === activeTimer.task_id)?.title || 'Task #' + activeTimer.task_id}
                             </p>
                         )}
                         <p className="text-gray-500 italic">
@@ -120,7 +120,7 @@ export default function TimesheetTimerWidget({ projects, activeTimer }) {
                     <div className="mb-4">
                         <Select
                             label="Task (Optional)"
-                            options={availableTasks.map(t => ({ value: t.id, label: t.name }))}
+                            options={availableTasks.map(t => ({ value: t.id, label: t.title }))}
                             value={data.task_id}
                             onChange={(val) => setData('task_id', val)}
                             disabled={!data.project_id}
