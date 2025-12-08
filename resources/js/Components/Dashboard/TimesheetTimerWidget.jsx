@@ -4,6 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 import { Play, Square, Clock } from 'lucide-react';
 import moment from 'moment';
+import Select from '@/Components/Select';
 
 export default function TimesheetTimerWidget({ projects, activeTimer }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -104,41 +105,33 @@ export default function TimesheetTimerWidget({ projects, activeTimer }) {
             ) : (
                 <form onSubmit={startTimer}>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
-                        <select
+                        <Select
+                            label="Project"
+                            options={projects.map(p => ({ value: p.id, label: p.name }))}
                             value={data.project_id}
-                            onChange={(e) => {
-                                setData(data => ({ ...data, project_id: e.target.value, task_id: '' }));
+                            onChange={(val) => {
+                                setData(data => ({ ...data, project_id: val, task_id: '' }));
                             }}
-                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                            required
-                        >
-                            <option value="">Select Project</option>
-                            {projects.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
+                            placeholder="Search and select project..."
+                        />
                         <InputError message={errors.project_id} className="mt-2" />
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Task (Optional)</label>
-                        <select
+                        <Select
+                            label="Task (Optional)"
+                            options={availableTasks.map(t => ({ value: t.id, label: t.name }))}
                             value={data.task_id}
-                            onChange={(e) => setData('task_id', e.target.value)}
-                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                            onChange={(val) => setData('task_id', val)}
                             disabled={!data.project_id}
-                        >
-                            <option value="">Select Task</option>
-                            {availableTasks.map(t => (
-                                <option key={t.id} value={t.id}>{t.name}</option>
-                            ))}
-                        </select>
+                            placeholder={data.project_id ? "Search and select task..." : "Select project first"}
+                        />
                         <InputError message={errors.task_id} className="mt-2" />
                     </div>
 
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                        {/* ... rest of form ... */}
                         <input
                             type="text"
                             value={data.description}
