@@ -1,4 +1,9 @@
 {
+  "node_modules/gantt-task-react/dist/index.css": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
+  ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/js/Components/ApplicationLogo.jsx": [
     "/build/assets/ApplicationLogo-xMpxFOcX.js"
@@ -16,13 +21,43 @@
     "/build/assets/CreateMeetingModal-BpL3dkvm.js"
   ],
   "resources/js/Components/CreateTaskModal.jsx": [
-    "/build/assets/Show-BmYey0iv.js"
+    "/build/assets/CreateTaskModal-B7IcLk-8.js"
   ],
   "resources/js/Components/CreateTimesheetModal.jsx": [
-    "/build/assets/Edit-Bk1pKTox.js"
+    "/build/assets/Edit-BDPy2LrB.js"
   ],
   "resources/js/Components/DangerButton.jsx": [
     "/build/assets/DeleteUserForm-D8aBeQCX.js"
+  ],
+  "resources/js/Components/Dashboard/CalendarWidget.jsx": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
+  ],
+  "resources/js/Components/Dashboard/CallWidget.jsx": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
+  ],
+  "resources/js/Components/Dashboard/GanttWidget.jsx": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
+  ],
+  "resources/js/Components/Dashboard/ProfileCard.jsx": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
+  ],
+  "resources/js/Components/Dashboard/StatCard.jsx": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
+  ],
+  "resources/js/Components/Dashboard/TaskWidget.jsx": [
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
+    "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Components/DataTable.jsx": [
     "/build/assets/DataTable-Cf56Cbah.js"
@@ -55,7 +90,16 @@
     "/build/assets/PrimaryButton-BMCZH-oa.js"
   ],
   "resources/js/Components/PriorityLabel.jsx": [
-    "/build/assets/Index-CVCb6nqa.js"
+    "/build/assets/Index-Dwz8T4qD.js"
+  ],
+  "resources/js/Components/Requirements/CreateRequirementModal.jsx": [
+    "/build/assets/Show-DXI2dBCK.js"
+  ],
+  "resources/js/Components/Requirements/ImportRequirementsModal.jsx": [
+    "/build/assets/Show-DXI2dBCK.js"
+  ],
+  "resources/js/Components/Requirements/RequirementList.jsx": [
+    "/build/assets/Show-DXI2dBCK.js"
   ],
   "resources/js/Components/ResponsiveNavLink.jsx": [
     "/build/assets/AuthenticatedLayout-hQdgXqic.js"
@@ -81,12 +125,8 @@
   "resources/js/Components/TextInput.jsx": [
     "/build/assets/TextInput-mUZk5oTn.js"
   ],
-  "resources/js/Components/TimerWidget.jsx": [
-    "/build/assets/Dashboard-C84JJF_-.js",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
-  ],
   "resources/js/Components/TimesheetEntry.jsx": [
-    "/build/assets/Edit-Bk1pKTox.js"
+    "/build/assets/Edit-BDPy2LrB.js"
   ],
   "resources/js/Layouts/AuthenticatedLayout.jsx": [
     "/build/assets/AuthenticatedLayout-hQdgXqic.js"
@@ -113,11 +153,12 @@
     "/build/assets/VerifyEmail-FucWZ3w0.js"
   ],
   "resources/js/Pages/Calendar/Index.jsx": [
-    "/build/assets/Index-CzURN3lJ.js",
+    "/build/assets/Index-BfKtFIc9.js",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Pages/Dashboard.jsx": [
-    "/build/assets/Dashboard-C84JJF_-.js",
+    "/build/assets/Dashboard-8TKGpFWi.js",
+    "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Pages/Employees/Create.jsx": [
@@ -172,16 +213,16 @@
     "/build/assets/Index-Hwo-QWUC.js"
   ],
   "resources/js/Pages/Projects/Show.jsx": [
-    "/build/assets/Show-BmYey0iv.js"
+    "/build/assets/Show-DXI2dBCK.js"
   ],
   "resources/js/Pages/Tasks/Create.jsx": [
     "/build/assets/Create-22q8TvC0.js"
   ],
   "resources/js/Pages/Tasks/Edit.jsx": [
-    "/build/assets/Edit-Bk1pKTox.js"
+    "/build/assets/Edit-BDPy2LrB.js"
   ],
   "resources/js/Pages/Tasks/Index.jsx": [
-    "/build/assets/Index-CVCb6nqa.js"
+    "/build/assets/Index-Dwz8T4qD.js"
   ],
   "resources/js/Pages/Tasks/Show.jsx": [
     "/build/assets/Show-GGjTR0rj.js"
@@ -193,7 +234,7 @@
     "/build/assets/Edit-DFNOCk0Q.js"
   ],
   "resources/js/Pages/Timesheets/Index.jsx": [
-    "/build/assets/Index-sclTi_Ki.js"
+    "/build/assets/Index-C0VnjH6Y.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
     "/build/assets/Welcome-SEhQsnTJ.js"

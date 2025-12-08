@@ -14,6 +14,7 @@ export default function Index({ auth, timesheets, projects, users, filters }) {
         status: filters?.status || '',
         date_from: filters?.date_from || '',
         date_to: filters?.date_to || '',
+        is_overtime: filters?.is_overtime === 'true' || filters?.is_overtime === true,
     });
 
     const handleAction = (id, status) => {
@@ -35,6 +36,7 @@ export default function Index({ auth, timesheets, projects, users, filters }) {
             status: '',
             date_from: '',
             date_to: '',
+            is_overtime: false,
         });
         router.get(route('timesheets.index'), {}, { preserveState: true, replace: true });
     };
@@ -107,6 +109,14 @@ export default function Index({ auth, timesheets, projects, users, filters }) {
                     </button>
                 </>
             )}
+            {auth.user.id === item.user_id && item.status === 'pending' && (
+                <Link
+                    href={route('timesheets.edit', item.id)}
+                    className="text-blue-600 hover:text-blue-900 font-medium text-xs uppercase"
+                >
+                    Edit
+                </Link>
+            )}
             <button
                 onClick={() => {
                     if (confirm('Are you sure you want to delete this timesheet entry?')) {
@@ -120,13 +130,26 @@ export default function Index({ auth, timesheets, projects, users, filters }) {
         </div>
     );
 
+    const handleExport = () => {
+        const params = new URLSearchParams(filterData).toString();
+        window.location.href = route('timesheets.export') + '?' + params;
+    };
+
     return (
         <AuthenticatedLayout
             header={<div className="flex justify-between items-center">
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">Timesheets</h2>
-                <Link href={route('timesheets.create')}>
-                    <PrimaryButton>Log Time</PrimaryButton>
-                </Link>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={handleExport}
+                        className="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700"
+                    >
+                        Export
+                    </button>
+                    <Link href={route('timesheets.create')}>
+                        <PrimaryButton>Log Time</PrimaryButton>
+                    </Link>
+                </div>
             </div>}
         >
             <Head title="Timesheets" />
@@ -188,6 +211,17 @@ export default function Index({ auth, timesheets, projects, users, filters }) {
                                     value={filterData.date_to}
                                     onChange={(e) => handleFilterChange('date_to', e.target.value)}
                                 />
+                            </div>
+                            <div className="flex items-center pb-2">
+                                <label className="inline-flex items-center text-xs font-medium text-gray-700">
+                                    <input
+                                        type="checkbox"
+                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 mr-2"
+                                        checked={filterData.is_overtime}
+                                        onChange={(e) => handleFilterChange('is_overtime', e.target.checked)}
+                                    />
+                                    Overtime Only
+                                </label>
                             </div>
                             <div>
                                 <button

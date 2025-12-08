@@ -38,6 +38,8 @@ class CalendarController extends Controller
 
         return Inertia::render('Calendar/Index', [
             'events' => $events,
+            'projects' => \App\Models\Project::where('status', 'active')->select('id', 'name')->get(),
+            'users' => \App\Models\User::select('id', 'name')->get(),
         ]);
     }
 }

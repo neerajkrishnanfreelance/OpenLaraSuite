@@ -67,6 +67,15 @@ export default function Index({ auth, tasks, projects, users, filters }) {
                     >
                         Kanban
                     </button>
+                    <button
+                        onClick={() => {
+                            const params = new URLSearchParams(filterData).toString();
+                            window.location.href = route('tasks.export') + '?' + params;
+                        }}
+                        className="px-4 py-2 bg-green-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-green-700"
+                    >
+                        Export
+                    </button>
                     <Link href={route('tasks.create')}>
                         <PrimaryButton>New Task</PrimaryButton>
                     </Link>

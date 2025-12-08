@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
 import CreateTaskModal from '@/Components/CreateTaskModal';
 import CreateMeetingModal from '@/Components/CreateMeetingModal';
+import RequirementList from '@/Components/Requirements/RequirementList';
 import { useState } from 'react';
 
 export default function Show({ auth, project, users = [], projects = [] }) {
@@ -138,6 +139,11 @@ export default function Show({ auth, project, users = [], projects = [] }) {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Requirements Section */}
+            <div className="mt-8">
+                <RequirementList requirements={project.requirements || []} projectId={project.id} />
             </div>
 
             {/* Modals */}

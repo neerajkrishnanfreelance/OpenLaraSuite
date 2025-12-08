@@ -72,7 +72,7 @@ public function index(Request $request)
      */
     public function show(Project $project)
     {
-        $project->load(['users', 'tasks.assignedUser', 'tasks.creator']);
+        $project->load(['users', 'tasks.assignedUser', 'tasks.creator', 'requirements']);
 
         return Inertia::render('Projects/Show', [
             'project' => $project,

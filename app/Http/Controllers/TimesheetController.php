@@ -47,13 +47,23 @@ class TimesheetController extends Controller
             $query->whereDate('date', '<=', $request->date_to);
         }
 
+        // Filter by overtime
+        if ($request->filled('is_overtime')) {
+            // 'true' string or boolean true
+            $val = filter_var($request->is_overtime, FILTER_VALIDATE_BOOLEAN);
+            if ($val) {
+                 $query->where('is_overtime', true);
+            }
+        }
+
         $timesheets = $query->latest()->paginate(15)->withQueryString();
 
         return Inertia::render('Timesheets/Index', [
             'timesheets' => $timesheets,
             'projects' => Project::select('id', 'name')->get(),
             'users' => \App\Models\User::select('id', 'name')->get(),
-            'filters' => $request->only(['project_id', 'user_id', 'status', 'date_from', 'date_to']),
+            'users' => \App\Models\User::select('id', 'name')->get(),
+            'filters' => $request->only(['project_id', 'user_id', 'status', 'date_from', 'date_to', 'is_overtime']),
         ]);
     }
 
