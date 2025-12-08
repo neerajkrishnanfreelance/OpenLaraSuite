@@ -86,6 +86,9 @@
   "resources/js/Components/Modal.jsx": [
     "/build/assets/Modal-BeSeEOS3.js"
   ],
+  "resources/js/Components/MultiSelect.jsx": [
+    "/build/assets/MultiSelect-CHWvoN7q.js"
+  ],
   "resources/js/Components/PrimaryButton.jsx": [
     "/build/assets/PrimaryButton-BMCZH-oa.js"
   ],
@@ -204,10 +207,10 @@
     "/build/assets/UpdateProfileInformationForm-C2sa2sWS.js"
   ],
   "resources/js/Pages/Projects/Create.jsx": [
-    "/build/assets/Create-B6UDnye-.js"
+    "/build/assets/Create-BBbGiT2L.js"
   ],
   "resources/js/Pages/Projects/Edit.jsx": [
-    "/build/assets/Edit-CDShNNt1.js"
+    "/build/assets/Edit-CXiwzfEA.js"
   ],
   "resources/js/Pages/Projects/Index.jsx": [
     "/build/assets/Index-Hwo-QWUC.js"
@@ -237,7 +240,7 @@
     "/build/assets/Index-C0VnjH6Y.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-SEhQsnTJ.js"
+    "/build/assets/Welcome-DLrCoCvP.js"
   ],
   "resources/js/ssr.jsx": [],
   "vendor/tightenco/ziggy/dist/index.js": []

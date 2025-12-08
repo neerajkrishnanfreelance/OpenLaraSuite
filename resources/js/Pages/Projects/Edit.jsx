@@ -7,6 +7,7 @@ import TextInput from '@/Components/TextInput';
 import SecondaryButton from '@/Components/SecondaryButton';
 import FormHeader from '@/Components/FormHeader';
 import FormPageLayout from '@/Components/FormPageLayout';
+import MultiSelect from '@/Components/MultiSelect';
 
 export default function Edit({ auth, project, users, ...props }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -113,20 +114,12 @@ export default function Edit({ auth, project, users, ...props }) {
                     </div>
 
                     <div className="mt-4">
-                        <InputLabel htmlFor="users" value="Assign Employees (Hold Ctrl/Cmd to select multiple)" />
-                        <select
-                            id="users"
-                            multiple
-                            className="mt-1 block w-full border-gray-300 focus:border-purple-500 focus:ring-purple-500 rounded-md shadow-sm h-32"
+                        <MultiSelect
+                            label="Assign Employees"
+                            options={users.map(u => ({ value: u.id, label: `${u.name} (${u.email})` }))}
                             value={data.user_ids}
-                            onChange={handleUserSelect}
-                        >
-                            {users.map(user => (
-                                <option key={user.id} value={user.id}>
-                                    {user.name} ({user.email})
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(vals) => setData('user_ids', vals)}
+                        />
                         <InputError message={errors.user_ids} className="mt-2" />
                     </div>
                 </form>
