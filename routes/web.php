@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/calendar', [App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
     Route::post('/documents', [App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
     Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
+    Route::resource('journal', \App\Http\Controllers\JournalController::class);
 
     Route::resource('projects', ProjectController::class);
     Route::resource('tasks', TaskController::class);

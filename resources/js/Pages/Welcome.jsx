@@ -30,7 +30,7 @@ export default function Welcome({ auth }) {
             href: route('dashboard'), // Placeholder
         },
         {
-            title: 'Learning',
+            title: 'Projects',
             description: 'Track your progress',
             icon: GraduationCap,
             color: 'bg-blue-100 text-blue-600',
@@ -83,7 +83,7 @@ export default function Welcome({ auth }) {
             description: 'Reflect daily',
             icon: PenTool,
             color: 'bg-violet-100 text-violet-600',
-            href: route('documents.store'), // Placeholder/Docs
+            href: route('journal.index'),
         },
     ];
 
