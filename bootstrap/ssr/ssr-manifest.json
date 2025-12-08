@@ -1,6 +1,6 @@
 {
   "node_modules/gantt-task-react/dist/index.css": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
@@ -30,37 +30,27 @@
     "/build/assets/DeleteUserForm-BrLcfngd.js"
   ],
   "resources/js/Components/Dashboard/CalendarWidget.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Components/Dashboard/CallWidget.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Components/Dashboard/GanttWidget.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
-  ],
-  "resources/js/Components/Dashboard/ProfileCard.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
-  ],
-  "resources/js/Components/Dashboard/StatCard.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Components/Dashboard/TaskWidget.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Components/Dashboard/TimesheetTimerWidget.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
@@ -122,7 +112,7 @@
     "/build/assets/SecondaryButton-C9TQBbBR.js"
   ],
   "resources/js/Components/Select.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
@@ -170,7 +160,7 @@
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],
   "resources/js/Pages/Dashboard.jsx": [
-    "/build/assets/Dashboard-M3560CdS.js",
+    "/build/assets/Dashboard-GyX5L6k6.js",
     "/build/assets/Dashboard-C9-NpoDc.css",
     "/build/assets/react-big-calendar-BSwzzYnC.css"
   ],

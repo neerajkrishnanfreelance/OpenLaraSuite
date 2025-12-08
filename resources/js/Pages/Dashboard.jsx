@@ -54,7 +54,7 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
 
                 {/* Right Column (Profile Card & Timer) - Spans 1 col */}
                 <div className="lg:col-span-1 space-y-6">
-                    <ProfileCard user={auth.user} stats={user_stats} />
+                    
                     <TimesheetTimerWidget projects={projects} activeTimer={activeTimer} />
                 </div>
 
@@ -72,24 +72,9 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
 
                 {/* Secondary Stats/Profile or another Widget - Reusing ProfileCard for another user mock from image or just another stat */}
                 {/* The image shows another profile card "Sara Ahmed". We'll mock it or show another stat for now to avoid confusion */}
-                <div className="lg:col-span-1">
-                    <ProfileCard
-                        user={{ name: 'Sara Ahmed', email: 'Project Coordinator', roles: [{ name: 'Coordinator' }] }}
-                        stats={{ todays_completed: 9, todays_total: 11, pending_overall: 8, daily_progress: 80 }}
-                    />
-                </div>
-
+      
                 {/* Stat Card */}
-                <div className="lg:col-span-1">
-                    <StatCard
-                        title="Delivery"
-                        value={`${user_stats.on_time_percentage}%`}
-                        valueLabel="On-Time Delivery"
-                        subtitle="This Month • Excellent!"
-                        color="purple"
-                    />
-                </div>
-
+              
                 {/* Row 3: Gantt Chart */}
                 <div className="lg:col-span-4">
                     <GanttWidget tasks={tasks || []} />
