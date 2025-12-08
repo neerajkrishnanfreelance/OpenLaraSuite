@@ -7,9 +7,10 @@ import CallWidget from '@/Components/Dashboard/CallWidget';
 import StatCard from '@/Components/Dashboard/StatCard';
 import GanttWidget from '@/Components/Dashboard/GanttWidget';
 import CreateTaskModal from '@/Components/CreateTaskModal';
+import TimesheetTimerWidget from '@/Components/Dashboard/TimesheetTimerWidget';
 import { useState } from 'react';
 
-export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks, calendar_events, tasks, projects, users }) {
+export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks, calendar_events, tasks, projects, users, activeTimer }) {
     const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
 
     // Add custom CSS for calendar overrides if needed, or rely on global CSS
@@ -51,12 +52,13 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
                     <CalendarWidget events={calendar_events} />
                 </div>
 
-                {/* Right Column (Profile Card) - Spans 1 col */}
-                <div className="lg:col-span-1">
+                {/* Right Column (Profile Card & Timer) - Spans 1 col */}
+                <div className="lg:col-span-1 space-y-6">
                     <ProfileCard user={auth.user} stats={user_stats} />
+                    <TimesheetTimerWidget projects={projects} activeTimer={activeTimer} />
                 </div>
 
-                {/* Row 2: Widgets */}
+                {/* Row 2: Widgets ... */}
 
                 {/* Tasks Widget */}
                 <div className="lg:col-span-1">

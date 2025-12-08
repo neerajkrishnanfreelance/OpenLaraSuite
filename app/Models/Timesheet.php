@@ -27,8 +27,8 @@ class Timesheet extends Model
 
     protected $casts = [
         'date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
         'hours' => 'decimal:2',
         'is_overtime' => 'boolean',
     ];

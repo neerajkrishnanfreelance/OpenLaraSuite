@@ -58,11 +58,11 @@ export default function Welcome({ auth }) {
             href: route('timesheets.index'), // Using timesheets as expense placeholder
         },
         {
-            title: 'Learning 2',
+            title: 'Learning Projects',
             description: 'Advanced courses',
             icon: BookOpen,
             color: 'bg-cyan-100 text-cyan-600',
-            href: route('dashboard'), // Placeholder
+            href: route('learning.index'),
         },
         {
             title: 'Calendar',

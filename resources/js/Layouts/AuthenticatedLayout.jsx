@@ -33,10 +33,10 @@ export default function Authenticated({ header, children, customNav }) {
             {/* Sidebar (Desktop) */}
             <div className="hidden md:flex md:flex-col md:w-64 bg-purple-900 text-white flex-shrink-0 transition-all duration-300 ease-in-out">
                 <div className="flex items-center justify-center h-16 bg-purple-900 border-b border-purple-800 shadow-sm">
-                    <Link href={route('dashboard')}>
+                    <Link href="/">
                         <div className="flex items-center space-x-2">
                             <ApplicationLogo className="h-8 w-8 text-yellow-400 fill-current" />
-                            <h1 className="text-xl font-bold tracking-wider">My <span className="text-white">CRM</span></h1>
+                            <h1 className="text-xl font-bold tracking-wider"><span className="text-white">PersonalSuite</span></h1>
                         </div>
                     </Link>
                 </div>

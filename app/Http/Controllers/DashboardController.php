@@ -114,7 +114,11 @@ class DashboardController extends Controller
              // Keeping old props just in case, but can clean up later if unused
             'tasks' => Task::with('project:id,name')->where('status', '!=', 'done')->get(),
             'users' => \App\Models\User::select('id', 'name')->get(),
-            'projects' => \App\Models\Project::select('id', 'name')->where('status', 'active')->get(),
+            'projects' => \App\Models\Project::with('tasks:id,name,project_id')->select('id', 'name')->where('status', 'active')->get(),
+            'activeTimer' => Timesheet::where('user_id', Auth::id())
+                ->whereNull('end_time')
+                ->whereNotNull('start_time')
+                ->first(),
         ]);
     }
 }

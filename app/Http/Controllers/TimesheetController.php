@@ -37,34 +37,84 @@ class TimesheetController extends Controller
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
-        // Filter by date range
-        if ($request->filled('date_from')) {
-            $query->whereDate('date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate('date', '<=', $request->date_to);
-        }
-
-        // Filter by overtime
-        if ($request->filled('is_overtime')) {
-            // 'true' string or boolean true
-            $val = filter_var($request->is_overtime, FILTER_VALIDATE_BOOLEAN);
-            if ($val) {
+        
+        if ($request->has('is_overtime')) {
+             if ($request->is_overtime === 'true') {
                  $query->where('is_overtime', true);
-            }
+             }
         }
+        
+        // Timer check: is there an active timer?
+        $activeTimer = Timesheet::where('user_id', Auth::id())
+            ->whereNull('end_time')
+            ->whereNotNull('start_time')
+            ->first();
 
-        $timesheets = $query->latest()->paginate(15)->withQueryString();
+        $timesheets = $query->orderBy('date', 'desc')->paginate(10);
 
         return Inertia::render('Timesheets/Index', [
             'timesheets' => $timesheets,
-            'projects' => Project::select('id', 'name')->get(),
-            'users' => \App\Models\User::select('id', 'name')->get(),
-            'users' => \App\Models\User::select('id', 'name')->get(),
-            'filters' => $request->only(['project_id', 'user_id', 'status', 'date_from', 'date_to', 'is_overtime']),
+            'projects' => Auth::user()->projects,
+            'filters' => $request->only(['project_id', 'is_overtime']),
+            'activeTimer' => $activeTimer,
         ]);
+    }
+
+    public function storeTimer(Request $request)
+    {
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'task_id' => 'nullable|exists:tasks,id',
+            'description' => 'nullable|string',
+            'is_overtime' => 'boolean',
+        ]);
+
+        // Check if already running
+        $existing = Timesheet::where('user_id', Auth::id())
+            ->whereNull('end_time')
+            ->whereNotNull('start_time')
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()->with('error', 'Timer already running.');
+        }
+
+        Timesheet::create([
+            'user_id' => Auth::id(),
+            'project_id' => $request->project_id,
+            'task_id' => $request->task_id,
+            'date' => now()->toDateString(),
+            'start_time' => now(),
+            'description' => $request->description,
+            'is_overtime' => $request->is_overtime ?? false,
+            'status' => 'pending',
+            'hours' => 0, // Will update on stop
+        ]);
+        
+        return redirect()->back()->with('message', 'Timer started.');
+    }
+
+    public function stopTimer(Request $request)
+    {
+        $timer = Timesheet::where('user_id', Auth::id())
+            ->whereNull('end_time')
+            ->whereNotNull('start_time')
+            ->firstOrFail();
+
+        $endTime = now();
+        $startTime = \Carbon\Carbon::parse($timer->start_time);
+        $diffInMinutes = $endTime->diffInMinutes($startTime);
+        $hours = round($diffInMinutes / 60, 2);
+        
+        // Minimum 1 minute logic or just raw
+        if ($hours <= 0) $hours = 0.01;
+
+        $timer->update([
+            'end_time' => $endTime,
+            'hours' => $hours,
+        ]);
+
+        return redirect()->back()->with('message', 'Timer stopped. Timesheet captured.');
     }
 
     /**
