@@ -21,21 +21,15 @@ export default function ShowJournalEntry({ auth, entry }) {
     const currentStepIndex = getCurrentStepIndex();
 
     const handlePost = () => {
-        if (confirm('Are you sure you want to post this entry? This cannot be undone.')) {
-            router.post(route('accounting.entries.post', entry.id));
-        }
+        router.post(route('accounting.entries.post', entry.id));
     };
 
     const handleCancel = () => {
-        if (confirm('Are you sure you want to cancel (void) this entry?')) {
-            router.post(route('accounting.entries.cancel', entry.id));
-        }
+        router.post(route('accounting.entries.cancel', entry.id));
     };
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this entry?')) {
-            router.delete(route('accounting.entries.destroy', entry.id));
-        }
+        router.delete(route('accounting.entries.destroy', entry.id));
     };
 
     return (
