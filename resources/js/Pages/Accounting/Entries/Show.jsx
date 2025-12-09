@@ -1,11 +1,24 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
-import { Pencil, FileCheck, Ban, Trash2, ArrowLeft } from 'lucide-react';
+import { Pencil, FileCheck, Ban, Trash2, ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 export default function ShowJournalEntry({ auth, entry }) {
     const isDraft = entry.state === 'draft';
     const isPosted = entry.state === 'posted';
     const isCancelled = entry.state === 'cancelled';
+
+    // Status Steps Logic
+    const steps = [
+        { id: 'draft', label: 'Draft', icon: Clock },
+        { id: 'final', label: isCancelled ? 'Cancelled' : 'Posted', icon: isCancelled ? XCircle : CheckCircle }, // Dynamic second step
+    ];
+
+    const getCurrentStepIndex = () => {
+        if (isDraft) return 0;
+        return 1; // Both Posted and Cancelled are step 1 (final)
+    };
+
+    const currentStepIndex = getCurrentStepIndex();
 
     const handlePost = () => {
         if (confirm('Are you sure you want to post this entry? This cannot be undone.')) {
@@ -40,35 +53,29 @@ export default function ShowJournalEntry({ auth, entry }) {
                             <>
                                 <a
                                     href={route('accounting.entries.edit', entry.id)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-2 shadow-sm"
                                 >
                                     <Pencil className="w-4 h-4" /> Edit
                                 </a>
                                 <button
                                     onClick={handlePost}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+                                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 shadow-sm"
                                 >
                                     <FileCheck className="w-4 h-4" /> Post
                                 </button>
                                 <button
                                     onClick={handleCancel}
-                                    className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 flex items-center gap-2"
+                                    className="px-4 py-2 bg-orange-100 text-orange-700 border border-orange-200 rounded-md hover:bg-orange-200 flex items-center gap-2 shadow-sm"
                                 >
                                     <Ban className="w-4 h-4" /> Cancel
                                 </button>
                                 <button
                                     onClick={handleDelete}
-                                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
+                                    className="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-md hover:bg-red-50 flex items-center gap-2 shadow-sm"
                                 >
                                     <Trash2 className="w-4 h-4" /> Delete
                                 </button>
                             </>
-                        )}
-                        {!isDraft && (
-                            <span className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center ${isPosted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                }`}>
-                                State: {entry.state.toUpperCase()}
-                            </span>
                         )}
                     </div>
                 </div>
@@ -78,6 +85,50 @@ export default function ShowJournalEntry({ auth, entry }) {
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                    {/* Status Bar */}
+                    <div className="bg-white rounded-lg shadow p-6 mb-6">
+                        <div className="flex items-center justify-center max-w-2xl mx-auto">
+                            {steps.map((step, index) => {
+                                const isCompleted = index < currentStepIndex || (index === currentStepIndex && !isDraft); // Draft is "in progress" at index 0
+                                const isCurrent = index === currentStepIndex;
+                                const StepIcon = step.icon;
+
+                                // Color Logic
+                                let colorClass = "text-gray-400 border-gray-300"; // Default pending
+                                let lineClass = "bg-gray-300";
+
+                                if (isCancelled) {
+                                    if (isCompleted || isCurrent) colorClass = "text-red-600 border-red-600";
+                                    lineClass = "bg-red-600";
+                                } else if (isPosted) {
+                                    if (isCompleted || isCurrent) colorClass = "text-green-600 border-green-600";
+                                    lineClass = "bg-green-600";
+                                } else {
+                                    // Draft
+                                    if (index === 0) colorClass = "text-blue-600 border-blue-600";
+                                    if (index === 0 && isCurrent) lineClass = "bg-gray-300"; // Line to next step is gray
+                                }
+
+                                return (
+                                    <div key={step.id} className="flex-1 flex items-center relative">
+                                        <div className="flex flex-col items-center relative z-10 w-full">
+                                            <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center bg-white ${colorClass}`}>
+                                                <StepIcon className="w-6 h-6" />
+                                            </div>
+                                            <span className={`mt-2 text-sm font-medium ${isCurrent || isCompleted ? 'text-gray-900' : 'text-gray-500'}`}>
+                                                {step.label}
+                                            </span>
+                                        </div>
+                                        {index < steps.length - 1 && (
+                                            <div className={`absolute top-5 left-1/2 w-full h-1 -translate-y-1/2 -z-0 ${isCompleted ? lineClass : 'bg-gray-300'}`}></div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                         <div className="p-6 border-b border-gray-200">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -108,8 +159,9 @@ export default function ShowJournalEntry({ auth, entry }) {
                     </div>
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                             <h3 className="font-semibold text-gray-900">Line Items</h3>
+                            <span className="text-sm text-gray-500">{entry.lines?.length || 0} lines</span>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
