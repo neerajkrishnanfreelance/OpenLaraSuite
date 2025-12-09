@@ -4,7 +4,7 @@ import InputError from '@/Components/InputError';
 import FormHeader from '@/Components/FormHeader';
 import PrimaryButton from '@/Components/PrimaryButton';
 import { useState, useEffect } from 'react';
-import { PenTool, Trash2, Edit2, Save, X, Smile, Meh, Frown, Sparkles, Search, Filter, Plus, Tag, Calendar } from 'lucide-react';
+import { PenTool, Trash2, Edit2, Save, X, Smile, Meh, Frown, Sparkles, Search, Filter, Plus, Tag, Calendar, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import moment from 'moment';
 
 export default function Index({ auth, entries, categories, view, filters }) {
@@ -24,6 +24,10 @@ export default function Index({ auth, entries, categories, view, filters }) {
     const [moodFilter, setMoodFilter] = useState(filters.mood || '');
     const [dateFromFilter, setDateFromFilter] = useState(filters.date_from || '');
     const [dateToFilter, setDateToFilter] = useState(filters.date_to || '');
+
+    // Calendar state
+    const [currentMonth, setCurrentMonth] = useState(moment());
+    const [selectedDate, setSelectedDate] = useState(null);
 
     // Form state
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -174,6 +178,65 @@ export default function Index({ auth, entries, categories, view, filters }) {
         }
     };
 
+    // Calendar helper functions
+    const generateCalendarDays = () => {
+        const startOfMonth = currentMonth.clone().startOf('month');
+        const endOfMonth = currentMonth.clone().endOf('month');
+        const startDate = startOfMonth.clone().startOf('week');
+        const endDate = endOfMonth.clone().endOf('week');
+
+        const days = [];
+        let day = startDate.clone();
+
+        while (day.isSameOrBefore(endDate)) {
+            days.push(day.clone());
+            day.add(1, 'day');
+        }
+
+        return days;
+    };
+
+    const getEntriesForDate = (date) => {
+        const entriesList = entries.data || entries;
+        return entriesList.filter(entry =>
+            moment(entry.date).format('YYYY-MM-DD') === date.format('YYYY-MM-DD')
+        );
+    };
+
+    const handleDateClick = (date) => {
+        setSelectedDate(date);
+        const dateStr = date.format('YYYY-MM-DD');
+
+        // Filter entries for this date
+        const dateEntries = getEntriesForDate(date);
+
+        if (dateEntries.length > 0) {
+            // If there are entries, select the first one
+            handleSelectEntry(dateEntries[0]);
+        } else {
+            // If no entries, prepare to create a new one for this date
+            setSelectedEntryId(null);
+            setIsEditing(true);
+            reset();
+            setData('date', dateStr);
+        }
+    };
+
+    const goToPreviousMonth = () => {
+        setCurrentMonth(currentMonth.clone().subtract(1, 'month'));
+    };
+
+    const goToNextMonth = () => {
+        setCurrentMonth(currentMonth.clone().add(1, 'month'));
+    };
+
+    const goToToday = () => {
+        setCurrentMonth(moment());
+        setSelectedDate(moment());
+        handleDateClick(moment());
+    };
+
+
     const entriesList = entries.data || entries;
 
     return (
@@ -181,6 +244,32 @@ export default function Index({ auth, entries, categories, view, filters }) {
             header={
                 <div className="flex justify-between items-center">
                     <FormHeader title="Journaling" />
+                    <div className="flex gap-2 bg-white p-1 rounded-lg border shadow-sm">
+                        <button
+                            onClick={() => router.get(route('journal.index', { view: 'list' }))}
+                            className={`px-3 py-2 rounded flex items-center gap-2 ${view === 'list' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'}`}
+                            title="List View"
+                        >
+                            <Search className="w-4 h-4" />
+                            <span className="text-sm font-medium">List</span>
+                        </button>
+                        <button
+                            onClick={() => router.get(route('journal.index', { view: 'calendar' }))}
+                            className={`px-3 py-2 rounded flex items-center gap-2 ${view === 'calendar' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'}`}
+                            title="Calendar View"
+                        >
+                            <CalendarDays className="w-4 h-4" />
+                            <span className="text-sm font-medium">Calendar</span>
+                        </button>
+                        <button
+                            onClick={() => router.get(route('journal.index', { view: 'kanban' }))}
+                            className={`px-3 py-2 rounded flex items-center gap-2 ${view === 'kanban' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:bg-gray-50'}`}
+                            title="Kanban View"
+                        >
+                            <Tag className="w-4 h-4" />
+                            <span className="text-sm font-medium">Kanban</span>
+                        </button>
+                    </div>
                 </div>
             }
             customNav={journalNav}
@@ -226,323 +315,614 @@ export default function Index({ auth, entries, categories, view, filters }) {
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="flex gap-6 h-[calc(100vh-140px)]">
-
-                        {/* LEFT SIDEBAR - List View */}
-                        <div className="w-1/3 bg-white rounded-lg shadow-sm flex flex-col overflow-hidden">
-                            {/* Search and Filter Header */}
-                            <div className="p-4 border-b space-y-3">
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="Search entries..."
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                    />
-                                </div>
-
-                                <div className="flex gap-2 items-center">
-                                    <button
-                                        onClick={() => setShowFilters(!showFilters)}
-                                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm ${showFilters ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'} hover:bg-indigo-100 hover:text-indigo-700`}
-                                    >
-                                        <Filter className="w-4 h-4" />
-                                        Filters
-                                    </button>
-                                    {(categoryFilter || moodFilter || dateFromFilter || dateToFilter) && (
+                    {view === 'calendar' ? (
+                        /* CALENDAR VIEW */
+                        <div className="flex gap-6 h-[calc(100vh-140px)]">
+                            {/* Calendar Section */}
+                            <div className="flex-1 bg-white rounded-lg shadow-sm flex flex-col overflow-hidden">
+                                {/* Calendar Header */}
+                                <div className="p-4 border-b flex justify-between items-center">
+                                    <div className="flex items-center gap-4">
+                                        <h2 className="text-xl font-bold text-gray-900">
+                                            {currentMonth.format('MMMM YYYY')}
+                                        </h2>
                                         <button
-                                            onClick={clearFilters}
-                                            className="text-xs text-red-600 hover:underline"
+                                            onClick={() => setShowCategoryModal(true)}
+                                            className="text-xs text-indigo-600 hover:underline flex items-center gap-1"
                                         >
-                                            Clear
+                                            <Tag className="w-3 h-3" /> Masters
                                         </button>
-                                    )}
-                                    <button
-                                        onClick={() => setShowCategoryModal(true)}
-                                        className="ml-auto text-xs text-indigo-600 hover:underline flex items-center gap-1"
-                                    >
-                                        <Tag className="w-3 h-3" /> Masters
-                                    </button>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={goToToday}
+                                            className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                                        >
+                                            Today
+                                        </button>
+                                        <button
+                                            onClick={goToPreviousMonth}
+                                            className="p-2 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            <ChevronLeft className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={goToNextMonth}
+                                            className="p-2 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
 
-                                {/* Filter Controls */}
-                                {showFilters && (
-                                    <div className="space-y-2 pt-2 border-t">
-                                        <select
-                                            value={categoryFilter}
-                                            onChange={(e) => { setCategoryFilter(e.target.value); applyFilters(); }}
-                                            className="w-full text-sm border-gray-300 rounded-lg"
-                                        >
-                                            <option value="">All Categories</option>
-                                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                        </select>
-
-                                        <select
-                                            value={moodFilter}
-                                            onChange={(e) => { setMoodFilter(e.target.value); applyFilters(); }}
-                                            className="w-full text-sm border-gray-300 rounded-lg"
-                                        >
-                                            <option value="">All Moods</option>
-                                            <option value="positive">Positive</option>
-                                            <option value="neutral">Neutral</option>
-                                            <option value="negative">Negative</option>
-                                        </select>
-
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <input
-                                                type="date"
-                                                value={dateFromFilter}
-                                                onChange={(e) => { setDateFromFilter(e.target.value); applyFilters(); }}
-                                                placeholder="From"
-                                                className="text-sm border-gray-300 rounded-lg"
-                                            />
-                                            <input
-                                                type="date"
-                                                value={dateToFilter}
-                                                onChange={(e) => { setDateToFilter(e.target.value); applyFilters(); }}
-                                                placeholder="To"
-                                                className="text-sm border-gray-300 rounded-lg"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Entries List */}
-                            <div className="flex-1 overflow-y-auto">
-                                {entriesList.length === 0 ? (
-                                    <div className="p-8 text-center text-gray-400">
-                                        <PenTool className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                        <p className="text-sm">No entries found</p>
-                                    </div>
-                                ) : (
-                                    <div className="divide-y">
-                                        {entriesList.map((entry) => (
-                                            <div
-                                                key={entry.id}
-                                                onClick={() => handleSelectEntry(entry)}
-                                                className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedEntryId === entry.id ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
-                                            >
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
-                                                            {entry.title || moment(entry.date).format('MMMM Do, YYYY')}
-                                                        </h4>
-                                                        <p className="text-xs text-gray-500 mt-0.5">
-                                                            {moment(entry.date).format('ddd, MMM Do')}
-                                                        </p>
-                                                    </div>
-                                                    <MoodIcon mood={entry.mood} className="w-4 h-4 flex-shrink-0 ml-2" />
-                                                </div>
-                                                {entry.category && (
-                                                    <span className={`text-xs px-2 py-0.5 rounded font-semibold ${entry.category.color}`}>
-                                                        {entry.category.name}
-                                                    </span>
-                                                )}
-                                                <p className="text-xs text-gray-600 mt-2 line-clamp-2">{entry.content}</p>
+                                {/* Calendar Grid */}
+                                <div className="flex-1 p-4 overflow-auto">
+                                    {/* Weekday Headers */}
+                                    <div className="grid grid-cols-7 gap-2 mb-2">
+                                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                                            <div key={day} className="text-center text-sm font-semibold text-gray-600 py-2">
+                                                {day}
                                             </div>
                                         ))}
                                     </div>
-                                )}
-                            </div>
 
-                            {/* New Entry Button */}
-                            <div className="p-4 border-t">
-                                <button
-                                    onClick={handleNewEntry}
-                                    className="w-full bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 font-medium"
-                                >
-                                    <Plus className="w-5 h-5" />
-                                    New Entry
-                                </button>
-                            </div>
-                        </div>
+                                    {/* Calendar Days */}
+                                    <div className="grid grid-cols-7 gap-2">
+                                        {generateCalendarDays().map((day, index) => {
+                                            const dayEntries = getEntriesForDate(day);
+                                            const isToday = day.isSame(moment(), 'day');
+                                            const isCurrentMonth = day.month() === currentMonth.month();
+                                            const isSelected = selectedDate && day.isSame(selectedDate, 'day');
 
-                        {/* RIGHT SIDE - Form View */}
-                        <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
-                            {selectedEntryId === null && !isEditing ? (
-                                // Empty State
-                                <div className="h-full flex items-center justify-center text-gray-400">
-                                    <div className="text-center">
-                                        <PenTool className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        <p className="text-lg font-medium">Select an entry or create a new one</p>
-                                        <p className="text-sm mt-2">Your journal entries will appear here</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="h-full flex flex-col">
-                                    {/* Header */}
-                                    <div className="p-6 border-b flex justify-between items-center">
-                                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                            <PenTool className="w-5 h-5 text-indigo-600" />
-                                            {selectedEntryId ? (isEditing ? 'Edit Entry' : 'View Entry') : 'New Entry'}
-                                        </h2>
-                                        {selectedEntryId && !isEditing && (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={handleEdit}
-                                                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    onClick={() => handleDateClick(day)}
+                                                    className={`
+                                                        min-h-[100px] p-2 border rounded-lg cursor-pointer transition-all
+                                                        ${isCurrentMonth ? 'bg-white hover:bg-indigo-50' : 'bg-gray-50 text-gray-400'}
+                                                        ${isToday ? 'border-indigo-600 border-2' : 'border-gray-200'}
+                                                        ${isSelected ? 'ring-2 ring-indigo-600 bg-indigo-50' : ''}
+                                                        hover:shadow-md
+                                                    `}
                                                 >
-                                                    <Edit2 className="w-4 h-4" />
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={handleDelete}
-                                                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 overflow-y-auto p-6">
-                                        {!isEditing && selectedEntry ? (
-                                            // View Mode
-                                            <div className="space-y-6">
-                                                <div>
-                                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                                                        {selectedEntry.title || moment(selectedEntry.date).format('MMMM Do, YYYY')}
-                                                    </h3>
-                                                    <div className="flex gap-3 items-center text-sm text-gray-500">
-                                                        <span className="flex items-center gap-1">
-                                                            <Calendar className="w-4 h-4" />
-                                                            {moment(selectedEntry.date).format('dddd, MMMM Do, YYYY')}
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <span className={`text-sm font-semibold ${isToday ? 'text-indigo-600' : ''}`}>
+                                                            {day.format('D')}
                                                         </span>
-                                                        {selectedEntry.category && (
-                                                            <span className={`px-2 py-1 rounded font-semibold ${selectedEntry.category.color}`}>
-                                                                {selectedEntry.category.name}
+                                                        {dayEntries.length > 0 && (
+                                                            <span className="text-xs bg-indigo-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                                                                {dayEntries.length}
                                                             </span>
                                                         )}
-                                                        {selectedEntry.mood && (
-                                                            <div className="flex items-center gap-1">
-                                                                <MoodIcon mood={selectedEntry.mood} className="w-5 h-5" />
-                                                                <span className="capitalize">{selectedEntry.mood}</span>
+                                                    </div>
+
+                                                    {/* Entry indicators */}
+                                                    <div className="space-y-1">
+                                                        {dayEntries.slice(0, 3).map(entry => (
+                                                            <div
+                                                                key={entry.id}
+                                                                className="text-xs p-1 bg-indigo-100 text-indigo-800 rounded truncate"
+                                                                title={entry.title || entry.content.substring(0, 50)}
+                                                            >
+                                                                {entry.title || entry.content.substring(0, 20)}...
+                                                            </div>
+                                                        ))}
+                                                        {dayEntries.length > 3 && (
+                                                            <div className="text-xs text-gray-500 pl-1">
+                                                                +{dayEntries.length - 3} more
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
-
-                                                <div className="prose max-w-none">
-                                                    <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                                                        {selectedEntry.content}
-                                                    </div>
-                                                </div>
-
-                                                {selectedEntry.improvement_list && (
-                                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <Sparkles className="w-5 h-5 text-yellow-600" />
-                                                            <h4 className="font-semibold text-gray-900">Improvement List</h4>
-                                                        </div>
-                                                        <div className="text-gray-700 whitespace-pre-wrap">
-                                                            {selectedEntry.improvement_list}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            // Edit/Create Mode
-                                            <form onSubmit={submit} className="space-y-4">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Title (Optional)</label>
-                                                    <input
-                                                        type="text"
-                                                        value={data.title}
-                                                        onChange={(e) => setData('title', e.target.value)}
-                                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                                        placeholder="Give your entry a title..."
-                                                    />
-                                                </div>
-
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                                                        <input
-                                                            type="date"
-                                                            value={data.date}
-                                                            onChange={(e) => setData('date', e.target.value)}
-                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                                        <select
-                                                            value={data.journal_category_id}
-                                                            onChange={(e) => setData('journal_category_id', e.target.value)}
-                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                                        >
-                                                            <option value="">None</option>
-                                                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Mood</label>
-                                                    <div className="flex gap-4">
-                                                        {['positive', 'neutral', 'negative'].map(m => (
-                                                            <button
-                                                                key={m}
-                                                                type="button"
-                                                                onClick={() => setData('mood', m)}
-                                                                className={`p-3 rounded-lg border ${data.mood === m ? (m === 'positive' ? 'border-green-500 bg-green-50' : m === 'neutral' ? 'border-gray-500 bg-gray-50' : 'border-red-500 bg-red-50') : 'border-gray-200 hover:bg-gray-50'}`}
-                                                            >
-                                                                <MoodIcon mood={m} className={`w-6 h-6 ${data.mood === m ? (m === 'positive' ? 'text-green-600' : m === 'neutral' ? 'text-gray-600' : 'text-red-600') : 'text-gray-400'}`} />
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Reflection</label>
-                                                    <textarea
-                                                        value={data.content}
-                                                        onChange={(e) => setData('content', e.target.value)}
-                                                        rows="10"
-                                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm resize-none"
-                                                        placeholder="Write your thoughts..."
-                                                        required
-                                                    ></textarea>
-                                                    <InputError message={errors.content} className="mt-2" />
-                                                </div>
-
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                                                        <Sparkles className="w-4 h-4 text-yellow-500" /> Improvement List
-                                                    </label>
-                                                    <textarea
-                                                        value={data.improvement_list}
-                                                        onChange={(e) => setData('improvement_list', e.target.value)}
-                                                        rows="4"
-                                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm resize-none"
-                                                        placeholder="What can you improve?"
-                                                    ></textarea>
-                                                </div>
-
-                                                <div className="flex justify-end gap-3 pt-4 border-t">
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleCancelEdit}
-                                                        className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <PrimaryButton disabled={processing}>
-                                                        {selectedEntryId ? 'Update Entry' : 'Save Entry'}
-                                                    </PrimaryButton>
-                                                </div>
-                                            </form>
-                                        )}
+                                            );
+                                        })}
                                     </div>
                                 </div>
-                            )}
+                            </div>
+
+                            {/* Right Panel - Entry Details (same as list view) */}
+                            <div className="w-1/3 bg-white rounded-lg shadow-sm overflow-hidden">
+                                {selectedEntryId === null && !isEditing ? (
+                                    // Empty State
+                                    <div className="h-full flex items-center justify-center text-gray-400">
+                                        <div className="text-center">
+                                            <CalendarDays className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                                            <p className="text-lg font-medium">Select a date</p>
+                                            <p className="text-sm mt-2">Click on a calendar date to view or create entries</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="h-full flex flex-col">
+                                        {/* Header */}
+                                        <div className="p-6 border-b flex justify-between items-center">
+                                            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                <PenTool className="w-5 h-5 text-indigo-600" />
+                                                {selectedEntryId ? (isEditing ? 'Edit Entry' : 'View Entry') : 'New Entry'}
+                                            </h2>
+                                            {selectedEntryId && !isEditing && (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={handleEdit}
+                                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={handleDelete}
+                                                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Content - Reuse from list view */}
+                                        <div className="flex-1 overflow-y-auto p-6">
+                                            {!isEditing && selectedEntry ? (
+                                                // View Mode
+                                                <div className="space-y-6">
+                                                    <div>
+                                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                                            {selectedEntry.title || moment(selectedEntry.date).format('MMMM Do, YYYY')}
+                                                        </h3>
+                                                        <div className="flex gap-3 items-center text-sm text-gray-500">
+                                                            <span className="flex items-center gap-1">
+                                                                <Calendar className="w-4 h-4" />
+                                                                {moment(selectedEntry.date).format('dddd, MMMM Do, YYYY')}
+                                                            </span>
+                                                            {selectedEntry.category && (
+                                                                <span className={`px-2 py-1 rounded font-semibold ${selectedEntry.category.color}`}>
+                                                                    {selectedEntry.category.name}
+                                                                </span>
+                                                            )}
+                                                            {selectedEntry.mood && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <MoodIcon mood={selectedEntry.mood} className="w-5 h-5" />
+                                                                    <span className="capitalize">{selectedEntry.mood}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="prose max-w-none">
+                                                        <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                                                            {selectedEntry.content}
+                                                        </div>
+                                                    </div>
+
+                                                    {selectedEntry.improvement_list && (
+                                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <Sparkles className="w-5 h-5 text-yellow-600" />
+                                                                <h4 className="font-semibold text-gray-900">Improvement List</h4>
+                                                            </div>
+                                                            <div className="text-gray-700 whitespace-pre-wrap">
+                                                                {selectedEntry.improvement_list}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                // Edit/Create Mode - Same form as list view
+                                                <form onSubmit={submit} className="space-y-4">
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Title (Optional)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={data.title}
+                                                            onChange={(e) => setData('title', e.target.value)}
+                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                            placeholder="Give your entry a title..."
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                                            <input
+                                                                type="date"
+                                                                value={data.date}
+                                                                onChange={(e) => setData('date', e.target.value)}
+                                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                                            <select
+                                                                value={data.journal_category_id}
+                                                                onChange={(e) => setData('journal_category_id', e.target.value)}
+                                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                            >
+                                                                <option value="">None</option>
+                                                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Mood</label>
+                                                        <div className="flex gap-4">
+                                                            {['positive', 'neutral', 'negative'].map(m => (
+                                                                <button
+                                                                    key={m}
+                                                                    type="button"
+                                                                    onClick={() => setData('mood', m)}
+                                                                    className={`p-3 rounded-lg border ${data.mood === m ? (m === 'positive' ? 'border-green-500 bg-green-50' : m === 'neutral' ? 'border-gray-500 bg-gray-50' : 'border-red-500 bg-red-50') : 'border-gray-200 hover:bg-gray-50'}`}
+                                                                >
+                                                                    <MoodIcon mood={m} className={`w-6 h-6 ${data.mood === m ? (m === 'positive' ? 'text-green-600' : m === 'neutral' ? 'text-gray-600' : 'text-red-600') : 'text-gray-400'}`} />
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Reflection</label>
+                                                        <textarea
+                                                            value={data.content}
+                                                            onChange={(e) => setData('content', e.target.value)}
+                                                            rows="10"
+                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm resize-none"
+                                                            placeholder="Write your thoughts..."
+                                                            required
+                                                        ></textarea>
+                                                        <InputError message={errors.content} className="mt-2" />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                                            <Sparkles className="w-4 h-4 text-yellow-500" /> Improvement List
+                                                        </label>
+                                                        <textarea
+                                                            value={data.improvement_list}
+                                                            onChange={(e) => setData('improvement_list', e.target.value)}
+                                                            rows="4"
+                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm resize-none"
+                                                            placeholder="What can you improve?"
+                                                        ></textarea>
+                                                    </div>
+
+                                                    <div className="flex justify-end gap-3 pt-4 border-t">
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleCancelEdit}
+                                                            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <PrimaryButton disabled={processing}>
+                                                            {selectedEntryId ? 'Update Entry' : 'Save Entry'}
+                                                        </PrimaryButton>
+                                                    </div>
+                                                </form>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="flex gap-6 h-[calc(100vh-140px)]">
+
+                            {/* LEFT SIDEBAR - List View */}
+                            <div className="w-1/3 bg-white rounded-lg shadow-sm flex flex-col overflow-hidden">
+                                {/* Search and Filter Header */}
+                                <div className="p-4 border-b space-y-3">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search entries..."
+                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    <div className="flex gap-2 items-center">
+                                        <button
+                                            onClick={() => setShowFilters(!showFilters)}
+                                            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm ${showFilters ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'} hover:bg-indigo-100 hover:text-indigo-700`}
+                                        >
+                                            <Filter className="w-4 h-4" />
+                                            Filters
+                                        </button>
+                                        {(categoryFilter || moodFilter || dateFromFilter || dateToFilter) && (
+                                            <button
+                                                onClick={clearFilters}
+                                                className="text-xs text-red-600 hover:underline"
+                                            >
+                                                Clear
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => setShowCategoryModal(true)}
+                                            className="ml-auto text-xs text-indigo-600 hover:underline flex items-center gap-1"
+                                        >
+                                            <Tag className="w-3 h-3" /> Masters
+                                        </button>
+                                    </div>
+
+                                    {/* Filter Controls */}
+                                    {showFilters && (
+                                        <div className="space-y-2 pt-2 border-t">
+                                            <select
+                                                value={categoryFilter}
+                                                onChange={(e) => { setCategoryFilter(e.target.value); applyFilters(); }}
+                                                className="w-full text-sm border-gray-300 rounded-lg"
+                                            >
+                                                <option value="">All Categories</option>
+                                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+
+                                            <select
+                                                value={moodFilter}
+                                                onChange={(e) => { setMoodFilter(e.target.value); applyFilters(); }}
+                                                className="w-full text-sm border-gray-300 rounded-lg"
+                                            >
+                                                <option value="">All Moods</option>
+                                                <option value="positive">Positive</option>
+                                                <option value="neutral">Neutral</option>
+                                                <option value="negative">Negative</option>
+                                            </select>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <input
+                                                    type="date"
+                                                    value={dateFromFilter}
+                                                    onChange={(e) => { setDateFromFilter(e.target.value); applyFilters(); }}
+                                                    placeholder="From"
+                                                    className="text-sm border-gray-300 rounded-lg"
+                                                />
+                                                <input
+                                                    type="date"
+                                                    value={dateToFilter}
+                                                    onChange={(e) => { setDateToFilter(e.target.value); applyFilters(); }}
+                                                    placeholder="To"
+                                                    className="text-sm border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Entries List */}
+                                <div className="flex-1 overflow-y-auto">
+                                    {entriesList.length === 0 ? (
+                                        <div className="p-8 text-center text-gray-400">
+                                            <PenTool className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                            <p className="text-sm">No entries found</p>
+                                        </div>
+                                    ) : (
+                                        <div className="divide-y">
+                                            {entriesList.map((entry) => (
+                                                <div
+                                                    key={entry.id}
+                                                    onClick={() => handleSelectEntry(entry)}
+                                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedEntryId === entry.id ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
+                                                >
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="flex-1">
+                                                            <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
+                                                                {entry.title || moment(entry.date).format('MMMM Do, YYYY')}
+                                                            </h4>
+                                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                                {moment(entry.date).format('ddd, MMM Do')}
+                                                            </p>
+                                                        </div>
+                                                        <MoodIcon mood={entry.mood} className="w-4 h-4 flex-shrink-0 ml-2" />
+                                                    </div>
+                                                    {entry.category && (
+                                                        <span className={`text-xs px-2 py-0.5 rounded font-semibold ${entry.category.color}`}>
+                                                            {entry.category.name}
+                                                        </span>
+                                                    )}
+                                                    <p className="text-xs text-gray-600 mt-2 line-clamp-2">{entry.content}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* New Entry Button */}
+                                <div className="p-4 border-t">
+                                    <button
+                                        onClick={handleNewEntry}
+                                        className="w-full bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 font-medium"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                        New Entry
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* RIGHT SIDE - Form View */}
+                            <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+                                {selectedEntryId === null && !isEditing ? (
+                                    // Empty State
+                                    <div className="h-full flex items-center justify-center text-gray-400">
+                                        <div className="text-center">
+                                            <PenTool className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                                            <p className="text-lg font-medium">Select an entry or create a new one</p>
+                                            <p className="text-sm mt-2">Your journal entries will appear here</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="h-full flex flex-col">
+                                        {/* Header */}
+                                        <div className="p-6 border-b flex justify-between items-center">
+                                            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                <PenTool className="w-5 h-5 text-indigo-600" />
+                                                {selectedEntryId ? (isEditing ? 'Edit Entry' : 'View Entry') : 'New Entry'}
+                                            </h2>
+                                            {selectedEntryId && !isEditing && (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={handleEdit}
+                                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={handleDelete}
+                                                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 overflow-y-auto p-6">
+                                            {!isEditing && selectedEntry ? (
+                                                // View Mode
+                                                <div className="space-y-6">
+                                                    <div>
+                                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                                                            {selectedEntry.title || moment(selectedEntry.date).format('MMMM Do, YYYY')}
+                                                        </h3>
+                                                        <div className="flex gap-3 items-center text-sm text-gray-500">
+                                                            <span className="flex items-center gap-1">
+                                                                <Calendar className="w-4 h-4" />
+                                                                {moment(selectedEntry.date).format('dddd, MMMM Do, YYYY')}
+                                                            </span>
+                                                            {selectedEntry.category && (
+                                                                <span className={`px-2 py-1 rounded font-semibold ${selectedEntry.category.color}`}>
+                                                                    {selectedEntry.category.name}
+                                                                </span>
+                                                            )}
+                                                            {selectedEntry.mood && (
+                                                                <div className="flex items-center gap-1">
+                                                                    <MoodIcon mood={selectedEntry.mood} className="w-5 h-5" />
+                                                                    <span className="capitalize">{selectedEntry.mood}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="prose max-w-none">
+                                                        <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                                                            {selectedEntry.content}
+                                                        </div>
+                                                    </div>
+
+                                                    {selectedEntry.improvement_list && (
+                                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <Sparkles className="w-5 h-5 text-yellow-600" />
+                                                                <h4 className="font-semibold text-gray-900">Improvement List</h4>
+                                                            </div>
+                                                            <div className="text-gray-700 whitespace-pre-wrap">
+                                                                {selectedEntry.improvement_list}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                // Edit/Create Mode
+                                                <form onSubmit={submit} className="space-y-4">
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Title (Optional)</label>
+                                                        <input
+                                                            type="text"
+                                                            value={data.title}
+                                                            onChange={(e) => setData('title', e.target.value)}
+                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                            placeholder="Give your entry a title..."
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                                            <input
+                                                                type="date"
+                                                                value={data.date}
+                                                                onChange={(e) => setData('date', e.target.value)}
+                                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                                            <select
+                                                                value={data.journal_category_id}
+                                                                onChange={(e) => setData('journal_category_id', e.target.value)}
+                                                                className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                                            >
+                                                                <option value="">None</option>
+                                                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Mood</label>
+                                                        <div className="flex gap-4">
+                                                            {['positive', 'neutral', 'negative'].map(m => (
+                                                                <button
+                                                                    key={m}
+                                                                    type="button"
+                                                                    onClick={() => setData('mood', m)}
+                                                                    className={`p-3 rounded-lg border ${data.mood === m ? (m === 'positive' ? 'border-green-500 bg-green-50' : m === 'neutral' ? 'border-gray-500 bg-gray-50' : 'border-red-500 bg-red-50') : 'border-gray-200 hover:bg-gray-50'}`}
+                                                                >
+                                                                    <MoodIcon mood={m} className={`w-6 h-6 ${data.mood === m ? (m === 'positive' ? 'text-green-600' : m === 'neutral' ? 'text-gray-600' : 'text-red-600') : 'text-gray-400'}`} />
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Reflection</label>
+                                                        <textarea
+                                                            value={data.content}
+                                                            onChange={(e) => setData('content', e.target.value)}
+                                                            rows="10"
+                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm resize-none"
+                                                            placeholder="Write your thoughts..."
+                                                            required
+                                                        ></textarea>
+                                                        <InputError message={errors.content} className="mt-2" />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                                            <Sparkles className="w-4 h-4 text-yellow-500" /> Improvement List
+                                                        </label>
+                                                        <textarea
+                                                            value={data.improvement_list}
+                                                            onChange={(e) => setData('improvement_list', e.target.value)}
+                                                            rows="4"
+                                                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm resize-none"
+                                                            placeholder="What can you improve?"
+                                                        ></textarea>
+                                                    </div>
+
+                                                    <div className="flex justify-end gap-3 pt-4 border-t">
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleCancelEdit}
+                                                            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <PrimaryButton disabled={processing}>
+                                                            {selectedEntryId ? 'Update Entry' : 'Save Entry'}
+                                                        </PrimaryButton>
+                                                    </div>
+                                                </form>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>
