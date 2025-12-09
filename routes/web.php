@@ -84,6 +84,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/goals', [App\Http\Controllers\HealthGoalController::class, 'store'])->name('health.goals.store');
         Route::get('/goals/progress', [App\Http\Controllers\HealthGoalController::class, 'progress'])->name('health.goals.progress');
     });
+
+    // Todo Module Routes
+    Route::prefix('todos')->group(function () {
+        // Dashboard
+        Route::get('/', [App\Http\Controllers\TodoController::class, 'index'])->name('todos.index');
+        
+        // Calendar View
+        Route::get('/calendar', [App\Http\Controllers\TodoController::class, 'calendar'])->name('todos.calendar');
+        
+        // List View
+        Route::get('/list', [App\Http\Controllers\TodoController::class, 'list'])->name('todos.list');
+        
+        // CRUD
+        Route::post('/', [App\Http\Controllers\TodoController::class, 'store'])->name('todos.store');
+        Route::put('/{todo}', [App\Http\Controllers\TodoController::class, 'update'])->name('todos.update');
+        Route::delete('/{todo}', [App\Http\Controllers\TodoController::class, 'destroy'])->name('todos.destroy');
+        
+        // Actions
+        Route::post('/{todo}/toggle', [App\Http\Controllers\TodoController::class, 'toggleComplete'])->name('todos.toggle');
+        Route::post('/bulk-delete', [App\Http\Controllers\TodoController::class, 'bulkDelete'])->name('todos.bulk-delete');
+        
+        // Categories
+        Route::get('/categories', [App\Http\Controllers\TodoCategoryController::class, 'index'])->name('todos.categories.index');
+        Route::post('/categories', [App\Http\Controllers\TodoCategoryController::class, 'store'])->name('todos.categories.store');
+        Route::put('/categories/{category}', [App\Http\Controllers\TodoCategoryController::class, 'update'])->name('todos.categories.update');
+        Route::delete('/categories/{category}', [App\Http\Controllers\TodoCategoryController::class, 'destroy'])->name('todos.categories.destroy');
+    });
 });
 
 Route::middleware('auth')->group(function () {

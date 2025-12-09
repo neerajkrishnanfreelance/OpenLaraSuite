@@ -76,7 +76,7 @@ export default function Welcome({ auth }) {
             description: 'Daily checklists',
             icon: CheckSquare,
             color: 'bg-orange-100 text-orange-600',
-            href: route('tasks.index'),
+            href: '/todos',
         },
         {
             title: 'Journaling',
