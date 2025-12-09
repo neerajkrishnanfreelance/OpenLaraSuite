@@ -88,6 +88,51 @@ class MeetingController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Meeting $meeting)
+    {
+        if (Auth::id() !== $meeting->organizer_id) {
+            abort(403);
+        }
+
+        $meeting->load('participants');
+
+        return Inertia::render('Meetings/Edit', [
+            'meeting' => $meeting,
+            'users' => User::select('id', 'name', 'email')->get(),
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Meeting $meeting)
+    {
+        if (Auth::id() !== $meeting->organizer_id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
+            'location_link' => 'nullable|string|max:255',
+            'participant_ids' => 'nullable|array',
+            'participant_ids.*' => 'exists:users,id',
+        ]);
+
+        $meeting->update($validated);
+
+        if (isset($validated['participant_ids'])) {
+            $meeting->participants()->sync($validated['participant_ids']);
+        }
+
+        return redirect()->route('meetings.index')->with('message', 'Meeting updated successfully.');
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(Meeting $meeting)
