@@ -203,6 +203,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Journal Masters
     Route::post('/journal/categories', [App\Http\Controllers\JournalController::class, 'storeCategory'])->name('journal.categories.store');
     Route::delete('/journal/categories/{category}', [App\Http\Controllers\JournalController::class, 'destroyCategory'])->name('journal.categories.destroy');
+
+    // System Backups
+    Route::get('/settings/backups', [App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
+    Route::post('/settings/backups', [App\Http\Controllers\BackupController::class, 'store'])->name('backups.store');
+    Route::get('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
+    Route::delete('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
 });
 
 require __DIR__.'/auth.php';
