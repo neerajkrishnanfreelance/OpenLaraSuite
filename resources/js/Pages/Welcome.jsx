@@ -48,7 +48,7 @@ export default function Welcome({ auth }) {
             description: 'Monitor wellness',
             icon: Heart,
             color: 'bg-red-100 text-red-600',
-            href: route('dashboard'), // Placeholder
+            href: '/health',
         },
         {
             title: 'Expense',

@@ -54,7 +54,7 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
 
                 {/* Right Column (Profile Card & Timer) - Spans 1 col */}
                 <div className="lg:col-span-1 space-y-6">
-                    
+
                     <TimesheetTimerWidget projects={projects} activeTimer={activeTimer} />
                 </div>
 
@@ -70,11 +70,23 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
                     <CallWidget calls={todays_calls} />
                 </div>
 
-                {/* Secondary Stats/Profile or another Widget - Reusing ProfileCard for another user mock from image or just another stat */}
-                {/* The image shows another profile card "Sara Ahmed". We'll mock it or show another stat for now to avoid confusion */}
-      
+                {/* Health Widget */}
+                <div className="lg:col-span-1">
+                    <a href="/health" className="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="p-4 bg-red-100 rounded-full mb-3">
+                                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-semibold text-indigo-600 mb-1">Health</h3>
+                            <p className="text-sm text-gray-600">Monitor wellness</p>
+                        </div>
+                    </a>
+                </div>
+
                 {/* Stat Card */}
-              
+
                 {/* Row 3: Gantt Chart */}
                 <div className="lg:col-span-4">
                     <GanttWidget tasks={tasks || []} />

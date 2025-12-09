@@ -53,6 +53,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/requirements/{requirement}', [RequirementController::class, 'destroy'])->name('requirements.destroy');
     Route::get('/projects/{project}/requirements/export', [RequirementController::class, 'export'])->name('requirements.export');
     Route::post('/projects/{project}/requirements/import', [RequirementController::class, 'import'])->name('requirements.import');
+
+    // Health & Wellness Module Routes
+    Route::prefix('health')->group(function () {
+        Route::get('/', [App\Http\Controllers\HealthDashboardController::class, 'index'])->name('health.dashboard');
+        
+        // Food Items
+        Route::get('/food-items', [App\Http\Controllers\FoodItemController::class, 'index'])->name('health.food-items.index');
+        Route::post('/food-items', [App\Http\Controllers\FoodItemController::class, 'store'])->name('health.food-items.store');
+        Route::put('/food-items/{foodItem}', [App\Http\Controllers\FoodItemController::class, 'update'])->name('health.food-items.update');
+        Route::delete('/food-items/{foodItem}', [App\Http\Controllers\FoodItemController::class, 'destroy'])->name('health.food-items.destroy');
+        Route::get('/food-items/search', [App\Http\Controllers\FoodItemController::class, 'search'])->name('health.food-items.search');
+        
+        // Daily Food Logs
+        Route::get('/food-logs', [App\Http\Controllers\DailyFoodLogController::class, 'index'])->name('health.food-logs.index');
+        Route::post('/food-logs', [App\Http\Controllers\DailyFoodLogController::class, 'store'])->name('health.food-logs.store');
+        Route::put('/food-logs/{dailyFoodLog}', [App\Http\Controllers\DailyFoodLogController::class, 'update'])->name('health.food-logs.update');
+        Route::delete('/food-logs/{dailyFoodLog}', [App\Http\Controllers\DailyFoodLogController::class, 'destroy'])->name('health.food-logs.destroy');
+        Route::get('/food-logs/daily-summary', [App\Http\Controllers\DailyFoodLogController::class, 'dailySummary'])->name('health.food-logs.daily-summary');
+        
+        // Workout Logs
+        Route::get('/workouts', [App\Http\Controllers\WorkoutLogController::class, 'index'])->name('health.workouts.index');
+        Route::post('/workouts', [App\Http\Controllers\WorkoutLogController::class, 'store'])->name('health.workouts.store');
+        Route::put('/workouts/{workoutLog}', [App\Http\Controllers\WorkoutLogController::class, 'update'])->name('health.workouts.update');
+        Route::delete('/workouts/{workoutLog}', [App\Http\Controllers\WorkoutLogController::class, 'destroy'])->name('health.workouts.destroy');
+        Route::get('/workouts/weekly-summary', [App\Http\Controllers\WorkoutLogController::class, 'weeklySummary'])->name('health.workouts.weekly-summary');
+        
+        // Health Goals
+        Route::get('/goals', [App\Http\Controllers\HealthGoalController::class, 'index'])->name('health.goals.index');
+        Route::post('/goals', [App\Http\Controllers\HealthGoalController::class, 'store'])->name('health.goals.store');
+        Route::get('/goals/progress', [App\Http\Controllers\HealthGoalController::class, 'progress'])->name('health.goals.progress');
+    });
 });
 
 Route::middleware('auth')->group(function () {

@@ -127,6 +127,11 @@ export default function TimesheetTimerWidget({ projects, activeTimer }) {
                             placeholder={data.project_id ? "Search and select task..." : "Select project first"}
                         />
                         <InputError message={errors.task_id} className="mt-2" />
+                        {data.project_id && (
+                            <div className="text-xs text-gray-500 mt-1">
+                                {availableTasks.length} task(s) available
+                            </div>
+                        )}
                     </div>
 
                     <div className="mb-4">
