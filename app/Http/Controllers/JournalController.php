@@ -15,8 +15,36 @@ class JournalController extends Controller
         $categories = \App\Models\JournalCategory::where('user_id', Auth::id())->get();
 
         $entriesQuery = JournalEntry::where('user_id', Auth::id())
-            ->with('category')
-            ->orderBy('date', 'desc')
+            ->with('category');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $entriesQuery->where(function($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('content', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Category filter
+        if ($request->filled('category')) {
+            $entriesQuery->where('journal_category_id', $request->input('category'));
+        }
+
+        // Mood filter
+        if ($request->filled('mood')) {
+            $entriesQuery->where('mood', $request->input('mood'));
+        }
+
+        // Date range filter
+        if ($request->filled('date_from')) {
+            $entriesQuery->where('date', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $entriesQuery->where('date', '<=', $request->input('date_to'));
+        }
+
+        $entriesQuery->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc');
 
         if ($view === 'kanban') {
@@ -31,6 +59,13 @@ class JournalController extends Controller
             'entries' => $entries,
             'categories' => $categories,
             'view' => $view,
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'category' => $request->input('category', ''),
+                'mood' => $request->input('mood', ''),
+                'date_from' => $request->input('date_from', ''),
+                'date_to' => $request->input('date_to', ''),
+            ],
         ]);
     }
 
