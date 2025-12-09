@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Shortcuts from Welcome Page
     Route::redirect('/crm', '/projects');
-    Route::redirect('/budget', '/accounting'); // Placeholder for now
+    // Budget module - handled in budget routes group below
     Route::redirect('/expense', '/expenses');
 
     Route::resource('expense-products', \App\Http\Controllers\ProductController::class);
@@ -163,6 +163,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reports/general-ledger', [App\Http\Controllers\AccountingReportController::class, 'generalLedger'])->name('accounting.reports.general-ledger');
         Route::get('/reports/trial-balance', [App\Http\Controllers\AccountingReportController::class, 'trialBalance'])->name('accounting.reports.trial-balance');
         Route::get('/reports/journal-ledger', [App\Http\Controllers\AccountingReportController::class, 'journalLedger'])->name('accounting.reports.journal-ledger');
+    });
+
+    // Budget Module Routes
+    Route::prefix('budget')->group(function () {
+        // Dashboard (root of budget module)
+        Route::get('/', [App\Http\Controllers\BudgetDashboardController::class, 'index'])->name('budget.dashboard');
+        
+        // Categories (Master)
+        Route::get('/categories', [App\Http\Controllers\BudgetCategoryController::class, 'index'])->name('budget.categories.index');
+        Route::post('/categories', [App\Http\Controllers\BudgetCategoryController::class, 'store'])->name('budget.categories.store');
+        Route::put('/categories/{category}', [App\Http\Controllers\BudgetCategoryController::class, 'update'])->name('budget.categories.update');
+        Route::delete('/categories/{category}', [App\Http\Controllers\BudgetCategoryController::class, 'destroy'])->name('budget.categories.destroy');
+        
+        // Budget Plans
+        Route::resource('plans', App\Http\Controllers\BudgetPlanController::class)->names([
+            'index' => 'budget.plans.index',
+            'create' => 'budget.plans.create',
+            'store' => 'budget.plans.store',
+            'show' => 'budget.plans.show',
+            'edit' => 'budget.plans.edit',
+            'update' => 'budget.plans.update',
+            'destroy' => 'budget.plans.destroy',
+        ]);
+        
+        // Budget Entries
+        Route::get('/entries', [App\Http\Controllers\BudgetEntryController::class, 'index'])->name('budget.entries.index');
+        Route::get('/entries/calendar', [App\Http\Controllers\BudgetEntryController::class, 'calendar'])->name('budget.entries.calendar');
+        Route::post('/entries', [App\Http\Controllers\BudgetEntryController::class, 'store'])->name('budget.entries.store');
+        Route::put('/entries/{entry}', [App\Http\Controllers\BudgetEntryController::class, 'update'])->name('budget.entries.update');
+        Route::delete('/entries/{entry}', [App\Http\Controllers\BudgetEntryController::class, 'destroy'])->name('budget.entries.destroy');
     });
 
 

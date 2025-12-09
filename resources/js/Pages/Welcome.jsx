@@ -41,7 +41,7 @@ export default function Welcome({ auth }) {
             description: 'Plan your finances',
             icon: PiggyBank,
             color: 'bg-yellow-100 text-yellow-600',
-            href: '/accounting',
+            href: '/budget',
         },
         {
             title: 'Health',

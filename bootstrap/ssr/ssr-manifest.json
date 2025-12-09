@@ -134,6 +134,9 @@
   "resources/js/Layouts/AuthenticatedLayout.jsx": [
     "/build/assets/AuthenticatedLayout-DqVvfPrE.js"
   ],
+  "resources/js/Layouts/BudgetLayout.jsx": [
+    "/build/assets/BudgetLayout-CsSg9nQG.js"
+  ],
   "resources/js/Layouts/GuestLayout.jsx": [
     "/build/assets/GuestLayout-Bt4n5Wml.js"
   ],
@@ -190,6 +193,24 @@
   ],
   "resources/js/Pages/Auth/VerifyEmail.jsx": [
     "/build/assets/VerifyEmail-FucWZ3w0.js"
+  ],
+  "resources/js/Pages/Budget/Categories/Index.jsx": [
+    "/build/assets/Index-DGhYcJzA.js"
+  ],
+  "resources/js/Pages/Budget/Dashboard.jsx": [
+    "/build/assets/Dashboard-BH4JL-V7.js"
+  ],
+  "resources/js/Pages/Budget/Entries/Calendar.jsx": [
+    "/build/assets/Calendar-kAGgS1V8.js"
+  ],
+  "resources/js/Pages/Budget/Plans/Create.jsx": [
+    "/build/assets/Create-C6h6cQ2f.js"
+  ],
+  "resources/js/Pages/Budget/Plans/Index.jsx": [
+    "/build/assets/Index-DOnrSQEW.js"
+  ],
+  "resources/js/Pages/Budget/Plans/Show.jsx": [
+    "/build/assets/Show-CObSVsdX.js"
   ],
   "resources/js/Pages/Calendar/Index.jsx": [
     "/build/assets/Index-DJW_3z8X.js",
@@ -328,7 +349,7 @@
     "/build/assets/List-CbiJlLUB.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-D1wUjSMg.js"
+    "/build/assets/Welcome-BR0QbYMg.js"
   ],
   "resources/js/ssr.jsx": [],
   "vendor/tightenco/ziggy/dist/index.js": []
