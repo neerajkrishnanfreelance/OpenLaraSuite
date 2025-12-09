@@ -3,11 +3,14 @@
 namespace App\Exports;
 
 use App\Models\Timesheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
 
-class TimesheetsExport implements FromCollection, WithHeadings, WithMapping
+class TimesheetsExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $filters;
 
@@ -78,6 +81,21 @@ class TimesheetsExport implements FromCollection, WithHeadings, WithMapping
             $timesheet->is_overtime ? 'Yes' : 'No',
             ucfirst($timesheet->status),
             $timesheet->description,
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            // Style the first row as bold text on a light blue background
+            1    => [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '4F46E5'], // Indigo-600
+                ],
+            ],
+            // Add a total row at the bottom (optional logic could go here)
         ];
     }
 }

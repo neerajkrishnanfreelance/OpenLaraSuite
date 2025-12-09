@@ -10,7 +10,8 @@ import {
     Calendar as CalendarIcon,
     CheckSquare,
     PenTool,
-    Compass
+    Compass,
+    Database
 } from 'lucide-react';
 
 export default function Welcome({ auth }) {
@@ -84,6 +85,13 @@ export default function Welcome({ auth }) {
             icon: PenTool,
             color: 'bg-violet-100 text-violet-600',
             href: '/journal',
+        },
+        {
+            title: 'Backups',
+            description: 'Data protection',
+            icon: Database,
+            color: 'bg-slate-100 text-slate-600',
+            href: '/settings/backups',
         },
     ];
 

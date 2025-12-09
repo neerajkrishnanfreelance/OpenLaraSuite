@@ -79,4 +79,22 @@ class BackupController extends Controller
 
         return back()->with('error', 'Backup file not found.');
     }
+
+    /**
+     * Restore the database from the specified backup.
+     */
+    public function restore($name)
+    {
+        try {
+            $exitCode = Artisan::call('db:restore', ['filename' => $name]);
+
+            if ($exitCode === 0) {
+                return back()->with('success', 'Database restored successfully! You may need to refresh the page.');
+            } else {
+                return back()->with('error', 'Restore failed. Check logs for details.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Restore failed: ' . $e->getMessage());
+        }
+    }
 }

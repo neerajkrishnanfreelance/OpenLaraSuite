@@ -2,12 +2,14 @@
 
 namespace App\Exports;
 
-use App\Models\Task;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
 
-class TasksExport implements FromCollection, WithHeadings, WithMapping
+class TasksExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $filters;
 
@@ -61,6 +63,20 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping
             ucfirst($task->priority),
             str_replace('_', ' ', ucfirst($task->status)),
             $task->due_date ? $task->due_date->format('Y-m-d') : '-',
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            // Style the first row as bold text on a light blue background
+            1    => [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '4F46E5'], // Indigo-600
+                ],
+            ],
         ];
     }
 }
