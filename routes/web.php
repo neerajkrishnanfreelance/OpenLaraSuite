@@ -139,6 +139,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reports/profit-loss', [App\Http\Controllers\AccountingReportController::class, 'profitLoss'])->name('accounting.reports.profit-loss');
         Route::get('/reports/general-ledger', [App\Http\Controllers\AccountingReportController::class, 'generalLedger'])->name('accounting.reports.general-ledger');
         Route::get('/reports/trial-balance', [App\Http\Controllers\AccountingReportController::class, 'trialBalance'])->name('accounting.reports.trial-balance');
+        Route::get('/reports/journal-ledger', [App\Http\Controllers\AccountingReportController::class, 'journalLedger'])->name('accounting.reports.journal-ledger');
     });
 });
 
