@@ -12,6 +12,7 @@ class AccountingJournalEntryLine extends Model
     protected $fillable = [
         'journal_entry_id',
         'account_id',
+        'product_id',
         'description',
         'debit',
         'credit',
@@ -21,6 +22,14 @@ class AccountingJournalEntryLine extends Model
         'debit' => 'decimal:2',
         'credit' => 'decimal:2',
     ];
+
+    /**
+     * Relationships
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
     /**
      * Relationships

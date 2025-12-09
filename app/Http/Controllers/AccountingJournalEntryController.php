@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AccountingJournalEntry;
 use App\Models\Journal;
 use App\Models\Account;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -40,10 +41,12 @@ class AccountingJournalEntryController extends Controller
     {
         $journals = Journal::active()->get();
         $accounts = Account::active()->orderBy('code')->get();
+        $products = Product::where('is_expense', true)->get();
 
         return Inertia::render('Accounting/Entries/Create', [
             'journals' => $journals,
             'accounts' => $accounts,
+            'products' => $products,
         ]);
     }
 
@@ -56,6 +59,7 @@ class AccountingJournalEntryController extends Controller
             'notes' => 'nullable|string',
             'lines' => 'required|array|min:2',
             'lines.*.account_id' => 'required|exists:accounts,id',
+            'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.description' => 'required|string',
             'lines.*.debit' => 'required|numeric|min:0',
             'lines.*.credit' => 'required|numeric|min:0',
@@ -105,11 +109,13 @@ class AccountingJournalEntryController extends Controller
         $entry->load(['lines']);
         $journals = Journal::active()->get();
         $accounts = Account::active()->orderBy('code')->get();
+        $products = Product::where('is_expense', true)->get();
 
         return Inertia::render('Accounting/Entries/Edit', [
             'entry' => $entry,
             'journals' => $journals,
             'accounts' => $accounts,
+            'products' => $products,
         ]);
     }
 
@@ -126,6 +132,7 @@ class AccountingJournalEntryController extends Controller
             'notes' => 'nullable|string',
             'lines' => 'required|array|min:2',
             'lines.*.account_id' => 'required|exists:accounts,id',
+            'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.description' => 'required|string',
             'lines.*.debit' => 'required|numeric|min:0',
             'lines.*.credit' => 'required|numeric|min:0',

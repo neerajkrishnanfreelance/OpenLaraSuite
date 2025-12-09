@@ -3,10 +3,10 @@ import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
-export default function CreateJournalEntry({ auth, journals, accounts }) {
+export default function CreateJournalEntry({ auth, journals, accounts, products = [] }) {
     const [lines, setLines] = useState([
-        { account_id: '', description: '', debit: 0, credit: 0 },
-        { account_id: '', description: '', debit: 0, credit: 0 },
+        { account_id: '', product_id: '', description: '', debit: 0, credit: 0 },
+        { account_id: '', product_id: '', description: '', debit: 0, credit: 0 },
     ]);
 
     const { data, setData, post, processing } = useForm({
@@ -18,7 +18,7 @@ export default function CreateJournalEntry({ auth, journals, accounts }) {
     });
 
     const addLine = () => {
-        const newLines = [...lines, { account_id: '', description: '', debit: 0, credit: 0 }];
+        const newLines = [...lines, { account_id: '', product_id: '', description: '', debit: 0, credit: 0 }];
         setLines(newLines);
         setData('lines', newLines);
     };
@@ -32,6 +32,26 @@ export default function CreateJournalEntry({ auth, journals, accounts }) {
     const updateLine = (index, field, value) => {
         const newLines = [...lines];
         newLines[index][field] = value;
+
+        // Auto-fill logic when product changes
+        if (field === 'product_id') {
+            const product = products.find(p => p.id == value);
+            if (product) {
+                if (product.expense_account_id) {
+                    newLines[index]['account_id'] = product.expense_account_id;
+                }
+                if (!newLines[index]['description']) {
+                    newLines[index]['description'] = product.name;
+                }
+                if (product.price && parseFloat(product.price) > 0) {
+                    // Default to debit if expense (just a guess, but usually expenses are debited)
+                    if (newLines[index]['debit'] == 0 && newLines[index]['credit'] == 0) {
+                        newLines[index]['debit'] = product.price;
+                    }
+                }
+            }
+        }
+
         setLines(newLines);
         setData('lines', newLines);
     };
@@ -116,6 +136,7 @@ export default function CreateJournalEntry({ auth, journals, accounts }) {
                                     <table className="min-w-full border">
                                         <thead className="bg-gray-50">
                                             <tr>
+                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Product</th>
                                                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Account</th>
                                                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Description</th>
                                                 <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Debit</th>
@@ -126,6 +147,20 @@ export default function CreateJournalEntry({ auth, journals, accounts }) {
                                         <tbody>
                                             {lines.map((line, index) => (
                                                 <tr key={index} className="border-t">
+                                                    <td className="px-4 py-2">
+                                                        <select
+                                                            value={line.product_id || ''}
+                                                            onChange={(e) => updateLine(index, 'product_id', e.target.value)}
+                                                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                                        >
+                                                            <option value="">Select Product (Optional)</option>
+                                                            {products.map(product => (
+                                                                <option key={product.id} value={product.id}>
+                                                                    {product.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </td>
                                                     <td className="px-4 py-2">
                                                         <select
                                                             value={line.account_id}
@@ -182,13 +217,13 @@ export default function CreateJournalEntry({ auth, journals, accounts }) {
                                                 </tr>
                                             ))}
                                             <tr className="border-t-2 bg-gray-50 font-semibold">
-                                                <td colSpan="2" className="px-4 py-2 text-right">Totals:</td>
+                                                <td colSpan="3" className="px-4 py-2 text-right">Totals:</td>
                                                 <td className="px-4 py-2 text-right">${totalDebit.toFixed(2)}</td>
                                                 <td className="px-4 py-2 text-right">${totalCredit.toFixed(2)}</td>
                                                 <td className="px-4 py-2"></td>
                                             </tr>
                                             <tr className={`border-t ${difference !== 0 ? 'bg-red-50' : 'bg-green-50'}`}>
-                                                <td colSpan="2" className="px-4 py-2 text-right font-semibold">Difference:</td>
+                                                <td colSpan="3" className="px-4 py-2 text-right font-semibold">Difference:</td>
                                                 <td colSpan="2" className={`px-4 py-2 text-right font-semibold ${difference !== 0 ? 'text-red-700' : 'text-green-700'}`}>
                                                     ${Math.abs(difference).toFixed(2)} {difference !== 0 && '(Unbalanced!)'}
                                                 </td>

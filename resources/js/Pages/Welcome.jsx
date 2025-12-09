@@ -20,7 +20,7 @@ export default function Welcome({ auth }) {
             description: 'Manage your contacts',
             icon: Users,
             color: 'bg-indigo-100 text-indigo-600',
-            href: route('projects.index'), // Linking to projects as CRM placeholder
+            href: '/crm', // Linking to projects as CRM placeholder
         },
         {
             title: 'Accounting',
@@ -41,7 +41,7 @@ export default function Welcome({ auth }) {
             description: 'Plan your finances',
             icon: PiggyBank,
             color: 'bg-yellow-100 text-yellow-600',
-            href: route('dashboard'), // Placeholder
+            href: '/budget', // Placeholder
         },
         {
             title: 'Health',
@@ -55,21 +55,21 @@ export default function Welcome({ auth }) {
             description: 'Log your spends',
             icon: Receipt,
             color: 'bg-teal-100 text-teal-600',
-            href: route('timesheets.index'), // Using timesheets as expense placeholder
+            href: '/expense', // Using timesheets as expense placeholder
         },
         {
             title: 'Learning Projects',
             description: 'Advanced courses',
             icon: BookOpen,
             color: 'bg-cyan-100 text-cyan-600',
-            href: route('learning.index'),
+            href: '/learning',
         },
         {
             title: 'Calendar',
             description: 'Schedule events',
             icon: CalendarIcon,
             color: 'bg-pink-100 text-pink-600',
-            href: route('calendar.index'),
+            href: '/calendar',
         },
         {
             title: 'Todo',
@@ -83,7 +83,7 @@ export default function Welcome({ auth }) {
             description: 'Reflect daily',
             icon: PenTool,
             color: 'bg-violet-100 text-violet-600',
-            href: route('journal.index'),
+            href: '/journal',
         },
     ];
 

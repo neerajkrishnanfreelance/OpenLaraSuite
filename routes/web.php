@@ -24,8 +24,11 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('expense-products', \App\Http\Controllers\ProductController::class);
+    Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
+    Route::post('expenses/{entry}/post', [\App\Http\Controllers\ExpenseController::class, 'post'])->name('expenses.post');
 
     // Specific routes must come before resources to avoid wildcard conflicts
     Route::get('/tasks/export', [App\Http\Controllers\ImportExportController::class, 'exportTasks'])->name('tasks.export');
