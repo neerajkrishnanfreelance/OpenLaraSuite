@@ -7,10 +7,22 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 import Modal from '@/Components/Modal';
 
-export default function Index({ auth, subjects, timetable, recentLogs }) {
-    const [activeTab, setActiveTab] = useState('dashboard');
+export default function Index({ auth, subjects, timetable, recentLogs, kpis }) {
+    // Get tab from URL or default
+    const params = new URLSearchParams(window.location.search);
+    const initialTab = params.get('tab') || 'dashboard';
+
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [showSubjectModal, setShowSubjectModal] = useState(false);
     const [showClassModal, setShowClassModal] = useState(false);
+
+    // Update URL when tab changes
+    const changeTab = (tab) => {
+        setActiveTab(tab);
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url);
+    };
 
     // Forms
     const { data: subjectData, setData: setSubjectData, post: postSubject, processing: processingSubject, errors: errorsSubject, reset: resetSubject } = useForm({
@@ -70,7 +82,7 @@ export default function Index({ auth, subjects, timetable, recentLogs }) {
                         {['dashboard', 'timetable', 'subjects', 'log'].map(tab => (
                             <button
                                 key={tab}
-                                onClick={() => setActiveTab(tab)}
+                                onClick={() => changeTab(tab)}
                                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors capitalize ${activeTab === tab ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                             >
                                 {tab}
@@ -93,33 +105,42 @@ export default function Index({ auth, subjects, timetable, recentLogs }) {
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="text-sm font-medium text-gray-500">Total Subjects</p>
-                                            <h3 className="text-3xl font-bold text-gray-900 mt-2">{subjects.length}</h3>
+                                            <p className="text-sm font-medium text-gray-500">Hours This Week</p>
+                                            <h3 className="text-3xl font-bold text-gray-900 mt-2">{kpis.hoursThisWeek} <span className="text-sm font-normal text-gray-400">hrs</span></h3>
                                         </div>
                                         <div className="p-3 bg-indigo-50 rounded-lg">
-                                            <BookOpen className="w-6 h-6 text-indigo-600" />
+                                            <Clock className="w-6 h-6 text-indigo-600" />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="text-sm font-medium text-gray-500">Weekly Scheduled</p>
-                                            <h3 className="text-3xl font-bold text-gray-900 mt-2">{timetable.length} <span className="text-sm font-normal text-gray-400">sessions</span></h3>
+                                            <p className="text-sm font-medium text-gray-500">Topics Completed</p>
+                                            <h3 className="text-3xl font-bold text-gray-900 mt-2">{kpis.completedTasks}</h3>
                                         </div>
                                         <div className="p-3 bg-green-50 rounded-lg">
-                                            <Calendar className="w-6 h-6 text-green-600" />
+                                            <CheckCircle className="w-6 h-6 text-green-600" />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <p className="text-sm font-medium text-gray-500">Recent Logs</p>
-                                            <h3 className="text-3xl font-bold text-gray-900 mt-2">{recentLogs.length}</h3>
+                                            <p className="text-sm font-medium text-gray-500">Next Class</p>
+                                            {kpis.nextClass ? (
+                                                <div className="mt-2">
+                                                    <h3 className="text-xl font-bold text-gray-900">{kpis.nextClass.project.name}</h3>
+                                                    <p className="text-sm text-gray-500">
+                                                        {moment(kpis.nextClass.start_time, 'HH:mm:ss').format('h:mm A')} • {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][kpis.nextClass.day_of_week]}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <h3 className="text-lg font-medium text-gray-400 mt-2">No upcoming classes</h3>
+                                            )}
                                         </div>
                                         <div className="p-3 bg-blue-50 rounded-lg">
-                                            <Clock className="w-6 h-6 text-blue-600" />
+                                            <Calendar className="w-6 h-6 text-blue-600" />
                                         </div>
                                     </div>
                                 </div>

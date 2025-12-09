@@ -43,6 +43,11 @@ class Project extends Model
         return $this->hasMany(Timesheet::class);
     }
 
+    public function requirements()
+    {
+        return $this->hasMany(Requirement::class);
+    }
+
     public function scopeLearning($query)
     {
         return $query->where('is_learning', true);
