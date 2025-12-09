@@ -132,9 +132,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/entries/{entry}/edit', [App\Http\Controllers\AccountingJournalEntryController::class, 'edit'])->name('accounting.entries.edit');
         Route::put('/entries/{entry}', [App\Http\Controllers\AccountingJournalEntryController::class, 'update'])->name('accounting.entries.update');
         Route::post('/entries/{entry}/post', [App\Http\Controllers\AccountingJournalEntryController::class, 'post'])->name('accounting.entries.post');
+        Route::post('/entries/{entry}/cancel', [App\Http\Controllers\AccountingJournalEntryController::class, 'cancel'])->name('accounting.entries.cancel');
         Route::delete('/entries/{entry}', [App\Http\Controllers\AccountingJournalEntryController::class, 'destroy'])->name('accounting.entries.destroy');
         
-        // Reports
+        // Journals
+        Route::resource('/journals', App\Http\Controllers\AccountingJournalController::class)->names([
+            'index' => 'accounting.journals.index',
+            'store' => 'accounting.journals.store',
+            'update' => 'accounting.journals.update',
+            'destroy' => 'accounting.journals.destroy',
+        ]);
+
+        // Report Routes (Keep existing)
         Route::get('/reports/balance-sheet', [App\Http\Controllers\AccountingReportController::class, 'balanceSheet'])->name('accounting.reports.balance-sheet');
         Route::get('/reports/profit-loss', [App\Http\Controllers\AccountingReportController::class, 'profitLoss'])->name('accounting.reports.profit-loss');
         Route::get('/reports/general-ledger', [App\Http\Controllers\AccountingReportController::class, 'generalLedger'])->name('accounting.reports.general-ledger');

@@ -96,6 +96,68 @@ class AccountingJournalEntryController extends Controller
         }
     }
 
+    public function edit(AccountingJournalEntry $entry)
+    {
+        if ($entry->state !== 'draft') {
+            return redirect()->back()->with('error', 'Only draft entries can be edited.');
+        }
+
+        $entry->load(['lines']);
+        $journals = Journal::active()->get();
+        $accounts = Account::active()->orderBy('code')->get();
+
+        return Inertia::render('Accounting/Entries/Edit', [
+            'entry' => $entry,
+            'journals' => $journals,
+            'accounts' => $accounts,
+        ]);
+    }
+
+    public function update(Request $request, AccountingJournalEntry $entry)
+    {
+        if ($entry->state !== 'draft') {
+            return redirect()->back()->with('error', 'Only draft entries can be edited.');
+        }
+
+        $validated = $request->validate([
+            'journal_id' => 'required|exists:journals,id',
+            'reference' => 'nullable|string',
+            'date' => 'required|date',
+            'notes' => 'nullable|string',
+            'lines' => 'required|array|min:2',
+            'lines.*.account_id' => 'required|exists:accounts,id',
+            'lines.*.description' => 'required|string',
+            'lines.*.debit' => 'required|numeric|min:0',
+            'lines.*.credit' => 'required|numeric|min:0',
+        ]);
+
+        $entry->update([
+            'journal_id' => $validated['journal_id'],
+            'reference' => $validated['reference'],
+            'date' => $validated['date'],
+            'notes' => $validated['notes'],
+        ]);
+
+        // Replace lines
+        $entry->lines()->delete();
+        foreach ($validated['lines'] as $line) {
+            $entry->lines()->create($line);
+        }
+
+        return redirect()->route('accounting.entries.show', $entry)->with('success', 'Journal entry updated successfully');
+    }
+
+    public function cancel(AccountingJournalEntry $entry)
+    {
+        if ($entry->state === 'posted') {
+            return redirect()->back()->with('error', 'Cannot cancel posted entry. You must create a reversing entry.');
+        }
+
+        $entry->update(['state' => 'cancelled']);
+
+        return redirect()->back()->with('success', 'Journal entry cancelled successfully');
+    }
+
     public function destroy(AccountingJournalEntry $entry)
     {
         if ($entry->state === 'posted') {
