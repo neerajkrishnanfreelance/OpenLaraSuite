@@ -12,9 +12,11 @@ class JournalEntry extends Model
     protected $fillable = [
         'user_id',
         'date',
+        'title',
         'content',
         'mood',
         'improvement_list',
+        'journal_category_id',
     ];
 
     protected $casts = [
@@ -24,5 +26,10 @@ class JournalEntry extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(JournalCategory::class, 'journal_category_id');
     }
 }

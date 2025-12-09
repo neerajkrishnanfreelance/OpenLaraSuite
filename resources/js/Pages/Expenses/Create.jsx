@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Save, Send } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Create({ auth, products, journals, paymentAccounts }) {
@@ -13,6 +13,7 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
         items: [
             { product_id: '', amount: '', description: '' }
         ],
+        action: 'save_draft', // Default action
     });
 
     const addItem = () => {
@@ -42,9 +43,20 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
 
     const totalAmount = data.items.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
 
-    const submit = (e) => {
+    const submit = (e, actionType = 'save_draft') => {
         e.preventDefault();
+
+        // We can't update 'data.action' synchronously here and expect it to be in 'post' immediately if using setData.
+        // Instead, use the transform method or update a hidden field? 
+        // Better: use `post` with `data` but we can override data in the request transformation or just pass custom data? 
+        // Inertia `post` sends current `data`. To change `action` effectively, we should `setData` then `post` in a `useEffect`? No.
+        // Easiest way in Inertia w/ hooks: manually merge data in transform.
+
         post(route('expenses.store'), {
+            data: {
+                ...data,
+                action: actionType
+            },
             onSuccess: () => reset('items', 'description', 'reference'),
         });
     };
@@ -52,15 +64,15 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Log Expense</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Log Expense Voucher</h2>}
         >
             <Head title="Log Expense" />
 
             <div className="py-12">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border-t-4 border-indigo-500">
                         <div className="p-6 text-gray-900">
-                            <form onSubmit={submit} className="space-y-6">
+                            <form className="space-y-6">
 
                                 {/* Header Section */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-6">
@@ -76,13 +88,13 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                         {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Reference (Optional)</label>
+                                        <label className="block text-sm font-medium text-gray-700">Reference</label>
                                         <input
                                             type="text"
                                             value={data.reference}
                                             onChange={e => setData('reference', e.target.value)}
                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                            placeholder="Receipt #"
+                                            placeholder="Receipt # / INV-001"
                                         />
                                     </div>
                                     <div className="md:col-span-2">
@@ -104,7 +116,7 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                         <button
                                             type="button"
                                             onClick={addItem}
-                                            className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-900"
+                                            className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-900 font-semibold"
                                         >
                                             <Plus className="w-4 h-4" /> Add Item
                                         </button>
@@ -123,26 +135,21 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                             <tbody className="bg-white divide-y divide-gray-200">
                                                 {data.items.map((item, index) => (
                                                     <tr key={index}>
-                                                        <td className="px-3 py-2">
-                                                            <div className="flex gap-1">
-                                                                <select
-                                                                    value={item.product_id}
-                                                                    onChange={e => updateItem(index, 'product_id', e.target.value)}
-                                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                                                                    required
-                                                                >
-                                                                    <option value="">Select Type</option>
-                                                                    {products.map(p => (
-                                                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                                                    ))}
-                                                                </select>
-                                                                <Link href={route('expense-products.create')} className="px-2 py-1 bg-gray-100 rounded text-gray-500 hover:bg-gray-200 flex items-center justify-center">
-                                                                    +
-                                                                </Link>
-                                                            </div>
+                                                        <td className="px-3 py-2 bg-white">
+                                                            <select
+                                                                value={item.product_id}
+                                                                onChange={e => updateItem(index, 'product_id', e.target.value)}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                                required
+                                                            >
+                                                                <option value="">Select Type</option>
+                                                                {products.map(p => (
+                                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                                ))}
+                                                            </select>
                                                             {errors[`items.${index}.product_id`] && <p className="text-red-500 text-xs mt-1">{errors[`items.${index}.product_id`]}</p>}
                                                         </td>
-                                                        <td className="px-3 py-2">
+                                                        <td className="px-3 py-2 bg-white">
                                                             <input
                                                                 type="text"
                                                                 value={item.description}
@@ -150,24 +157,24 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                                             />
                                                         </td>
-                                                        <td className="px-3 py-2">
+                                                        <td className="px-3 py-2 bg-white">
                                                             <input
                                                                 type="number"
                                                                 step="0.01"
                                                                 min="0"
                                                                 value={item.amount}
                                                                 onChange={e => updateItem(index, 'amount', e.target.value)}
-                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm text-right"
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm text-right font-mono"
                                                                 required
                                                             />
                                                             {errors[`items.${index}.amount`] && <p className="text-red-500 text-xs mt-1">{errors[`items.${index}.amount`]}</p>}
                                                         </td>
-                                                        <td className="px-3 py-2 text-center">
+                                                        <td className="px-3 py-2 text-center bg-white">
                                                             {data.items.length > 1 && (
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => removeItem(index)}
-                                                                    className="text-red-600 hover:text-red-800"
+                                                                    className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
                                                                 >
                                                                     <Trash2 className="w-4 h-4" />
                                                                 </button>
@@ -175,9 +182,9 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                                         </td>
                                                     </tr>
                                                 ))}
-                                                <tr className="bg-gray-50 font-semibold">
-                                                    <td colSpan="2" className="px-3 py-2 text-right">Total:</td>
-                                                    <td className="px-3 py-2 text-right">${totalAmount.toFixed(2)}</td>
+                                                <tr className="bg-gray-100 font-bold border-t-2 border-gray-200">
+                                                    <td colSpan="2" className="px-3 py-3 text-right text-gray-700">Total Payable:</td>
+                                                    <td className="px-3 py-3 text-right text-indigo-700 text-lg font-mono">${totalAmount.toFixed(2)}</td>
                                                     <td></td>
                                                 </tr>
                                             </tbody>
@@ -187,9 +194,9 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                 </div>
 
                                 {/* Footer Settings */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Select Journal</label>
+                                        <label className="block text-sm font-medium text-gray-700">Journal</label>
                                         <select
                                             value={data.journal_id}
                                             onChange={e => setData('journal_id', e.target.value)}
@@ -201,7 +208,6 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                                 <option key={j.id} value={j.id}>{j.name}</option>
                                             ))}
                                         </select>
-                                        {errors.journal_id && <p className="text-red-500 text-xs mt-1">{errors.journal_id}</p>}
                                     </div>
 
                                     <div>
@@ -217,18 +223,27 @@ export default function Create({ auth, products, journals, paymentAccounts }) {
                                                 <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
                                             ))}
                                         </select>
-                                        <p className="text-xs text-gray-500 mt-1">Select Cash, Bank, or Accounts Payable.</p>
-                                        {errors.payment_account_id && <p className="text-red-500 text-xs mt-1">{errors.payment_account_id}</p>}
                                     </div>
                                 </div>
 
-                                <div className="flex justify-end pt-4">
+                                <div className="flex justify-end pt-6 gap-3 border-t">
                                     <button
-                                        type="submit"
+                                        type="button"
+                                        onClick={(e) => submit(e, 'save_draft')}
                                         disabled={processing}
-                                        className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 font-medium shadow"
+                                        className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150"
                                     >
-                                        Record Expense
+                                        <Save className="w-4 h-4 mr-2" />
+                                        Save Draft
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => submit(e, 'save_post')}
+                                        disabled={processing}
+                                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg"
+                                    >
+                                        <Send className="w-4 h-4 mr-2" />
+                                        Save & Post
                                     </button>
                                 </div>
                             </form>

@@ -9,15 +9,28 @@ use Inertia\Inertia;
 
 class JournalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $entries = JournalEntry::where('user_id', Auth::id())
+        $view = $request->input('view', 'list'); // 'list' or 'kanban'
+        $categories = \App\Models\JournalCategory::where('user_id', Auth::id())->get();
+
+        $entriesQuery = JournalEntry::where('user_id', Auth::id())
+            ->with('category')
             ->orderBy('date', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->orderBy('created_at', 'desc');
+
+        if ($view === 'kanban') {
+            // For Kanban, we might want all recent entries, or grouped by category on frontend
+            // Let's return all recent ones (e.g. last 30 days) for board
+            $entries = $entriesQuery->get();
+        } else {
+            $entries = $entriesQuery->paginate(20)->withQueryString();
+        }
 
         return Inertia::render('Journal/Index', [
             'entries' => $entries,
+            'categories' => $categories,
+            'view' => $view,
         ]);
     }
 
@@ -26,15 +39,19 @@ class JournalController extends Controller
         $request->validate([
             'content' => 'required|string',
             'date' => 'required|date',
+            'title' => 'nullable|string',
             'mood' => 'nullable|string',
+            'journal_category_id' => 'nullable|exists:journal_categories,id',
             'improvement_list' => 'nullable|string',
         ]);
 
         JournalEntry::create([
             'user_id' => Auth::id(),
             'date' => $request->date,
+            'title' => $request->title,
             'content' => $request->content,
             'mood' => $request->mood,
+            'journal_category_id' => $request->journal_category_id,
             'improvement_list' => $request->improvement_list,
         ]);
 
@@ -49,13 +66,17 @@ class JournalController extends Controller
 
         $request->validate([
             'content' => 'required|string',
+            'title' => 'nullable|string',
             'mood' => 'nullable|string',
+            'journal_category_id' => 'nullable|exists:journal_categories,id',
             'improvement_list' => 'nullable|string',
         ]);
 
         $journal->update([
             'content' => $request->content,
+            'title' => $request->title,
             'mood' => $request->mood,
+            'journal_category_id' => $request->journal_category_id,
             'improvement_list' => $request->improvement_list,
         ]);
 
@@ -70,6 +91,30 @@ class JournalController extends Controller
 
         $journal->delete();
 
+        return redirect()->back();
+    }
+    
+    // Masters management
+    public function storeCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'color' => 'nullable|string',
+        ]);
+
+        \App\Models\JournalCategory::create([
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+            'color' => $request->color ?? 'bg-gray-100 text-gray-800',
+        ]);
+
+        return redirect()->back()->with('message', 'Category created.');
+    }
+
+    public function destroyCategory(\App\Models\JournalCategory $category)
+    {
+        if ($category->user_id !== Auth::id()) { abort(403); }
+        $category->delete();
         return redirect()->back();
     }
 }

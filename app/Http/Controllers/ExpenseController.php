@@ -14,18 +14,38 @@ class ExpenseController extends Controller
     /**
      * Display a listing of the resource.
      */
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $entries = AccountingJournalEntry::with(['journal', 'createdBy', 'lines'])
-            ->whereHas('journal', function($q) {
-                // Heuristic: If it has lines with 'product_id' that IS an expense, it's an expense entry.
-                // Or simply list recent entries for now.
-            })
-            ->latest('date')
-            ->paginate(10);
+        // Stats
+        $todayStart = now()->startOfDay();
+        $monthStart = now()->startOfMonth();
+
+        $stats = [
+            'today_count' => AccountingJournalEntry::whereDate('date', now())->count(),
+            'today_total' => AccountingJournalEntry::whereDate('date', now())
+                ->with('lines')
+                ->get()
+                ->sum(fn($entry) => $entry->lines->where('credit', '>', 0)->sum('credit')), // Sum credits (payment side) as total
+            'month_total' => AccountingJournalEntry::whereDate('date', '>=', $monthStart)
+                ->with('lines')
+                ->get()
+                ->sum(fn($entry) => $entry->lines->where('credit', '>', 0)->sum('credit')),
+            'draft_count' => AccountingJournalEntry::where('state', 'draft')->count(),
+        ];
+
+        // Entries: "Dash bord consist of today entry"
+        // We will show Today's entries by default.
+        $entries = AccountingJournalEntry::with(['lines'])
+            ->whereDate('date', now())
+            ->latest('created_at')
+            ->get();
 
         return Inertia::render('Expenses/Index', [
             'entries' => $entries,
+            'stats' => $stats,
         ]);
     }
 
@@ -61,6 +81,7 @@ class ExpenseController extends Controller
             'payment_account_id' => 'required|exists:accounts,id',
             'reference' => 'nullable|string',
             'description' => 'nullable|string', // Voucher level description
+            'action' => 'nullable|string|in:save_draft,save_post',
         ]);
 
         // 1. Create Journal Entry Header
@@ -97,6 +118,15 @@ class ExpenseController extends Controller
             'debit' => 0,
             'credit' => $totalAmount,
         ]);
+
+        if ($request->input('action') === 'save_post') {
+            try {
+                $entry->post();
+                return redirect()->route('expenses.index')->with('success', 'Expense created and posted successfully.');
+            } catch (\Exception $e) {
+                return redirect()->route('expenses.index')->with('warning', 'Expense created but failed to post: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('expenses.create')->with('success', 'Expense recorded successfully. <a href="'.route('accounting.entries.show', $entry).'">View Entry</a>');
     }

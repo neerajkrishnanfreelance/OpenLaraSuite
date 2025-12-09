@@ -26,6 +26,11 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Shortcuts from Welcome Page
+    Route::redirect('/crm', '/projects');
+    Route::redirect('/budget', '/accounting'); // Placeholder for now
+    Route::redirect('/expense', '/expenses');
+
     Route::resource('expense-products', \App\Http\Controllers\ProductController::class);
     Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
     Route::post('expenses/{entry}/post', [\App\Http\Controllers\ExpenseController::class, 'post'])->name('expenses.post');
@@ -153,12 +158,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reports/trial-balance', [App\Http\Controllers\AccountingReportController::class, 'trialBalance'])->name('accounting.reports.trial-balance');
         Route::get('/reports/journal-ledger', [App\Http\Controllers\AccountingReportController::class, 'journalLedger'])->name('accounting.reports.journal-ledger');
     });
-});
 
-Route::middleware('auth')->group(function () {
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Journal Masters
+    Route::post('/journal/categories', [App\Http\Controllers\JournalController::class, 'storeCategory'])->name('journal.categories.store');
+    Route::delete('/journal/categories/{category}', [App\Http\Controllers\JournalController::class, 'destroyCategory'])->name('journal.categories.destroy');
 });
 
 require __DIR__.'/auth.php';

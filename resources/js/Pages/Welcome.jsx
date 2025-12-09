@@ -34,14 +34,14 @@ export default function Welcome({ auth }) {
             description: 'Track your progress',
             icon: GraduationCap,
             color: 'bg-blue-100 text-blue-600',
-            href: route('dashboard'), // Placeholder
+            href: '/projects',
         },
         {
             title: 'Budget',
             description: 'Plan your finances',
             icon: PiggyBank,
             color: 'bg-yellow-100 text-yellow-600',
-            href: '/budget', // Placeholder
+            href: '/accounting',
         },
         {
             title: 'Health',
@@ -55,7 +55,7 @@ export default function Welcome({ auth }) {
             description: 'Log your spends',
             icon: Receipt,
             color: 'bg-teal-100 text-teal-600',
-            href: '/expense', // Using timesheets as expense placeholder
+            href: '/expenses',
         },
         {
             title: 'Learning Projects',
