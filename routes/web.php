@@ -42,7 +42,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/timesheets/export', [App\Http\Controllers\ImportExportController::class, 'exportTimesheets'])->name('timesheets.export');
     Route::post('/chatter/store', [ChatterController::class, 'store'])->name('chatter.store');
     Route::get('/calendar', [App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
+    
+    // Learning Module
     Route::get('/learning', [App\Http\Controllers\LearningController::class, 'index'])->name('learning.index');
+    Route::post('/learning/subjects', [App\Http\Controllers\LearningController::class, 'storeSubject'])->name('learning.subjects.store');
+    Route::post('/learning/timetable', [App\Http\Controllers\LearningController::class, 'storeTimetable'])->name('learning.timetable.store');
+    Route::delete('/learning/timetable/{entry}', [App\Http\Controllers\LearningController::class, 'destroyTimetable'])->name('learning.timetable.destroy');
+
     Route::post('/documents', [App\Http\Controllers\DocumentController::class, 'store'])->name('documents.store');
     Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
     Route::resource('journal', \App\Http\Controllers\JournalController::class);
