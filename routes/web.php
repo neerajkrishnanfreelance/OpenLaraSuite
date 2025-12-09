@@ -111,6 +111,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/categories/{category}', [App\Http\Controllers\TodoCategoryController::class, 'update'])->name('todos.categories.update');
         Route::delete('/categories/{category}', [App\Http\Controllers\TodoCategoryController::class, 'destroy'])->name('todos.categories.destroy');
     });
+
+    // Accounting Module Routes
+    Route::prefix('accounting')->group(function () {
+        // Dashboard
+        Route::get('/', [App\Http\Controllers\AccountingDashboardController::class, 'index'])->name('accounting.dashboard');
+        
+        // Chart of Accounts
+        Route::get('/accounts', [App\Http\Controllers\AccountController::class, 'index'])->name('accounting.accounts.index');
+        Route::post('/accounts', [App\Http\Controllers\AccountController::class, 'store'])->name('accounting.accounts.store');
+        Route::put('/accounts/{account}', [App\Http\Controllers\AccountController::class, 'update'])->name('accounting.accounts.update');
+        Route::delete('/accounts/{account}', [App\Http\Controllers\AccountController::class, 'destroy'])->name('accounting.accounts.destroy');
+        Route::get('/accounts/{account}', [App\Http\Controllers\AccountController::class, 'show'])->name('accounting.accounts.show');
+        
+        // Journal Entries
+        Route::get('/entries', [App\Http\Controllers\AccountingJournalEntryController::class, 'index'])->name('accounting.entries.index');
+        Route::get('/entries/create', [App\Http\Controllers\AccountingJournalEntryController::class, 'create'])->name('accounting.entries.create');
+        Route::post('/entries', [App\Http\Controllers\AccountingJournalEntryController::class, 'store'])->name('accounting.entries.store');
+        Route::get('/entries/{entry}', [App\Http\Controllers\AccountingJournalEntryController::class, 'show'])->name('accounting.entries.show');
+        Route::get('/entries/{entry}/edit', [App\Http\Controllers\AccountingJournalEntryController::class, 'edit'])->name('accounting.entries.edit');
+        Route::put('/entries/{entry}', [App\Http\Controllers\AccountingJournalEntryController::class, 'update'])->name('accounting.entries.update');
+        Route::post('/entries/{entry}/post', [App\Http\Controllers\AccountingJournalEntryController::class, 'post'])->name('accounting.entries.post');
+        Route::delete('/entries/{entry}', [App\Http\Controllers\AccountingJournalEntryController::class, 'destroy'])->name('accounting.entries.destroy');
+        
+        // Reports
+        Route::get('/reports/balance-sheet', [App\Http\Controllers\AccountingReportController::class, 'balanceSheet'])->name('accounting.reports.balance-sheet');
+        Route::get('/reports/profit-loss', [App\Http\Controllers\AccountingReportController::class, 'profitLoss'])->name('accounting.reports.profit-loss');
+        Route::get('/reports/general-ledger', [App\Http\Controllers\AccountingReportController::class, 'generalLedger'])->name('accounting.reports.general-ledger');
+        Route::get('/reports/trial-balance', [App\Http\Controllers\AccountingReportController::class, 'trialBalance'])->name('accounting.reports.trial-balance');
+    });
 });
 
 Route::middleware('auth')->group(function () {

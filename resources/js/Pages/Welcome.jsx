@@ -27,7 +27,7 @@ export default function Welcome({ auth }) {
             description: 'Financial overview',
             icon: Calculator,
             color: 'bg-green-100 text-green-600',
-            href: route('dashboard'), // Placeholder
+            href: '/accounting',
         },
         {
             title: 'Projects',
