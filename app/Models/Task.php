@@ -23,6 +23,9 @@ class Task extends Model
         'status',
         'due_date',
         // Lead specific fields
+        // Lead specific fields
+        'contact_id',
+        'lead_stage_id',
         'contact_name',
         'mobile',
         'expected_revenue',
@@ -58,5 +61,15 @@ class Task extends Model
     public function activities()
     {
         return $this->hasMany(ScheduledActivity::class);
+    }
+
+    public function contact()
+    {
+        return $this->belongsTo(Contact::class);
+    }
+
+    public function leadStage()
+    {
+        return $this->belongsTo(LeadStage::class);
     }
 }

@@ -97,16 +97,8 @@ class DatabaseBackup extends Command
                 }
             }
 
-            // Compress the backup (except for PostgreSQL which is already compressed with -F c)
-            if ($connection !== 'pgsql' && file_exists($filepath)) {
-                exec("gzip {$filepath}", $output, $returnCode);
-                if ($returnCode === 0) {
-                    $this->info("Backup compressed: {$filename}.gz");
-                }
-            }
-
-            // Get final file path
-            $finalFile = file_exists($gzFilepath) ? $gzFilepath : $filepath;
+            // Get final file path (no compression)
+            $finalFile = $filepath;
             $fileSize = filesize($finalFile);
             $fileSizeMB = round($fileSize / 1024 / 1024, 2);
 

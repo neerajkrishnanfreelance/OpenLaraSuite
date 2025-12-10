@@ -7,8 +7,10 @@ import FormHeader from '@/Components/FormHeader';
 import FormPageLayout from '@/Components/FormPageLayout';
 import TaskStepper from '@/Components/TaskStepper';
 import { useState } from 'react';
+import SearchableSelect from '@/Components/SearchableSelect';
+import TextInput from '@/Components/TextInput';
 
-export default function Create({ auth, projects, users }) {
+export default function Create({ auth, projects, users, contacts = [], lead_stages = [] }) {
     const { data, setData, post, processing, errors } = useForm({
         project_id: '',
         assigned_to: '',
@@ -17,6 +19,15 @@ export default function Create({ auth, projects, users }) {
         priority: 'medium',
         status: 'todo',
         due_date: '',
+        // Lead fields
+        contact_id: '',
+        lead_stage_id: '',
+        contact_name: '', // specific override or legacy
+        mobile: '',
+        expected_revenue: '',
+        stage: '', // legacy
+        source: '',
+        // Extras
         initial_chatter: '',
         create_meeting: false,
         meeting_details: {
@@ -74,6 +85,8 @@ export default function Create({ auth, projects, users }) {
                     errors={errors}
                     projects={projects}
                     users={users}
+                    contacts={contacts} // Pass contacts to TaskStepper
+                    lead_stages={lead_stages} // Pass lead_stages to TaskStepper
                     isCreate={true}
                     submit={submit}
                     processing={processing}

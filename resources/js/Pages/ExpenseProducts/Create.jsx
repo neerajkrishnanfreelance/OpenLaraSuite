@@ -13,7 +13,7 @@ export default function Create({ auth, accounts, journals }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('expenses.store'));
+        post(route('expense-products.store'));
     };
 
     return (

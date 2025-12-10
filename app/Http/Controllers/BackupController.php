@@ -16,16 +16,34 @@ class BackupController extends Controller
     public function index()
     {
         $backupDir = storage_path('app/backups');
+        
+        // Ensure directory exists
+        if (!file_exists($backupDir)) {
+            if (!mkdir($backupDir, 0755, true) && !is_dir($backupDir)) {
+                // If we can't create it, return empty list with error flash (optional) or just empty
+                // For now, let's just return empty but log it? 
+                // Better: just return empty list, the store method will try to create it too.
+                return Inertia::render('Settings/Backups', [
+                    'backups' => []
+                ]);
+            }
+        }
+
         $files = array_filter(glob($backupDir . '/*'), 'is_file');
         
         $backups = [];
         foreach ($files as $file) {
-            $backups[] = [
-                'name' => basename($file),
-                'size' => round(filesize($file) / 1024 / 1024, 2) . ' MB',
-                'date' => date('Y-m-d H:i:s', filemtime($file)),
-                'path' => $file,
-            ];
+            try {
+                $backups[] = [
+                    'name' => basename($file),
+                    'size' => round(filesize($file) / 1024 / 1024, 2) . ' MB',
+                    'date' => date('Y-m-d H:i:s', filemtime($file)),
+                    'path' => $file,
+                ];
+            } catch (\Exception $e) {
+                // Skip files we can't read
+                continue;
+            }
         }
 
         // Sort by date descending

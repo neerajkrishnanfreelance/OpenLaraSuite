@@ -13,7 +13,7 @@ export default function Edit({ auth, product, accounts, journals }) {
 
     const submit = (e) => {
         e.preventDefault();
-        put(route('expenses.update', product.id));
+        put(route('expense-products.update', product.id));
     };
 
     return (

@@ -209,6 +209,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/settings/backups', [App\Http\Controllers\BackupController::class, 'store'])->name('backups.store');
     Route::get('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
     Route::delete('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
+
+    // CRM Routes
+    Route::resource('contacts', App\Http\Controllers\ContactController::class);
+    Route::resource('lead-stages', App\Http\Controllers\LeadStageController::class);
+    Route::post('tasks/{task}/convert-to-project', [TaskController::class, 'convertToProject'])->name('tasks.convert-to-project');
 });
 
 require __DIR__.'/auth.php';

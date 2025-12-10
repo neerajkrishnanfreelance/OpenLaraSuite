@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
+use App\Models\LeadStage;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -16,7 +18,7 @@ class TaskController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Task::with(['project', 'assignedUser', 'creator']);
+        $query = Task::with(['project', 'assignedUser', 'creator', 'contact', 'leadStage']);
 
         if ($request->filled('project_id')) {
             $query->where('project_id', $request->project_id);
@@ -52,6 +54,8 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Create', [
             'projects' => Project::select('id', 'name')->get(),
             'users' => User::role('employee')->select('id', 'name')->get(),
+            'contacts' => Contact::select('id', 'name')->get(),
+            'lead_stages' => LeadStage::orderBy('order')->select('id', 'name')->get(),
         ]);
     }
 
@@ -68,6 +72,15 @@ class TaskController extends Controller
             'priority' => 'required|in:low,medium,high',
             'status' => 'required|in:todo,in_progress,review,done',
             'due_date' => 'nullable|date',
+            // Lead fields
+            'contact_id' => 'nullable|exists:contacts,id',
+            'lead_stage_id' => 'nullable|exists:lead_stages,id',
+            'contact_name' => 'nullable|string|max:255',
+            'mobile' => 'nullable|string|max:20',
+            'expected_revenue' => 'nullable|numeric',
+            'stage' => 'nullable|string|max:50',
+            'source' => 'nullable|string|max:50',
+            // Extras
             'initial_chatter' => 'nullable|string',
             'create_meeting' => 'nullable|boolean',
             'meeting_details' => 'nullable|array',
@@ -93,10 +106,6 @@ class TaskController extends Controller
             if (!empty($validated['create_meeting']) && $validated['create_meeting']) {
                 $meetingData = $validated['meeting_details'];
                 $meetingData['organizer_id'] = Auth::id();
-                // Polymorphic link to task is handled via relationship if we use relatedMeetings()->create(), 
-                // BUT relatedMeetings is morphMany on Task.
-                // However, Meeting has meetingable_id/type.
-                // $task->relatedMeetings()->create(...) fits perfectly.
                 
                 $task->relatedMeetings()->create([
                     'title' => $meetingData['title'],
@@ -120,10 +129,12 @@ class TaskController extends Controller
     {
         $task->load(['project', 'assignedUser', 'creator', 'timesheets', 'activities' => function ($query) {
             $query->orderBy('due_at', 'asc');
-        }, 'chatterMessages.user']);
+        }, 'chatterMessages.user', 'contact', 'leadStage']);
         
         return Inertia::render('Tasks/Show', [
             'task' => $task,
+            'contacts' => Contact::select('id', 'name')->get(),
+            'lead_stages' => LeadStage::orderBy('order')->select('id', 'name')->get(),
         ]);
     }
 
@@ -132,12 +143,14 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        $task->load(['chatterMessages.user', 'chatterMessages.documents', 'relatedMeetings.organizer', 'documents', 'timesheets.user']);
+        $task->load(['chatterMessages.user', 'chatterMessages.documents', 'relatedMeetings.organizer', 'documents', 'timesheets.user', 'contact', 'leadStage']);
 
         return Inertia::render('Tasks/Edit', [
             'task' => $task,
             'projects' => Project::all(),
             'users' => User::all(),
+            'contacts' => Contact::select('id', 'name')->get(),
+            'lead_stages' => LeadStage::orderBy('order')->select('id', 'name')->get(),
             'chatter_data' => $task->chatterMessages,
             'meetings_data' => $task->relatedMeetings,
             'documents' => $task->documents,
@@ -159,6 +172,8 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,review,done',
             'due_date' => 'nullable|date',
             // Lead fields
+            'contact_id' => 'nullable|exists:contacts,id',
+            'lead_stage_id' => 'nullable|exists:lead_stages,id',
             'contact_name' => 'nullable|string|max:255',
             'mobile' => 'nullable|string|max:20',
             'expected_revenue' => 'nullable|numeric',
@@ -169,6 +184,35 @@ class TaskController extends Controller
         $task->update($validated);
 
         return redirect()->back()->with('message', 'Task updated successfully.');
+    }
+
+    public function convertToProject(Request $request, Task $task)
+    {
+        $project = \Illuminate\Support\Facades\DB::transaction(function () use ($task) {
+            $project = Project::create([
+                'name' => $task->title, // Assuming Lead Title is Project Name
+                'description' => $task->description . "\n\nConverted from Lead: " . $task->id,
+                'status' => 'planning', // Default status
+                'start_date' => now(),
+                // 'client_id' => $task->contact_id // If Project had client_id
+            ]);
+
+            // Create default stage/task or move this task to the new project?
+            // Option: Move the lead task to the new project as a task
+            // But usually Lead -> Project entity.
+            
+            // Mark Lead as Won
+            $task->update([
+                'stage' => 'Won', 
+                'lead_stage_id' => LeadStage::where('name', 'Won')->first()?->id ?? null,
+                'status' => 'done'
+            ]);
+
+            return $project;
+        });
+
+        return redirect()->route('projects.show', $project)
+            ->with('success', 'Project created from Lead successfully!');
     }
 
     /**

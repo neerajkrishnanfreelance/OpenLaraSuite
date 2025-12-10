@@ -11,12 +11,14 @@ import ScheduledActivities from '@/Components/ScheduledActivities';
 import Chatter from '@/Components/Chatter';
 import { ChevronLeft } from 'lucide-react';
 
-export default function Show({ auth, task }) {
-    const { data, setData, put, processing, errors } = useForm({
+export default function Show({ auth, task, contacts = [], lead_stages = [] }) {
+    const { data, setData, put, post, processing, errors } = useForm({
+        contact_id: task.contact_id || '',
         contact_name: task.contact_name || '',
         title: task.title || '', // Project Name
         mobile: task.mobile || '',
         expected_revenue: task.expected_revenue || '',
+        lead_stage_id: task.lead_stage_id || '',
         stage: task.stage || '',
         source: task.source || '',
         description: task.description || '',
@@ -29,20 +31,11 @@ export default function Show({ auth, task }) {
         });
     };
 
-    const markAsWon = () => {
-        put(route('tasks.update', task.id), {
-            preserveScroll: true,
-            data: { ...data, status: 'done', stage: 'Won' }
-        });
+    const convertToProject = () => {
+        if (confirm('Are you sure you want to convert this lead to a project? It will be marked as Won.')) {
+            post(route('tasks.convert-to-project', task.id));
+        }
     };
-
-    const stageOptions = [
-        { id: 'New', name: 'New' },
-        { id: 'Qualified', name: 'Qualified' },
-        { id: 'Proposition', name: 'Proposition' },
-        { id: 'Negotiation', name: 'Negotiation' },
-        { id: 'Won', name: 'Won' },
-    ];
 
     const sourceOptions = [
         { id: 'LinkedIn', name: 'LinkedIn' },
@@ -71,12 +64,12 @@ export default function Show({ auth, task }) {
                     {task.contact_name || task.title}
                 </h2>
                 <div className="flex space-x-3">
-                    <SecondaryButton onClick={() => window.history.back()} className="hidden">Cancel</SecondaryButton> {/* Hidden logic, just matched style */}
+                    <SecondaryButton onClick={() => window.history.back()} className="hidden">Cancel</SecondaryButton>
                     <button
-                        onClick={markAsWon}
-                        className="bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-50 transition"
+                        onClick={convertToProject}
+                        className="bg-green-600 border border-transparent text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition"
                     >
-                        Mark as Won
+                        Convert to Project
                     </button>
                     <PrimaryButton onClick={updateLead} disabled={processing} className="bg-indigo-600 hover:bg-indigo-700">
                         Save
@@ -93,14 +86,14 @@ export default function Show({ auth, task }) {
                             <form onSubmit={updateLead}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <InputLabel forInput="contact_name" value="Contact Name" />
-                                        <TextInput
-                                            id="contact_name"
-                                            className="mt-1 block w-full"
-                                            value={data.contact_name}
-                                            onChange={(e) => setData('contact_name', e.target.value)}
+                                        <SearchableSelect
+                                            label="Contact"
+                                            options={contacts}
+                                            value={data.contact_id}
+                                            onChange={(val) => setData('contact_id', val)}
+                                            placeholder="Select Contact"
                                         />
-                                        <InputError message={errors.contact_name} className="mt-2" />
+                                        <InputError message={errors.contact_id} className="mt-2" />
                                     </div>
 
                                     <div>
@@ -140,11 +133,11 @@ export default function Show({ auth, task }) {
                                     <div>
                                         <SearchableSelect
                                             label="Stage"
-                                            options={stageOptions}
-                                            value={data.stage}
-                                            onChange={(val) => setData('stage', val)}
+                                            options={lead_stages}
+                                            value={data.lead_stage_id}
+                                            onChange={(val) => setData('lead_stage_id', val)}
                                         />
-                                        <InputError message={errors.stage} className="mt-2" />
+                                        <InputError message={errors.lead_stage_id} className="mt-2" />
                                     </div>
 
                                     <div>

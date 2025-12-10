@@ -21,7 +21,7 @@ export default function Welcome({ auth }) {
             description: 'Manage your contacts',
             icon: Users,
             color: 'bg-indigo-100 text-indigo-600',
-            href: '/crm', // Linking to projects as CRM placeholder
+            href: '/contacts',
         },
         {
             title: 'Accounting',
