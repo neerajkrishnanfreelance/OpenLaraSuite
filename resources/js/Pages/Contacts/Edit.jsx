@@ -7,7 +7,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Edit({ auth, contact }) {
+export default function Edit({ auth, contact, users = [] }) {
     const { data, setData, put, processing, errors } = useForm({
         name: contact.name || '',
         email: contact.email || '',
@@ -16,6 +16,10 @@ export default function Edit({ auth, contact }) {
         company: contact.company || '',
         address: contact.address || '',
         description: contact.description || '',
+        status: contact.status || 'prospect',
+        assigned_to: contact.assigned_to || '',
+        source: contact.source || '',
+        tags: contact.tags || [],
     });
 
     const submit = (e) => {
@@ -107,6 +111,51 @@ export default function Edit({ auth, contact }) {
                                         onChange={(e) => setData('address', e.target.value)}
                                     ></textarea>
                                     <InputError message={errors.address} className="mt-2" />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <InputLabel forInput="status" value="Status" />
+                                        <select
+                                            id="status"
+                                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            value={data.status}
+                                            onChange={(e) => setData('status', e.target.value)}
+                                        >
+                                            <option value="prospect">Prospect</option>
+                                            <option value="active">Active</option>
+                                            <option value="converted">Converted</option>
+                                            <option value="lost">Lost</option>
+                                        </select>
+                                        <InputError message={errors.status} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel forInput="assigned_to" value="Assigned To" />
+                                        <select
+                                            id="assigned_to"
+                                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            value={data.assigned_to}
+                                            onChange={(e) => setData('assigned_to', e.target.value)}
+                                        >
+                                            <option value="">Unassigned</option>
+                                            {users.map(user => (
+                                                <option key={user.id} value={user.id}>{user.name}</option>
+                                            ))}
+                                        </select>
+                                        <InputError message={errors.assigned_to} className="mt-2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel forInput="source" value="Source" />
+                                        <TextInput
+                                            id="source"
+                                            type="text"
+                                            className="mt-1 block w-full"
+                                            value={data.source}
+                                            onChange={(e) => setData('source', e.target.value)}
+                                            placeholder="e.g. Website, Referral"
+                                        />
+                                        <InputError message={errors.source} className="mt-2" />
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center justify-end mt-6">

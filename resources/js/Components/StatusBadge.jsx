@@ -9,6 +9,9 @@ export default function StatusBadge({ status }) {
         pending: 'bg-yellow-100 text-yellow-800',
         approved: 'bg-green-100 text-green-800',
         rejected: 'bg-red-100 text-red-800',
+        prospect: 'bg-indigo-100 text-indigo-800',
+        converted: 'bg-green-100 text-green-800',
+        lost: 'bg-red-100 text-red-800',
     };
 
     const labels = {
@@ -21,6 +24,9 @@ export default function StatusBadge({ status }) {
         pending: 'Pending',
         approved: 'Approved',
         rejected: 'Rejected',
+        prospect: 'Prospect',
+        converted: 'Converted',
+        lost: 'Lost',
     };
 
     return (

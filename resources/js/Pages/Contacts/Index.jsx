@@ -4,15 +4,30 @@ import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Plus, Search, Edit, Trash2, Mail, Phone, ExternalLink } from 'lucide-react';
 import Pagination from '@/Components/Pagination';
 
-export default function Index({ auth, contacts, filters }) {
+import StatusBadge from '@/Components/StatusBadge';
+
+export default function Index({ auth, contacts, filters, users = [] }) {
     const { flash } = usePage().props;
 
     const [search, setSearch] = React.useState(filters.search || '');
+    const [status, setStatus] = React.useState(filters.status || '');
+    const [assignedTo, setAssignedTo] = React.useState(filters.assigned_to || '');
 
     const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(route('contacts.index'), { search }, { preserveState: true });
+        if (e) e.preventDefault();
+        router.get(route('contacts.index'), { search, status, assigned_to: assignedTo }, { preserveState: true, replace: true });
     };
+
+    // Trigger search on filter change
+    React.useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (status !== (filters.status || '') || assignedTo !== (filters.assigned_to || '')) {
+                handleSearch();
+            }
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [status, assignedTo]);
+
 
     const handleDelete = (id) => {
         if (confirm('Are you sure you want to delete this contact?')) {
@@ -40,8 +55,8 @@ export default function Index({ auth, contacts, filters }) {
                         </div>
                     )}
 
-                    <div className="flex justify-between items-center mb-6">
-                        <form onSubmit={handleSearch} className="flex">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <form onSubmit={handleSearch} className="flex flex-wrap gap-2 w-full md:w-auto">
                             <div className="relative text-gray-600 focus-within:text-gray-400">
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <Search className="h-5 w-5" />
@@ -50,13 +65,37 @@ export default function Index({ auth, contacts, filters }) {
                                     type="text"
                                     name="search"
                                     className="py-2 text-sm text-gray-900 bg-white rounded-md pl-10 focus:outline-none focus:bg-white focus:text-gray-900 border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                                    placeholder="Search contacts..."
-                                    autoComplete="off"
+                                    placeholder="Search..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
+                                    onBlur={handleSearch}
                                 />
                             </div>
-                            <button type="submit" className="ml-2 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition">
+
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                className="py-2 text-sm text-gray-900 bg-white rounded-md border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            >
+                                <option value="">All Statuses</option>
+                                <option value="prospect">Prospect</option>
+                                <option value="active">Active</option>
+                                <option value="converted">Converted</option>
+                                <option value="lost">Lost</option>
+                            </select>
+
+                            <select
+                                value={assignedTo}
+                                onChange={(e) => setAssignedTo(e.target.value)}
+                                className="py-2 text-sm text-gray-900 bg-white rounded-md border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            >
+                                <option value="">All Assigned</option>
+                                {users.map(u => (
+                                    <option key={u.id} value={u.id}>{u.name}</option>
+                                ))}
+                            </select>
+
+                            <button type="submit" className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition">
                                 Filter
                             </button>
                         </form>
@@ -79,10 +118,13 @@ export default function Index({ auth, contacts, filters }) {
                                             Name
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Contact Info
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Company
+                                            Assigned To
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Hourly Rate
@@ -104,9 +146,17 @@ export default function Index({ auth, contacts, filters }) {
                                                             </div>
                                                         </div>
                                                         <div className="ml-4">
-                                                            <div className="text-sm font-medium text-gray-900">{contact.name}</div>
+                                                            <div className="text-sm font-medium text-gray-900">
+                                                                <Link href={route('contacts.show', contact.id)} className="hover:text-indigo-600 hover:underline">
+                                                                    {contact.name}
+                                                                </Link>
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">{contact.company || ''}</div>
                                                         </div>
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <StatusBadge status={contact.status} />
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-sm text-gray-900 flex items-center mb-1">
@@ -119,12 +169,19 @@ export default function Index({ auth, contacts, filters }) {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {contact.company || '-'}
+                                                    {contact.assigned_user ? contact.assigned_user.name : <span className="text-gray-400 italic">Unassigned</span>}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
                                                     {contact.hourly_rate ? `$${contact.hourly_rate}/hr` : '-'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <Link
+                                                        href={route('contacts.show', contact.id)}
+                                                        className="text-gray-600 hover:text-gray-900 mr-4 inline-flex items-center"
+                                                        title="View Dashboard"
+                                                    >
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </Link>
                                                     <Link
                                                         href={route('contacts.edit', contact.id)}
                                                         className="text-indigo-600 hover:text-indigo-900 mr-4 inline-flex items-center"
