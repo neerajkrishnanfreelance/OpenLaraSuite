@@ -42,6 +42,7 @@ class TaskController extends Controller
             'tasks' => $tasks,
             'projects' => Project::select('id', 'name')->get(),
             'users' => User::role('employee')->select('id', 'name')->get(),
+            'lead_stages' => LeadStage::orderBy('order')->select('id', 'name', 'color')->get(),
             'filters' => $request->only(['project_id', 'assigned_to', 'status']),
         ]);
     }
