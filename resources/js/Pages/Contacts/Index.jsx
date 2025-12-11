@@ -49,11 +49,7 @@ export default function Index({ auth, contacts, filters, users = [] }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-                    {flash.success && (
-                        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-                            {flash.success}
-                        </div>
-                    )}
+                
 
                     <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <form onSubmit={handleSearch} className="flex flex-wrap gap-2 w-full md:w-auto">
