@@ -19,4 +19,9 @@ class LeadStage extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function crmLeads()
+    {
+        return $this->hasMany(CrmLead::class);
+    }
 }

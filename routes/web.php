@@ -210,12 +210,56 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
     Route::delete('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
 
-    // CRM Routes
+    // CRM Module Routes
+    Route::prefix('crm')->group(function () {
+        // Dashboard
+        Route::get('/', [App\Http\Controllers\CrmDashboardController::class, 'index'])->name('crm.dashboard');
+        
+        // Leads (Dedicated CRM Lead Module)
+        Route::get('/leads', [App\Http\Controllers\CrmLeadController::class, 'index'])->name('crm.leads');
+        Route::get('/leads/create', [App\Http\Controllers\CrmLeadController::class, 'create'])->name('crm.leads.create');
+        Route::post('/leads', [App\Http\Controllers\CrmLeadController::class, 'store'])->name('crm.leads.store');
+        Route::get('/leads/{lead}', [App\Http\Controllers\CrmLeadController::class, 'show'])->name('crm.leads.show');
+        Route::put('/leads/{lead}', [App\Http\Controllers\CrmLeadController::class, 'update'])->name('crm.leads.update');
+        Route::delete('/leads/{lead}', [App\Http\Controllers\CrmLeadController::class, 'destroy'])->name('crm.leads.destroy');
+        Route::post('/leads/{lead}/convert-to-project', [App\Http\Controllers\CrmLeadController::class, 'convertToProject'])->name('crm.leads.convert-to-project');
+        
+        // Contacts
+        Route::resource('contacts', App\Http\Controllers\ContactController::class)->names([
+            'index' => 'contacts.index',
+            'create' => 'contacts.create',
+            'store' => 'contacts.store',
+            'show' => 'contacts.show',
+            'edit' => 'contacts.edit',
+            'update' => 'contacts.update',
+            'destroy' => 'contacts.destroy',
+        ]);
+        
+        // Lead Stages
+        Route::resource('stages', App\Http\Controllers\LeadStageController::class)->names([
+            'index' => 'lead-stages.index',
+            'create' => 'lead-stages.create',
+            'store' => 'lead-stages.store',
+            'show' => 'lead-stages.show',
+            'edit' => 'lead-stages.edit',
+            'update' => 'lead-stages.update',
+            'destroy' => 'lead-stages.destroy',
+        ]);
+        
+        // Sources
+        Route::resource('sources', App\Http\Controllers\SourceController::class);
+        
+        // Media
+        Route::resource('media', App\Http\Controllers\MediumController::class)->parameters(['media' => 'medium']);
+    });
+    
+    // Legacy CRM routes for backward compatibility
     Route::resource('contacts', App\Http\Controllers\ContactController::class);
     Route::resource('lead-stages', App\Http\Controllers\LeadStageController::class);
     Route::post('tasks/{task}/convert-to-project', [TaskController::class, 'convertToProject'])->name('tasks.convert-to-project');
     Route::resource('sources', App\Http\Controllers\SourceController::class);
     Route::resource('media', App\Http\Controllers\MediumController::class)->parameters(['media' => 'medium']);
+
 });
 
 require __DIR__.'/auth.php';

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Medium;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MediumController extends Controller
 {
@@ -12,15 +13,10 @@ class MediumController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $media = Medium::orderBy('name')->get();
+        return Inertia::render('Media/Index', [
+            'media' => $media
+        ]);
     }
 
     /**
@@ -28,23 +24,14 @@ class MediumController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Medium $medium)
-    {
-        //
-    }
+        Medium::create($validated);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Medium $medium)
-    {
-        //
+        return back()->with('success', 'Media source created successfully.');
     }
 
     /**
@@ -52,7 +39,14 @@ class MediumController extends Controller
      */
     public function update(Request $request, Medium $medium)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $medium->update($validated);
+
+        return back()->with('success', 'Media source updated successfully.');
     }
 
     /**
@@ -60,6 +54,7 @@ class MediumController extends Controller
      */
     public function destroy(Medium $medium)
     {
-        //
+        $medium->delete();
+        return back()->with('success', 'Media source deleted successfully.');
     }
 }
