@@ -1,0 +1,1 @@
+import{j as t,H as s}from"./app-Bycg8ICE.js";import{A as a}from"./AuthenticatedLayout-CVm_HLir.js";function i({children:e,header:r}){return t.jsxs(a,{header:r,children:[t.jsx(s,{title:"Budget"}),e]})}export{i as B};

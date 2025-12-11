@@ -1,1 +1,0 @@
-import{j as r,L as i}from"./app-DnXR0r7G.js";function u({routeName:e,params:s,children:o,className:t=""}){return r.jsx(i,{href:route(e,s),className:`text-indigo-600 hover:text-indigo-900 hover:underline transition-colors duration-150 cursor-pointer font-medium ${t}`,children:o})}export{u as C};

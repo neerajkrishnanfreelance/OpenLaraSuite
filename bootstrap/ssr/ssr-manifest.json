@@ -106,7 +106,7 @@
     "/build/assets/AuthenticatedLayout-C8XsLlAW.js"
   ],
   "resources/js/Components/ScheduledActivities.jsx": [
-    "/build/assets/Show-TdyuYKqP.js"
+    "/build/assets/ScheduledActivities-BVSQ5ZVE.js"
   ],
   "resources/js/Components/SearchableSelect.jsx": [
     "/build/assets/SearchableSelect-C4FgJwXx.js"
@@ -223,6 +223,9 @@
   ],
   "resources/js/Pages/CRM/Leads.jsx": [
     "/build/assets/Leads-TT8rmeh9.js"
+  ],
+  "resources/js/Pages/CRM/ShowLead.jsx": [
+    "/build/assets/ShowLead-BpvQeN6r.js"
   ],
   "resources/js/Pages/Calendar/Index.jsx": [
     "/build/assets/Index-DEe3V71d.js",
@@ -357,7 +360,7 @@
     "/build/assets/Index-BFLGe0zq.js"
   ],
   "resources/js/Pages/Tasks/Show.jsx": [
-    "/build/assets/Show-TdyuYKqP.js"
+    "/build/assets/Show-C5a_9f3T.js"
   ],
   "resources/js/Pages/Timesheets/Create.jsx": [
     "/build/assets/Create-MDiELUjM.js"
