@@ -214,6 +214,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('contacts', App\Http\Controllers\ContactController::class);
     Route::resource('lead-stages', App\Http\Controllers\LeadStageController::class);
     Route::post('tasks/{task}/convert-to-project', [TaskController::class, 'convertToProject'])->name('tasks.convert-to-project');
+    Route::resource('sources', App\Http\Controllers\SourceController::class);
+    Route::resource('media', App\Http\Controllers\MediumController::class)->parameters(['media' => 'medium']);
 });
 
 require __DIR__.'/auth.php';
