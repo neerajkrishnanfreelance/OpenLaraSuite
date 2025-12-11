@@ -1,0 +1,1 @@
+import{j as t,H as s}from"./app-CzNkdqpH.js";import{A as a}from"./AuthenticatedLayout-grIvL12o.js";function i({children:e,header:r}){return t.jsxs(a,{header:r,children:[t.jsx(s,{title:"Budget"}),e]})}export{i as B};

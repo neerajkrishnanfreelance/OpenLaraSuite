@@ -1,7 +1,7 @@
 import BudgetLayout from '@/Layouts/BudgetLayout';
 import { Head, Link } from '@inertiajs/react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Plus, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { Plus, Calendar, TrendingUp, TrendingDown, FileText } from 'lucide-react';
 
 export default function BudgetDashboard({
     activePlans,
@@ -31,6 +31,13 @@ export default function BudgetDashboard({
                         Budget Dashboard
                     </h2>
                     <div className="flex gap-2">
+                        <Link
+                            href="/accounting"
+                            className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm font-medium flex items-center gap-2"
+                        >
+                            <FileText className="w-4 h-4" />
+                            Accounting
+                        </Link>
                         <Link
                             href="/budget/entries/calendar"
                             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium flex items-center gap-2"
