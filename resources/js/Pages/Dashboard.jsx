@@ -1,7 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import ProfileCard from '@/Components/Dashboard/ProfileCard';
-import CalendarWidget from '@/Components/Dashboard/CalendarWidget';
 import TaskWidget from '@/Components/Dashboard/TaskWidget';
 import CallWidget from '@/Components/Dashboard/CallWidget';
 import StatCard from '@/Components/Dashboard/StatCard';
@@ -44,12 +43,12 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
             <Head title="Dashboard" />
             <style>{styles}</style>
 
-            {/* Main Grid: 2 Columns on large screens, Calendar takes 2/3 approx logic but here we split differently */}
+            {/* Main Grid: 2 Columns on large screens */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-                {/* Left Column (Calendar) - Spans 3 cols */}
+                {/* Left Column (Gantt Timetable) - Spans 3 cols */}
                 <div className="lg:col-span-3">
-                    <CalendarWidget events={calendar_events} />
+                    <GanttWidget tasks={tasks || []} />
                 </div>
 
                 {/* Right Column (Profile Card & Timer) - Spans 1 col */}
@@ -86,11 +85,6 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
                 </div>
 
                 {/* Stat Card */}
-
-                {/* Row 3: Gantt Chart */}
-                <div className="lg:col-span-4">
-                    <GanttWidget tasks={tasks || []} />
-                </div>
 
             </div>
 

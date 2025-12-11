@@ -1,8 +1,7 @@
 {
   "node_modules/gantt-task-react/dist/index.css": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/js/Components/ApplicationLogo.jsx": [
@@ -29,30 +28,21 @@
   "resources/js/Components/DangerButton.jsx": [
     "/build/assets/DeleteUserForm-BrLcfngd.js"
   ],
-  "resources/js/Components/Dashboard/CalendarWidget.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
-  ],
   "resources/js/Components/Dashboard/CallWidget.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Components/Dashboard/GanttWidget.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Components/Dashboard/TaskWidget.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Components/Dashboard/TimesheetTimerWidget.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Components/DataTable.jsx": [
     "/build/assets/DataTable-Cf56Cbah.js"
@@ -115,9 +105,8 @@
     "/build/assets/SecondaryButton-C9TQBbBR.js"
   ],
   "resources/js/Components/Select.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Components/StatusBadge.jsx": [
     "/build/assets/StatusBadge-CPwNKsS5.js"
@@ -244,9 +233,8 @@
     "/build/assets/Show-DmSPlNno.js"
   ],
   "resources/js/Pages/Dashboard.jsx": [
-    "/build/assets/Dashboard-C5wqOo8q.js",
-    "/build/assets/Dashboard-C9-NpoDc.css",
-    "/build/assets/react-big-calendar-BSwzzYnC.css"
+    "/build/assets/Dashboard-C0cDScPN.js",
+    "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Pages/Employees/Create.jsx": [
     "/build/assets/Create-SQTuPBSG.js"

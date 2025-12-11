@@ -111,8 +111,14 @@ class DashboardController extends Controller
             'todays_calls' => $todaysMeetings,
             'todays_tasks' => $todaysTasksList,
             'calendar_events' => $calendarEvents,
-             // Keeping old props just in case, but can clean up later if unused
-            'tasks' => Task::with('project:id,name')->where('status', '!=', 'done')->get(),
+             // This week's pending tasks for Gantt timetable
+            'tasks' => Task::with('project:id,name')
+                ->where('status', '!=', 'done')
+                ->whereBetween('due_date', [
+                    now()->startOfWeek(),
+                    now()->endOfWeek()
+                ])
+                ->get(),
             'users' => \App\Models\User::select('id', 'name')->get(),
             'projects' => \App\Models\Project::with('tasks:id,title,project_id')->select('id', 'name')->where('status', 'active')->get(),
             'activeTimer' => Timesheet::where('user_id', Auth::id())
