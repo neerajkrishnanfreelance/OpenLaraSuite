@@ -149,7 +149,7 @@ export default function Authenticated({ header, children, customNav }) {
                     <Link href="/">
                         <div className="flex items-center space-x-2">
                             <ApplicationLogo className="h-8 w-8 text-yellow-400 fill-current" />
-                            <h1 className="text-xl font-bold tracking-wider"><span className="text-white">OpenLaraSuite</span></h1>
+                            <h1 className="text-xl font-bold tracking-wider"><span className="text-white">OpenSuite</span></h1>
                         </div>
                     </Link>
                 </div>

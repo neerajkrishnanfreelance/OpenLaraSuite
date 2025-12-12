@@ -105,10 +105,10 @@ export default function Welcome({ auth }) {
                         <div className="flex justify-between items-center h-16">
                             <div className="flex items-center gap-2">
                                 <div className="p-2 bg-indigo-600 rounded-lg shadow-lg shadow-indigo-200">
-                                    <Compass className="w-6 h-6 text-white" />
+                                    
                                 </div>
                                 <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-                                    My Personal Hub
+OpenSuite
                                 </span>
                             </div>
                             <div className="text-sm text-gray-500 font-medium hidden sm:block">
