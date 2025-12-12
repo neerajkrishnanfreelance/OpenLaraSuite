@@ -148,7 +148,7 @@ OpenSuite
 
                 {/* Footer */}
                 <footer className="py-8 text-center text-sm text-gray-400">
-                    &copy; {new Date().getFullYear()} My Personal Hub. All rights reserved.
+                    &copy; {new Date().getFullYear()}  All rights reserved.
                 </footer>
             </div>
         </>
