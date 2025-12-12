@@ -4,10 +4,42 @@ import DataTable from '@/Components/DataTable';
 import StatusBadge from '@/Components/StatusBadge';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ClickableLink from '@/Components/ClickableLink';
+import KanbanBoard from '@/Components/Projects/KanbanBoard';
+import { useState, useEffect } from 'react';
+import { LayoutList, LayoutGrid, Filter, X } from 'lucide-react';
 
-export default function Index({ auth, projects }) {
+export default function Index({ auth, projects, filters = {} }) {
     const { flash } = usePage().props;
-    console.log(flash)
+    const [viewMode, setViewMode] = useState(localStorage.getItem('projectsViewMode') || 'list');
+    const [showFilters, setShowFilters] = useState(false);
+
+    // Filter State
+    const [search, setSearch] = useState(filters.search || '');
+    const [status, setStatus] = useState(filters.status || 'all');
+    const [dateRange, setDateRange] = useState(filters.date_range || '');
+
+    useEffect(() => {
+        localStorage.setItem('projectsViewMode', viewMode);
+    }, [viewMode]);
+
+    // Debounce search and apply filters
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (
+                search !== (filters.search || '') ||
+                status !== (filters.status || 'all') ||
+                dateRange !== (filters.date_range || '')
+            ) {
+                router.get(
+                    route('projects.index'),
+                    { search, status, dateRange },
+                    { preserveState: true, replace: true }
+                );
+            }
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [search, status, dateRange]);
+
     const columns = [
         { key: 'name', label: 'Name', render: (item) => <ClickableLink routeName="projects.show" params={item.id}>{item.name}</ClickableLink> },
         {
@@ -64,31 +96,80 @@ export default function Index({ auth, projects }) {
     );
 
     return (
-        // <div>ddd</div>
         <AuthenticatedLayout
             header={<div className="flex justify-between items-center">
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">Projects</h2>
-                <Link href={route('projects.create')}>
-                    <PrimaryButton>New Project</PrimaryButton>
-                </Link>
+                <div className="flex items-center space-x-2">
+                    <div className="bg-white rounded-md shadow-sm border border-gray-300 flex p-1 mr-4">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            title="List View"
+                        >
+                            <LayoutList size={18} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('kanban')}
+                            className={`p-1.5 rounded ${viewMode === 'kanban' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            title="Kanban View"
+                        >
+                            <LayoutGrid size={18} />
+                        </button>
+                    </div>
+                    <Link href={route('projects.create')}>
+                        <PrimaryButton>New Project</PrimaryButton>
+                    </Link>
+                </div>
             </div>}
         >
             <Head title="Projects" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {flash && (
+                    {flash && flash.message && (
                         <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                             <span className="block sm:inline">{flash.message}</span>
                         </div>
                     )}
 
-                    <DataTable
-                        columns={columns}
-                        data={projects.data}
-                        pagination={projects}
-                        actions={actions}
-                    />
+                    {/* Filters Bar */}
+                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+                        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-center">
+                            <div className="flex-1 w-full">
+                                <input
+                                    type="text"
+                                    placeholder="Search projects..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div className="w-full sm:w-48">
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                >
+                                    <option value="all">All Statuses</option>
+                                    <option value="active">Active</option>
+                                    <option value="on_hold">On Hold</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="archived">Archived</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {viewMode === 'list' ? (
+                        <DataTable
+                            columns={columns}
+                            data={projects.data}
+                            pagination={projects}
+                            actions={actions}
+                        />
+                    ) : (
+                        <KanbanBoard projects={projects.data} />
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

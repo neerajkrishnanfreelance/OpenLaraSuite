@@ -14,14 +14,32 @@ class ProjectController extends Controller
      */
    // app/Http/Controllers/ProjectController.php
 
-public function index(Request $request)
-{
-    $projects = Project::latest()->paginate(10);
+    public function index(Request $request)
+    {
+        $filters = $request->only(['search', 'status', 'date_range']);
+        
+        $projects = Project::with('users')
+            ->filter($filters)
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-    return Inertia::render('Projects/Index', [
-        'projects' => $projects,
-    ]);
-}
+        return Inertia::render('Projects/Index', [
+            'projects' => $projects,
+            'filters' => $filters,
+        ]);
+    }
+
+    public function updateStatus(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|in:active,completed,on_hold,archived',
+        ]);
+
+        $project->update(['status' => $validated['status']]);
+
+        return back()->with('success', 'Project status updated.');
+    }
 
    public function list_view(Request $request)
 {
@@ -53,7 +71,7 @@ public function index(Request $request)
             'description' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'required|in:active,archived',
+            'status' => 'required|in:active,completed,on_hold,archived',
             'user_ids' => 'nullable|array',
             'user_ids.*' => 'exists:users,id',
         ]);
@@ -106,7 +124,7 @@ public function index(Request $request)
             'description' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'required|in:active,archived',
+            'status' => 'required|in:active,completed,on_hold,archived',
             'user_ids' => 'nullable|array',
             'user_ids.*' => 'exists:users,id',
         ]);

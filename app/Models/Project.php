@@ -52,4 +52,24 @@ class Project extends Model
     {
         return $query->where('is_learning', true);
     }
+
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%'.$search.'%')
+                      ->orWhere('description', 'like', '%'.$search.'%');
+            });
+        })->when($filters['status'] ?? null, function ($query, $status) {
+            if ($status !== 'all') {
+                $query->where('status', $status);
+            }
+        })->when($filters['date_range'] ?? null, function ($query, $range) {
+            // Assume $range is like "start,end"
+             $dates = explode(',', $range);
+             if (count($dates) == 2) {
+                 $query->whereBetween('start_date', [$dates[0], $dates[1]]);
+             }
+        });
+    }
 }

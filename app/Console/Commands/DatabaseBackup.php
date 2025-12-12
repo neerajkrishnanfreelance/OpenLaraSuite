@@ -13,7 +13,7 @@ class DatabaseBackup extends Command
      *
      * @var string
      */
-    protected $signature = 'db:backup {--keep=7 : Number of backups to keep}';
+    protected $signature = 'db:backup {--keep=7 : Number of backups to keep} {--connection= : Database connection to use}';
 
     /**
      * The console command description.
@@ -29,7 +29,7 @@ class DatabaseBackup extends Command
     {
         $this->info('Starting database backup...');
 
-        $connection = Config::get('database.default');
+        $connection = $this->option('connection') ?: Config::get('database.default');
         $database = Config::get("database.connections.{$connection}.database");
         $username = Config::get("database.connections.{$connection}.username");
         $password = Config::get("database.connections.{$connection}.password");

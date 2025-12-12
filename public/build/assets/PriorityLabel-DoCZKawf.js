@@ -1,0 +1,1 @@
+import{j as o}from"./app-xAC1kat2.js";function r({priority:t}){const e={low:"text-gray-500",medium:"text-yellow-600",high:"text-red-600 font-bold"};return o.jsx("span",{className:`text-xs font-medium uppercase ${e[t]}`,children:t})}export{r as P};

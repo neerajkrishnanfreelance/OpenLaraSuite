@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
     Route::resource('journal', \App\Http\Controllers\JournalController::class);
 
+    Route::put('projects/{project}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::resource('projects', ProjectController::class);
     Route::resource('tasks', TaskController::class);
     Route::resource('employees', EmployeeController::class);
@@ -209,6 +210,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/settings/backups', [App\Http\Controllers\BackupController::class, 'store'])->name('backups.store');
     Route::get('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
     Route::delete('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
+    Route::post('/settings/backups/{name}/restore', [App\Http\Controllers\BackupController::class, 'restore'])->name('backups.restore');
 
     // CRM Module Routes
     Route::prefix('crm')->group(function () {

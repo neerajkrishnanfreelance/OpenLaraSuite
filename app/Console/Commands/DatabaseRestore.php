@@ -13,7 +13,7 @@ class DatabaseRestore extends Command
      *
      * @var string
      */
-    protected $signature = 'db:restore {filename : The name of the backup file to restore}';
+    protected $signature = 'db:restore {filename : The name of the backup file to restore} {--connection= : Database connection to use}';
 
     /**
      * The console command description.
@@ -38,7 +38,7 @@ class DatabaseRestore extends Command
 
         $this->info("Restoring from: {$filename}");
 
-        $connection = Config::get('database.default');
+        $connection = $this->option('connection') ?: Config::get('database.default');
         $database = Config::get("database.connections.{$connection}.database");
         $username = Config::get("database.connections.{$connection}.username");
         $password = Config::get("database.connections.{$connection}.password");

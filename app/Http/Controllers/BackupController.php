@@ -59,10 +59,11 @@ class BackupController extends Controller
     /**
      * Store a newly created backup in storage.
      */
-    public function store()
+    public function store(Request $request)
     {
         try {
-            Artisan::call('db:backup');
+            $connection = $request->input('connection', config('database.default'));
+            Artisan::call('db:backup', ['--connection' => $connection]);
             return back()->with('success', 'Backup created successfully!');
         } catch (\Exception $e) {
             return back()->with('error', 'Backup failed: ' . $e->getMessage());
@@ -101,10 +102,15 @@ class BackupController extends Controller
     /**
      * Restore the database from the specified backup.
      */
-    public function restore($name)
+    public function restore(Request $request, $name)
     {
         try {
-            $exitCode = Artisan::call('db:restore', ['filename' => $name]);
+            $connection = $request->input('connection', config('database.default'));
+            
+            $exitCode = Artisan::call('db:restore', [
+                'filename' => $name,
+                '--connection' => $connection
+            ]);
 
             if ($exitCode === 0) {
                 return back()->with('success', 'Database restored successfully! You may need to refresh the page.');
