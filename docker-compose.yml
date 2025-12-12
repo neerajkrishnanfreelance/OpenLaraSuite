@@ -1,0 +1,66 @@
+services:
+    app:
+        build:
+            context: .
+            args:
+                user: laravel
+                uid: 1000
+        image: openlarasuite-app
+        container_name: openlarasuite-app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        networks:
+            - openlarasuite
+        depends_on:
+            - db
+            - redis
+
+    web:
+        image: nginx:alpine
+        container_name: openlarasuite-nginx
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        networks:
+            - openlarasuite
+        depends_on:
+            - app
+
+    db:
+        image: postgres:15
+        container_name: openlarasuite-context-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "5432:5432"
+        volumes:
+            - openlarasuite-pgsql:/var/lib/postgresql/data
+        networks:
+            - openlarasuite
+
+    redis:
+        image: redis:alpine
+        container_name: openlarasuite-redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            - openlarasuite-redis:/data
+        networks:
+            - openlarasuite
+
+networks:
+    openlarasuite:
+        driver: bridge
+
+volumes:
+    openlarasuite-pgsql:
+    openlarasuite-redis:
