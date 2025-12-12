@@ -30,16 +30,7 @@ export default function Backups({ auth, backups }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
                     {/* Status Messages */}
-                    {flash.success && (
-                        <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                            <span className="block sm:inline">{flash.success}</span>
-                        </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <span className="block sm:inline">{flash.error}</span>
-                        </div>
-                    )}
+               
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
