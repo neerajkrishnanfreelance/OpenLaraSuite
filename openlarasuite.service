@@ -1,0 +1,18 @@
+[Unit]
+Description=OpenLaraSuite Application
+After=network.target
+
+[Service]
+User=user
+Group=user
+WorkingDirectory=/home/user/personal_laravel_erp/OpenLaraSuite
+ExecStart=/home/user/.config/herd-lite/bin/php artisan serve --host=0.0.0.0 --port=8000
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/openlarasuite.log
+StandardError=append:/var/log/openlarasuite-error.log
+Environment=APP_ENV=local
+Environment=APP_DEBUG=true
+
+[Install]
+WantedBy=multi-user.target

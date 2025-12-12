@@ -1,0 +1,91 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: openlarasuite-app:prod
+    container_name: openlarasuite-app-prod
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      APP_NAME: ${APP_NAME:-Laravel}
+      APP_ENV: ${APP_ENV:-production}
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL}
+      LOG_CHANNEL: stack
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      BROADCAST_DRIVER: log
+      CACHE_DRIVER: redis
+      FILESYSTEM_DISK: local
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      SESSION_LIFETIME: 120
+      MEMCACHED_HOST: 127.0.0.1
+      REDIS_HOST: redis
+      REDIS_PASSWORD: null
+      REDIS_PORT: 6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - openlarasuite-prod
+
+  web:
+    image: nginx:alpine
+    container_name: openlarasuite-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/conf.d/app.conf:/etc/nginx/conf.d/default.conf
+      # In a real prod deployment, we would COPY assets into the nginx image or use shared volume
+      # For local prod simulation, we can bind mount the public dir from the host 
+      # (assuming npm run build was run on host or we want to share it from app container)
+      # Better approach for "Pure Docker" simulation: Share volume from app container.
+      # But `volumes_from` is deprecated/discouraged in favor of named volumes.
+      # Let's straightforwardly bind mount ./public since the user has it locally.
+      - ./public:/var/www/public
+    depends_on:
+      - app
+    networks:
+      - openlarasuite-prod
+
+  db:
+    image: postgres:15
+    container_name: openlarasuite-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - openlarasuite-pgsql-prod:/var/lib/postgresql/data
+    networks:
+      - openlarasuite-prod
+
+  redis:
+    image: redis:alpine
+    container_name: openlarasuite-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - openlarasuite-redis-prod:/data
+    networks:
+      - openlarasuite-prod
+
+networks:
+  openlarasuite-prod:
+    driver: bridge
+
+volumes:
+  openlarasuite-pgsql-prod:
+  openlarasuite-redis-prod:

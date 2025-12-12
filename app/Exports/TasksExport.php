@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Models\Task;
+
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -44,7 +46,7 @@ class TasksExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     {
         return [
             'ID',
-            'Title',
+            'Task Name',
             'Project',
             'Assigned To',
             'Priority',

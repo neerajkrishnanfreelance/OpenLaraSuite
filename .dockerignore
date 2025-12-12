@@ -1,5 +1,5 @@
-/vendor
 /node_modules
+/vendor
 /public/hot
 /public/storage
 /storage/*.key
@@ -10,4 +10,12 @@
 /storage/framework/testing
 .env
 .git
+.gitignore
+.gitattributes
+/tests
+/phpunit.xml
+/README.md
+docker-compose.yml
 docker-compose.override.yml
+Dockerfile
+Dockerfile.prod
