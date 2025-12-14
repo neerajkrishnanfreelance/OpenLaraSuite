@@ -8,14 +8,34 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import FormHeader from '@/Components/FormHeader';
 import FormPageLayout from '@/Components/FormPageLayout';
 
+import React from 'react';
+
 export default function Create({ auth, projects, tasks }) {
     const { data, setData, post, processing, errors } = useForm({
         project_id: '',
         task_id: '',
         date: new Date().toISOString().split('T')[0],
+        start_time: '',
+        end_time: '',
         hours: '',
         description: '',
     });
+
+    const [calcMode, setCalcMode] = React.useState('manual'); // 'manual' or 'time'
+
+    // Auto-calculate hours
+    React.useEffect(() => {
+        if (data.start_time && data.end_time) {
+            const start = new Date(`2000-01-01T${data.start_time}`);
+            const end = new Date(`2000-01-01T${data.end_time}`);
+
+            if (end > start) {
+                const diffMs = end - start;
+                const diffHrs = (diffMs / (1000 * 60 * 60)).toFixed(2);
+                setData(d => ({ ...d, hours: diffHrs }));
+            }
+        }
+    }, [data.start_time, data.end_time]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -83,17 +103,43 @@ export default function Create({ auth, projects, tasks }) {
                             <InputError message={errors.date} className="mt-2" />
                         </div>
                         <div>
-                            <InputLabel htmlFor="hours" value="Hours" />
+                            <InputLabel htmlFor="hours" value="Duration (Hours)" />
                             <TextInput
                                 id="hours"
                                 type="number"
-                                step="0.5"
-                                className="mt-1 block w-full"
+                                step="0.01"
+                                className="mt-1 block w-full bg-gray-50"
                                 value={data.hours}
                                 onChange={(e) => setData('hours', e.target.value)}
-                                required
+                                required={!data.start_time || !data.end_time}
+                                readOnly={!!(data.start_time && data.end_time)}
                             />
                             <InputError message={errors.hours} className="mt-2" />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <InputLabel htmlFor="start_time" value="Start Time (Optional)" />
+                            <TextInput
+                                id="start_time"
+                                type="time"
+                                className="mt-1 block w-full"
+                                value={data.start_time}
+                                onChange={(e) => setData('start_time', e.target.value)}
+                            />
+                            <InputError message={errors.start_time} className="mt-2" />
+                        </div>
+                        <div>
+                            <InputLabel htmlFor="end_time" value="End Time (Optional)" />
+                            <TextInput
+                                id="end_time"
+                                type="time"
+                                className="mt-1 block w-full"
+                                value={data.end_time}
+                                onChange={(e) => setData('end_time', e.target.value)}
+                            />
+                            <InputError message={errors.end_time} className="mt-2" />
                         </div>
                     </div>
 

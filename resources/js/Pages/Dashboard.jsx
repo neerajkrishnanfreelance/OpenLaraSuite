@@ -84,6 +84,21 @@ export default function Dashboard({ auth, user_stats, todays_calls, todays_tasks
                     </a>
                 </div>
 
+                {/* Stock Widget */}
+                <div className="lg:col-span-1">
+                    <a href="/stocks" className="block bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="p-4 bg-purple-100 rounded-full mb-3">
+                                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-semibold text-indigo-600 mb-1">Stocks</h3>
+                            <p className="text-sm text-gray-600">Track investments</p>
+                        </div>
+                    </a>
+                </div>
+
                 {/* Stat Card */}
 
             </div>

@@ -4,6 +4,11 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
+
+if ('serviceWorker' in navigator) {
+    registerSW({ immediate: true });
+}
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -15,14 +20,38 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.jsx'),
         ),
     setup({ el, App, props }) {
-        if (import.meta.env.SSR) {
-            hydrateRoot(el, <App {...props} />);
-            return;
-        }
+        const root = createRoot(el);
 
-        createRoot(el).render(<App {...props} />);
+        root.render(
+            <AppWrapper App={App} props={props} />
+        );
     },
-    progress: {
-        color: '#ec0707ff',
-    },
+    progress: false, // Usage of custom loader
 });
+
+import { router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import ShipLoader from './Components/ShipLoader';
+
+function AppWrapper({ App, props }) {
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const start = () => setIsLoading(true);
+        const finish = () => setIsLoading(false);
+
+        router.on('start', start);
+        router.on('finish', finish);
+
+        return () => {
+            // Cleanup listeners if necessary (though app usually persists)
+        };
+    }, []);
+
+    return (
+        <>
+            {isLoading && <ShipLoader />}
+            <App {...props} />
+        </>
+    );
+}

@@ -30,6 +30,14 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function planning()
+    {
+        $projects = Project::with(['tasks', 'users'])->get();
+        return Inertia::render('Projects/Planning', [
+            'projects' => $projects,
+        ]);
+    }
+
     public function updateStatus(Request $request, Project $project)
     {
         $validated = $request->validate([

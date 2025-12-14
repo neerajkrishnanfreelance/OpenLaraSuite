@@ -116,6 +116,11 @@ export default function Index({ auth, projects, filters = {} }) {
                             <LayoutGrid size={18} />
                         </button>
                     </div>
+                    <Link href={route('projects.planning')} className="mr-2">
+                        <button className="px-4 py-2 bg-purple-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-purple-700">
+                            Planning Report
+                        </button>
+                    </Link>
                     <Link href={route('projects.create')}>
                         <PrimaryButton>New Project</PrimaryButton>
                     </Link>

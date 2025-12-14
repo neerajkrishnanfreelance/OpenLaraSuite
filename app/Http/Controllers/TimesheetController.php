@@ -138,9 +138,18 @@ class TimesheetController extends Controller
             'project_id' => 'required|exists:projects,id',
             'task_id' => 'nullable|exists:tasks,id',
             'date' => 'required|date',
-            'hours' => 'required|numeric|min:0.5|max:24',
+            'hours' => 'nullable|numeric|min:0.01|max:24', // Made nullable if auto-calc
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i|after:start_time',
             'description' => 'nullable|string',
         ]);
+
+        // Auto-calculate hours if start/end provided
+        if ($request->filled('start_time') && $request->filled('end_time')) {
+             $start = \Carbon\Carbon::parse($request->start_time);
+             $end = \Carbon\Carbon::parse($request->end_time);
+             $validated['hours'] = round($end->diffInMinutes($start) / 60, 2);
+        }
 
         $validated['user_id'] = Auth::id();
         $validated['status'] = 'pending';
@@ -202,9 +211,18 @@ class TimesheetController extends Controller
                 'project_id' => 'required|exists:projects,id',
                 'task_id' => 'nullable|exists:tasks,id',
                 'date' => 'required|date',
-                'hours' => 'required|numeric|min:0.01|max:24',
+                'hours' => 'nullable|numeric|min:0.01|max:24',
+                'start_time' => 'nullable|date_format:H:i',
+                'end_time' => 'nullable|date_format:H:i|after:start_time',
                 'description' => 'nullable|string',
             ]);
+
+            if ($request->filled('start_time') && $request->filled('end_time')) {
+                 $start = \Carbon\Carbon::parse($request->start_time);
+                 $end = \Carbon\Carbon::parse($request->end_time);
+                 $validated['hours'] = round($end->diffInMinutes($start) / 60, 2);
+            }
+
             $timesheet->update($validated);
             return redirect()->route('timesheets.index')->with('message', 'Timesheet updated successfully.');
         }

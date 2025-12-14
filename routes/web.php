@@ -54,8 +54,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('journal', \App\Http\Controllers\JournalController::class);
 
     Route::put('projects/{project}/status', [ProjectController::class, 'updateStatus'])->name('projects.update-status');
+    Route::get('projects/planning', [ProjectController::class, 'planning'])->name('projects.planning');
     Route::resource('projects', ProjectController::class);
     Route::resource('tasks', TaskController::class);
+    Route::resource('stocks', \App\Http\Controllers\StockTransactionController::class);
+    // Agriculture Module
+    Route::get('/agriculture', [\App\Http\Controllers\AgricultureController::class, 'index'])->name('agriculture.dashboard');
+    Route::resource('crops', \App\Http\Controllers\CropController::class)->names('agriculture.crops');
+    Route::resource('crop-logs', \App\Http\Controllers\CropLogController::class)->names('agriculture.crop-logs');
+    Route::get('/agriculture/reports', [\App\Http\Controllers\AgricultureReportController::class, 'index'])->name('agriculture.reports.index');
+    Route::get('/agriculture/reports/daily', [\App\Http\Controllers\AgricultureReportController::class, 'daily'])->name('agriculture.reports.daily');
+    Route::resource('stocks-definitions', \App\Http\Controllers\StockController::class)->names([
+        'index' => 'stocks-definitions.index',
+        'create' => 'stocks-definitions.create',
+        'store' => 'stocks-definitions.store',
+        'update' => 'stocks-definitions.update',
+        'destroy' => 'stocks-definitions.destroy',
+        'edit' => 'stocks-definitions.edit',
+    ])->parameters(['stocks-definitions' => 'stock']); // Bind 'stocks-definitions' param to 'stock' variable
     Route::resource('employees', EmployeeController::class);
     Route::resource('meetings', MeetingController::class);
     Route::post('/timesheets/timer/start', [TimesheetController::class, 'storeTimer'])->name('timesheets.timer.start');
