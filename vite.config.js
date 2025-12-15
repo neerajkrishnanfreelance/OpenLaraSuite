@@ -10,9 +10,6 @@ export default defineConfig({
         port: 5173,
         strictPort: true,
         cors: true,
-        hmr: {
-            host: '192.168.1.48'
-        },
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
