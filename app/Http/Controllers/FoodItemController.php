@@ -59,6 +59,12 @@ class FoodItemController extends Controller
         $validated['is_custom'] = true;
         $validated['created_by'] = $request->user()->id;
 
+        // Ensure numeric fields are 0 if null, to avoid DB not-null violation
+        $numericFields = ['protein', 'carbs', 'fats', 'fiber', 'sugar', 'sodium'];
+        foreach ($numericFields as $field) {
+            $validated[$field] = $validated[$field] ?? 0;
+        }
+
         FoodItem::create($validated);
 
         return redirect()->back()->with('success', 'Food item created successfully.');
@@ -80,6 +86,12 @@ class FoodItemController extends Controller
             'sodium' => 'nullable|numeric|min:0',
             'category' => 'nullable|string|max:50',
         ]);
+
+        // Ensure numeric fields are 0 if null
+        $numericFields = ['protein', 'carbs', 'fats', 'fiber', 'sugar', 'sodium'];
+        foreach ($numericFields as $field) {
+            $validated[$field] = $validated[$field] ?? 0;
+        }
 
         $foodItem->update($validated);
 

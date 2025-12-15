@@ -50,7 +50,20 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'birth_date',
+        'gender',
+        'height',
+        'weight',
+        'activity_level',
     ];
+
+    /**
+     * Get the user's age.
+     */
+    public function getAgeAttribute()
+    {
+        return $this->birth_date ? \Carbon\Carbon::parse($this->birth_date)->age : null;
+    }
 
     /**
      * The attributes that should be hidden for serialization.

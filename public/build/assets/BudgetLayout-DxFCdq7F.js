@@ -1,1 +1,0 @@
-import{j as t,H as s}from"./app-CuRIVHFN.js";import{A as a}from"./AuthenticatedLayout-DPe4PBnM.js";function i({children:e,header:r}){return t.jsxs(a,{header:r,children:[t.jsx(s,{title:"Budget"}),e]})}export{i as B};
