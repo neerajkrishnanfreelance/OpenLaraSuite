@@ -15,11 +15,24 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    // Attempt to get local IP
+    $localIp = '127.0.0.1';
+    try {
+        $ip = trim(shell_exec("hostname -I | awk '{print $1}'"));
+        if (!empty($ip)) {
+            $localIp = $ip;
+        }
+    } catch (\Exception $e) {
+        // Fallback
+    }
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'localIp' => $localIp,
+        'appPort' => env('APP_PORT', '8000'), // Or default to 8000
     ]);
 });
 
@@ -114,6 +127,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/goals', [App\Http\Controllers\HealthGoalController::class, 'index'])->name('health.goals.index');
         Route::post('/goals', [App\Http\Controllers\HealthGoalController::class, 'store'])->name('health.goals.store');
         Route::get('/goals/progress', [App\Http\Controllers\HealthGoalController::class, 'progress'])->name('health.goals.progress');
+        
+        // Meal Planner
+        Route::get('/meal-planner', [App\Http\Controllers\MealPlannerController::class, 'index'])->name('health.meal-planner.index');
+        Route::post('/meal-planner', [App\Http\Controllers\MealPlannerController::class, 'store'])->name('health.meal-planner.store');
+        Route::delete('/meal-planner/{mealPlan}', [App\Http\Controllers\MealPlannerController::class, 'destroy'])->name('health.meal-planner.destroy');
+        Route::post('/meal-planner/suggest', [App\Http\Controllers\MealPlannerController::class, 'suggest'])->name('health.meal-planner.suggest');
     });
 
     // Todo Module Routes

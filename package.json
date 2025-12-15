@@ -33,6 +33,7 @@
         "date-fns": "^4.1.0",
         "gantt-task-react": "^0.3.9",
         "lucide-react": "^0.556.0",
+        "qrcode.react": "^4.2.0",
         "react-big-calendar": "^1.19.4",
         "recharts": "^3.5.1"
     }
