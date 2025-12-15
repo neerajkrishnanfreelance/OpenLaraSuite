@@ -97,7 +97,7 @@ export default function Index({ auth, projects, filters = {} }) {
 
     return (
         <AuthenticatedLayout
-            header={<div className="flex justify-between items-center">
+            header={<div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">Projects</h2>
                 <div className="flex items-center space-x-2">
                     <div className="bg-white rounded-md shadow-sm border border-gray-300 flex p-1 mr-4">
