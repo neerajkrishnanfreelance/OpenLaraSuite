@@ -4,7 +4,24 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+
+    server: {
+        host: true,
+        port: 5173,
+        strictPort: true,
+        cors: true,
+        hmr: {
+            host: '192.168.1.48'
+        },
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': '*',
+        },
+    },
+
     plugins: [
+
         laravel({
             input: 'resources/js/app.jsx',
             ssr: 'resources/js/ssr.jsx',

@@ -365,6 +365,9 @@
   "resources/js/Pages/Projects/Show.jsx": [
     "/build/assets/Show-yj3ifMGx.js"
   ],
+  "resources/js/Pages/QrCode/Index.jsx": [
+    "/build/assets/Index-D72dpyyT.js"
+  ],
   "resources/js/Pages/Settings/Backups.jsx": [
     "/build/assets/Backups-D3G5-cMG.js"
   ],
@@ -421,7 +424,7 @@
     "/build/assets/List-i5nXXLdJ.js"
   ],
   "resources/js/Pages/Welcome.jsx": [
-    "/build/assets/Welcome-DLb5Yink.js"
+    "/build/assets/Welcome-UX6i1fCo.js"
   ],
   "resources/js/ssr.jsx": [],
   "vendor/tightenco/ziggy/dist/index.js": []

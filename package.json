@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build && vite build --ssr",
-        "dev": "vite"
+        "dev": "vite --host"
     },
     "devDependencies": {
         "@headlessui/react": "^2.2.9",

@@ -13,10 +13,13 @@ import {
     PenTool,
     Compass,
     Database,
-    Sprout
+    Sprout,
+    Smartphone
 } from 'lucide-react';
 
+
 export default function Welcome({ auth }) {
+    // ... existing suites data ...
     const suites = [
         {
             name: 'Business & CRM',
@@ -151,17 +154,26 @@ export default function Welcome({ auth }) {
                                     OpenLaraSuite
                                 </span>
                             </div>
-                            <div className="text-sm text-gray-500 font-medium hidden sm:flex items-center gap-2">
-                                <span>UAE Time:</span>
-                                <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                                    {uaeTime.toLocaleTimeString('en-US', {
-                                        timeZone: 'Asia/Dubai',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        second: '2-digit',
-                                        hour12: true
-                                    })}
-                                </span>
+                            <div className="flex items-center gap-4">
+                                <Link
+                                    href={route('qrcode.index')}
+                                    className="hidden sm:flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-indigo-600 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors"
+                                >
+                                    <Smartphone className="w-4 h-4" />
+                                    Mobile Access
+                                </Link>
+                                <div className="text-sm text-gray-500 font-medium hidden sm:flex items-center gap-2">
+                                    <span>UAE Time:</span>
+                                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                                        {uaeTime.toLocaleTimeString('en-US', {
+                                            timeZone: 'Asia/Dubai',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit',
+                                            hour12: true
+                                        })}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -203,7 +215,7 @@ export default function Welcome({ auth }) {
 
                 {/* Footer */}
                 <footer className="py-8 text-center text-sm text-gray-400">
-                    &copy; {new Date().getFullYear()}  All rights reserved.
+                    &copy; {new Date().getFullYear()} All rights reserved.
                 </footer>
             </div>
         </>

@@ -15,26 +15,15 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    // Attempt to get local IP
-    $localIp = '127.0.0.1';
-    try {
-        $ip = trim(shell_exec("hostname -I | awk '{print $1}'"));
-        if (!empty($ip)) {
-            $localIp = $ip;
-        }
-    } catch (\Exception $e) {
-        // Fallback
-    }
-
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'localIp' => $localIp,
-        'appPort' => env('APP_PORT', '8000'), // Or default to 8000
     ]);
 });
+
+Route::get('/qrcode', [App\Http\Controllers\QrCodeController::class, 'index'])->name('qrcode.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
