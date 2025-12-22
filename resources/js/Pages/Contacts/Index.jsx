@@ -49,7 +49,7 @@ export default function Index({ auth, contacts, filters, users = [] }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-                
+
 
                     <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <form onSubmit={handleSearch} className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -100,7 +100,6 @@ export default function Index({ auth, contacts, filters, users = [] }) {
                             href={route('contacts.create')}
                             className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
                         >
-                            <Plus className="w-4 h-4 mr-2" />
                             Add Contact
                         </Link>
                     </div>

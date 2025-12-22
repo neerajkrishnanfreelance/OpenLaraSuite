@@ -138,7 +138,6 @@ export default function ChartOfAccounts({ auth, accounts }) {
                         }}
                         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
                     >
-                        <Plus className="w-4 h-4" />
                         New Account
                     </button>
                 </div>

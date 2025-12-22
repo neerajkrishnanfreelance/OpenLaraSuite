@@ -1,1 +1,0 @@
-import{j as t,H as s}from"./app-BsVn47VI.js";import{A as a}from"./AuthenticatedLayout-Bwevk2c1.js";function i({children:e,header:r}){return t.jsxs(a,{header:r,children:[t.jsx(s,{title:"Budget"}),e]})}export{i as B};

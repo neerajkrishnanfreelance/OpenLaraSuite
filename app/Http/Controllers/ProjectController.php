@@ -98,7 +98,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['users', 'tasks.assignedUser', 'tasks.creator', 'requirements']);
+        $project->load(['users', 'tasks.assignedUser', 'tasks.creator', 'requirements', 'notes.user']);
 
         return Inertia::render('Projects/Show', [
             'project' => $project,

@@ -291,8 +291,8 @@ export default function Index({ auth, entries, categories, view, filters }) {
                                     className="flex-1 rounded border-gray-300 text-sm"
                                     required
                                 />
-                                <button type="submit" className="bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
-                                    <Plus className="w-5 h-5" />
+                                <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm font-medium">
+                                    Add
                                 </button>
                             </div>
                         </form>
@@ -608,7 +608,7 @@ export default function Index({ auth, entries, categories, view, filters }) {
                         <div className="flex gap-6 h-[calc(100vh-140px)]">
 
                             {/* LEFT SIDEBAR - List View */}
-                            <div className="w-1/3 bg-white rounded-lg shadow-sm flex flex-col overflow-hidden">
+                            <div className={`${(selectedEntryId !== null || isEditing) ? 'hidden md:flex' : 'flex'} w-full md:w-1/3 bg-white rounded-lg shadow-sm flex-col overflow-hidden`}>
                                 {/* Search and Filter Header */}
                                 <div className="p-4 border-b space-y-3">
                                     <div className="relative">
@@ -733,16 +733,15 @@ export default function Index({ auth, entries, categories, view, filters }) {
                                         onClick={handleNewEntry}
                                         className="w-full bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 font-medium"
                                     >
-                                        <Plus className="w-5 h-5" />
                                         New Entry
                                     </button>
                                 </div>
                             </div>
 
                             {/* RIGHT SIDE - Form View */}
-                            <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+                            <div className={`${(selectedEntryId === null && !isEditing) ? 'hidden md:flex' : 'flex'} w-full md:flex-1 bg-white rounded-lg shadow-sm overflow-hidden flex-col h-full`}>
                                 {selectedEntryId === null && !isEditing ? (
-                                    // Empty State
+                                    // Empty State (Desktop Only really)
                                     <div className="h-full flex items-center justify-center text-gray-400">
                                         <div className="text-center">
                                             <PenTool className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -753,11 +752,20 @@ export default function Index({ auth, entries, categories, view, filters }) {
                                 ) : (
                                     <div className="h-full flex flex-col">
                                         {/* Header */}
-                                        <div className="p-6 border-b flex justify-between items-center">
-                                            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                                <PenTool className="w-5 h-5 text-indigo-600" />
-                                                {selectedEntryId ? (isEditing ? 'Edit Entry' : 'View Entry') : 'New Entry'}
-                                            </h2>
+                                        <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+                                            <div className="flex items-center gap-2">
+                                                {/* Mobile Back Button */}
+                                                <button
+                                                    onClick={() => { setSelectedEntryId(null); setIsEditing(false); }}
+                                                    className="md:hidden mr-2 p-1 rounded-full hover:bg-gray-100 text-gray-600"
+                                                >
+                                                    <ChevronLeft className="w-6 h-6" />
+                                                </button>
+                                                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                                    <PenTool className="w-5 h-5 text-indigo-600 hidden md:block" />
+                                                    {selectedEntryId ? (isEditing ? 'Edit Entry' : 'View Entry') : 'New Entry'}
+                                                </h2>
+                                            </div>
                                             {selectedEntryId && !isEditing && (
                                                 <div className="flex gap-2">
                                                     <button
@@ -765,21 +773,21 @@ export default function Index({ auth, entries, categories, view, filters }) {
                                                         className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
                                                     >
                                                         <Edit2 className="w-4 h-4" />
-                                                        Edit
+                                                        <span className="hidden md:inline">Edit</span>
                                                     </button>
                                                     <button
                                                         onClick={handleDelete}
                                                         className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
-                                                        Delete
+                                                        <span className="hidden md:inline">Delete</span>
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
                                         {/* Content */}
-                                        <div className="flex-1 overflow-y-auto p-6">
+                                        <div className="flex-1 overflow-y-auto p-6 mobile-pb-24">
                                             {!isEditing && selectedEntry ? (
                                                 // View Mode
                                                 <div className="space-y-6">

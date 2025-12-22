@@ -57,7 +57,11 @@ const DroppableColumn = ({ id, status, projects }) => {
 
 export default function KanbanBoard({ projects = [] }) {
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8, // Requires 8px movement before drag starts, allowing for small taps/scrolls
+            },
+        }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 

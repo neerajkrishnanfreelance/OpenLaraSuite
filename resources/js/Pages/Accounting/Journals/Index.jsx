@@ -74,7 +74,6 @@ export default function Journals({ auth, journals }) {
                         }}
                         className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2"
                     >
-                        <Plus className="w-4 h-4" />
                         New Journal
                     </button>
                 </div>

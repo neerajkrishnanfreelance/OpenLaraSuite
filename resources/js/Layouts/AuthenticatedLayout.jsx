@@ -18,6 +18,7 @@ export default function Authenticated({ header, children, customNav }) {
         { name: 'Dashboard', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
         { name: 'Projects', route: 'projects.index', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' },
         { name: 'Tasks', route: 'tasks.index', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+        { name: 'Notes', route: 'notes.index', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
         { name: 'Timesheets', route: 'timesheets.index', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
         { name: 'Overtime', route: 'overtime-requests.index', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
         { name: 'Agriculture', route: 'agriculture.dashboard', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
@@ -30,7 +31,7 @@ export default function Authenticated({ header, children, customNav }) {
     // Health module navigation
     if (isHealthModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'health.dashboard', icon: 'M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 13a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z' },
             { name: 'Food Logs', route: 'health.food-logs.index', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
             { name: 'Workouts', route: 'health.workouts.index', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
@@ -44,7 +45,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isTodoModule = currentUrl.startsWith('/todos');
     if (isTodoModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'todos.index', icon: 'M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 13a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z' },
             { name: 'Calendar', route: 'todos.calendar', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
             { name: 'List', route: 'todos.list', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
@@ -56,7 +57,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isAccountingModule = currentUrl.startsWith('/accounting');
     if (isAccountingModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'accounting.dashboard', icon: 'M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 13a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z' },
             { name: 'Chart of Accounts', route: 'accounting.accounts.index', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
             { name: 'Journal Entries', route: 'accounting.entries.index', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
@@ -70,7 +71,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isExpenseModule = currentUrl.startsWith('/expenses') || currentUrl.startsWith('/expense-products');
     if (isExpenseModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'expenses.index', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
             { name: 'Log Expense', route: 'expenses.create', icon: 'M12 4v16m8-8H4' },
             { name: 'Manage Types', route: 'expense-products.index', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
@@ -81,7 +82,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isBudgetModule = currentUrl.startsWith('/budget');
     if (isBudgetModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'budget.dashboard', icon: 'M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 13a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z' },
             { name: 'Budget Plans', route: 'budget.plans.index', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' },
             { name: 'Daily Entries', route: 'budget.entries.index', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
@@ -93,7 +94,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isCrmModule = currentUrl.startsWith('/contacts') || currentUrl.startsWith('/lead-stages') || currentUrl.startsWith('/crm') || currentUrl.startsWith('/sources') || currentUrl.startsWith('/media');
     if (isCrmModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'CRM Dashboard', route: 'crm.dashboard', icon: 'M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 13a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z' },
             { name: 'CRM Leads', route: 'crm.leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
             { name: 'Contacts', route: 'contacts.index', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
@@ -106,7 +107,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isLearningModule = currentUrl.startsWith('/learning');
     if (isLearningModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'learning.index', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
             // Note: These query params might not work perfectly with 'route().current() key matching' unless we adjust.
             // For simplicity, we link to the index and let the tab persistence handle it or use specific active checks.
@@ -132,7 +133,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isCalendarModule = currentUrl.startsWith('/calendar') || currentUrl.startsWith('/meetings');
     if (isCalendarModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Calendar', route: 'calendar.index', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
             { name: 'My Events', route: 'calendar.index', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
             { name: 'Meetings', route: 'meetings.index', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
@@ -143,7 +144,7 @@ export default function Authenticated({ header, children, customNav }) {
     const isStockModule = currentUrl.startsWith('/stocks') || currentUrl.startsWith('/stocks-definitions');
     if (isStockModule) {
         navItems = [
-            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'Master', route: '', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { name: 'Dashboard', route: 'stocks.index', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
             { name: 'Stock List', route: 'stocks-definitions.index', icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4' },
             { name: 'New Trade', route: 'stocks.create', icon: 'M12 4v16m8-8H4' },
@@ -159,11 +160,38 @@ export default function Authenticated({ header, children, customNav }) {
             { name: 'Activities', route: 'agriculture.crop-logs.index', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
             { name: 'Reports', route: 'agriculture.reports.index', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         ];
+
+    }
+
+    // HR & Recruitment Module
+    const isHrModule = currentUrl.startsWith('/hr');
+    if (isHrModule) {
+        navItems = [
+            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'HR Contacts', route: 'hr-contacts.index', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+            { name: 'Resume Builder', route: 'resumes.index', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        ];
+    }
+
+    // Detect if we're in the Notes module
+    const isNotesModule = currentUrl.startsWith('/notes');
+    if (isNotesModule) {
+        navItems = [
+            { name: 'Master', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            { name: 'My Notes', route: 'notes.index', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
+            { name: 'Create Note', route: 'notes.create', icon: 'M12 4v16m8-8H4' },
+        ];
     }
 
     if (customNav) {
         navItems = customNav;
     }
+
+    // Always prepend Home link
+    navItems = [
+        { name: 'Home', url: '/', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+        ...navItems.filter(item => item.name !== 'Master') // Remove duplicate Master/Home if present from module specific lists
+    ];
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
@@ -182,14 +210,14 @@ export default function Authenticated({ header, children, customNav }) {
                         {navItems.map((item) => (
                             <Link
                                 key={item.name}
-                                href={route(item.route)}
+                                href={item.url || route(item.route)}
                                 className={`group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
-                                    ${route().current(item.route.split('.')[0] + '*')
+                                    ${(item.route && route().current(item.route.split('.')[0] + '*')) || (item.url && currentUrl === item.url)
                                         ? 'bg-purple-800 text-white shadow-md border-l-4 border-yellow-400'
                                         : 'text-purple-100 hover:bg-purple-800 hover:text-white hover:pl-4'
                                     }`}
                             >
-                                <svg className={`mr-3 flex-shrink-0 h-5 w-5 ${route().current(item.route.split('.')[0] + '*') ? 'text-yellow-400' : 'text-purple-300 group-hover:text-white'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className={`mr-3 flex-shrink-0 h-5 w-5 ${(item.route && route().current(item.route.split('.')[0] + '*')) || (item.url && currentUrl === item.url) ? 'text-yellow-400' : 'text-purple-300 group-hover:text-white'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
                                 </svg>
                                 {item.name}
@@ -213,54 +241,114 @@ export default function Authenticated({ header, children, customNav }) {
             {/* Mobile Sidebar Overlay & Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Mobile Header */}
-                <div className="md:hidden bg-purple-900 shadow-md h-16 flex items-center justify-between px-4 z-10 border-b border-purple-800">
-                    <div className="flex items-center space-x-2">
-                        <ApplicationLogo className="h-8 w-8 text-yellow-400 fill-current" />
-                        <div className="font-bold text-lg text-white">My CRM</div>
+                {/* Mobile Header - Ultra Modern Daily Tracker Style */}
+                <div className="md:hidden bg-blue-600/95 backdrop-blur-sm shadow-lg h-16 flex items-center justify-between px-4 z-40 sticky top-0 transition-all duration-300">
+                    <div className="flex items-center gap-1">
+                        {/* Show Back Button if not on main Dashboard or sub-module dashboards we consider 'root' */}
+                        {!route().current('dashboard') && !route().current('health.dashboard') && !route().current('crm.dashboard') && !route().current('todos.dashboard') ? (
+                            <Link
+                                href={route('dashboard')}
+                                className="inline-flex items-center justify-center p-2 rounded-xl text-white/90 hover:bg-white/10 transition-all active:scale-95"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                            </Link>
+                        ) : (
+                            <button
+                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
+                                className="inline-flex items-center justify-center p-2 rounded-xl text-white hover:bg-white/10 focus:outline-none transition-all duration-200 active:scale-95"
+                            >
+                                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
+                                </svg>
+                            </button>
+                        )}
+
+                        {/* Drill to Welcome / App Apps Grid */}
+                        {!route().current('dashboard') && (
+                            <Link
+                                href={route('dashboard')}
+                                className="inline-flex items-center justify-center p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                            </Link>
+                        )}
                     </div>
-                    <button
-                        onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                        className="inline-flex items-center justify-center p-2 rounded-md text-purple-200 hover:text-white hover:bg-purple-800 focus:outline-none focus:bg-purple-800 focus:text-white transition duration-150 ease-in-out"
-                    >
-                        <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                            <path
-                                className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            />
-                            <path
-                                className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
-                        </svg>
-                    </button>
+
+                    <div className="font-bold text-lg text-white tracking-wide">
+                        {isHealthModule ? 'Daily Tracker' :
+                            isTodoModule ? 'My Tasks' :
+                                isAccountingModule ? 'Accounting' :
+                                    isCrmModule ? 'My CRM' :
+                                        isNotesModule ? 'My Notes' :
+                                            'OpenSuite'}
+                    </div>
+
+                    <Link href={route('profile.edit')} className="p-0.5 rounded-full bg-gradient-to-tr from-blue-400 to-blue-300 shadow-inner">
+                        <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-blue-600 font-bold shadow-sm">
+                            {user.name.charAt(0)}
+                        </div>
+                    </Link>
                 </div>
 
                 {/* Mobile Menu */}
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' md:hidden bg-white border-b border-gray-200 shadow-lg absolute top-16 w-full z-20'}>
-                    <div className="pt-2 pb-3 space-y-1">
+                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' md:hidden bg-white shadow-xl absolute top-14 w-full z-20 max-h-screen overflow-y-auto'}>
+                    <div className="py-2">
                         {navItems.map(item => (
-                            <ResponsiveNavLink key={item.name} href={route(item.route)} active={route().current(item.route.split('.')[0] + '*')}>
-                                {item.name}
-                            </ResponsiveNavLink>
+                            <Link
+                                key={item.name}
+                                href={item.url || route(item.route)}
+                                className={`flex items-center px-4 py-3.5 border-b border-gray-100 active:bg-blue-50 transition-colors ${(item.route && route().current(item.route.split('.')[0] + '*')) || (item.url && currentUrl === item.url)
+                                    ? 'bg-blue-50 text-blue-600 border-l-4 border-l-blue-600'
+                                    : 'text-gray-700'
+                                    }`}
+                                style={{ minHeight: '56px', touchAction: 'manipulation' }}
+                            >
+                                <svg className={`mr-3 h-5 w-5 ${(item.route && route().current(item.route.split('.')[0] + '*')) || (item.url && currentUrl === item.url) ? 'text-blue-600' : 'text-gray-400'
+                                    }`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
+                                </svg>
+                                <span className="font-medium">{item.name}</span>
+                            </Link>
                         ))}
                     </div>
-                    <div className="pt-4 pb-1 border-t border-gray-200 bg-gray-50">
-                        <div className="px-4">
-                            <div className="font-medium text-base text-gray-800">{user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
+                    <div className="border-t border-gray-200 bg-gray-50 py-3">
+                        <div className="px-4 py-2">
+                            <div className="flex items-center space-x-3 mb-3">
+                                <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white">
+                                    {user.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <div className="font-medium text-base text-gray-800">{user.name}</div>
+                                    <div className="text-sm text-gray-500">{user.email}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
+                        <Link
+                            href={route('profile.edit')}
+                            className="flex items-center px-4 py-3 text-gray-700 active:bg-gray-100 transition-colors"
+                            style={{ minHeight: '48px', touchAction: 'manipulation' }}
+                        >
+                            <svg className="mr-3 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span className="font-medium">Profile</span>
+                        </Link>
+                        <Link
+                            method="post"
+                            href={route('logout')}
+                            as="button"
+                            className="flex items-center w-full px-4 py-3 text-red-600 active:bg-gray-100 transition-colors"
+                            style={{ minHeight: '48px', touchAction: 'manipulation' }}
+                        >
+                            <svg className="mr-3 h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span className="font-medium">Log Out</span>
+                        </Link>
                     </div>
                 </div>
 
@@ -313,10 +401,95 @@ export default function Authenticated({ header, children, customNav }) {
                         </div>
                     </div>
 
-                    <div className="py-8 px-8">
+                    <div className="py-4 px-4 md:py-8 md:px-8 pb-20 md:pb-8">
                         {children}
                     </div>
                 </main>
+            </div>
+            {/* Mobile Bottom Navigation - Daily Tracker Style */}
+            <div className="md:hidden mobile-bottom-nav">
+                {navItems.slice(0, 4).map((item) => (
+                    <Link
+                        key={item.name}
+                        href={item.url || route(item.route)}
+                        className={`mobile-bottom-nav-item ${(item.route && route().current(item.route.split('.')[0] + '*')) || (item.url && currentUrl === item.url) ? 'active' : ''}`}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
+                        </svg>
+                        <span>{item.name}</span>
+                    </Link>
+                ))}
+
+                {/* Always show Profile as the last item if not already in top 4 */}
+                <Link
+                    href={route('profile.edit')}
+                    className={`mobile-bottom-nav-item ${route().current('profile.edit') ? 'active' : ''}`}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>Profile</span>
+                </Link>
+            </div>
+
+            {/* Mobile FAB - Contextual Action */}
+            <div className="md:hidden mobile-fab-container fixed bottom-24 right-4 z-50 pointer-events-none">
+                <div className="pointer-events-auto">
+                    {(() => {
+                        let fabRoute = null;
+
+                        // Determine FAB route based on active module
+                        if (isHealthModule) {
+                            fabRoute = route('health.food-logs.index'); // Log Food
+                        } else if (isCrmModule) {
+                            // Link to Leads create if available, otherwise Contacts
+                            fabRoute = route('crm.leads.create');
+                        } else if (isTodoModule) {
+                            fabRoute = route('tasks.create'); // Create proper Task
+                        } else if (isNotesModule) {
+                            fabRoute = route('notes.create');
+                        } else if (isAccountingModule) {
+                            fabRoute = route('accounting.entries.create'); // Journal Entry
+                        } else if (isExpenseModule) {
+                            fabRoute = route('expenses.create');
+                        } else if (isBudgetModule) {
+                            fabRoute = route('budget.plans.create');
+                        } else if (isStockModule) {
+                            fabRoute = route('stocks.create');
+                        } else if (currentUrl.startsWith('/projects')) {
+                            fabRoute = route('projects.create');
+                        } else if (currentUrl.startsWith('/agriculture')) {
+                            fabRoute = route('agriculture.crops.create');
+                        } else if (currentUrl.startsWith('/hr')) {
+                            fabRoute = route('hr-contacts.create');
+                        } else if (currentUrl.startsWith('/resumes')) {
+                            fabRoute = route('resumes.create');
+                        } else if (currentUrl.startsWith('/tasks')) {
+                            fabRoute = route('tasks.create');
+                        }
+
+                        // Render FAB if a route is determined
+                        if (fabRoute) {
+                            return (
+                                <Link href={fabRoute} className="mobile-fab bg-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </Link>
+                            );
+                        } else {
+                            // Default Fallback (e.g., Create Task)
+                            return (
+                                <Link href={route('tasks.create')} className="mobile-fab bg-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </Link>
+                            );
+                        }
+                    })()}
+                </div>
             </div>
         </div>
     );

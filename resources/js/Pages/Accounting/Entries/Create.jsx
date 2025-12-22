@@ -127,7 +127,6 @@ export default function CreateJournalEntry({ auth, journals, accounts, products 
                                         onClick={addLine}
                                         className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm flex items-center gap-1"
                                     >
-                                        <Plus className="w-4 h-4" />
                                         Add Line
                                     </button>
                                 </div>

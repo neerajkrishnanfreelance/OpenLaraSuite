@@ -77,8 +77,8 @@ export default function TodoDashboard({
                 )}
             </div>
             <span className={`px-2 py-1 text-xs rounded-full ${todo.priority === 'high' ? 'bg-red-100 text-red-700' :
-                    todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                todo.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-green-100 text-green-700'
                 }`}>
                 {todo.priority}
             </span>
@@ -121,7 +121,6 @@ export default function TodoDashboard({
                                 onClick={() => setShowQuickAdd(true)}
                                 className="w-full flex items-center gap-2 text-gray-600 hover:text-gray-900"
                             >
-                                <Plus className="w-5 h-5" />
                                 <span>Quick add a todo...</span>
                             </button>
                         ) : (

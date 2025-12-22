@@ -286,6 +286,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('sources', App\Http\Controllers\SourceController::class);
     Route::resource('media', App\Http\Controllers\MediumController::class)->parameters(['media' => 'medium']);
 
+    // HR & Recruitment Module Routes
+    Route::prefix('hr')->group(function () {
+        Route::resource('contacts', App\Http\Controllers\HrContactController::class)->names([
+            'index' => 'hr-contacts.index',
+            'create' => 'hr-contacts.create',
+            'store' => 'hr-contacts.store',
+            'show' => 'hr-contacts.show',
+            'edit' => 'hr-contacts.edit',
+            'update' => 'hr-contacts.update',
+            'destroy' => 'hr-contacts.destroy',
+        ]);
+        Route::post('/contacts/{hrContact}/send-welcome', [App\Http\Controllers\HrContactController::class, 'sendWelcome'])->name('hr-contacts.send-welcome');
+    });
+
+    // Resume Builder Routes
+Route::resource('resumes', App\Http\Controllers\ResumeController::class);
+
+// Notes & Drawing Routes
+Route::resource('notes', App\Http\Controllers\NoteController::class);
+Route::post('/notes/{note}/recordings', [App\Http\Controllers\NoteRecordingController::class, 'store'])->name('notes.recordings.store');
+Route::delete('/notes/recordings/{recording}', [App\Http\Controllers\NoteRecordingController::class, 'destroy'])->name('notes.recordings.destroy');
+    Route::post('notes/{note}/attachments', [App\Http\Controllers\NoteAttachmentController::class, 'store'])->name('notes.attachments.store');
+    Route::delete('notes/attachments/{attachment}', [App\Http\Controllers\NoteAttachmentController::class, 'destroy'])->name('notes.attachments.destroy');
+    Route::post('notes/{note}/pdf', [App\Http\Controllers\NoteController::class, 'downloadPdf'])->name('notes.pdf');
+
 });
 
 require __DIR__.'/auth.php';

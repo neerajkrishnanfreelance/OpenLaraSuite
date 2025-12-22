@@ -14,7 +14,8 @@ import {
     Compass,
     Database,
     Sprout,
-    Smartphone
+    Smartphone,
+    StickyNote
 } from 'lucide-react';
 
 
@@ -127,6 +128,34 @@ export default function Welcome({ auth }) {
                     icon: Database,
                     color: 'bg-slate-100 text-slate-600',
                     href: '/settings/backups',
+                },
+                {
+                    title: 'Notes & Drawing',
+                    description: 'Sketch and take notes',
+                    icon: StickyNote,
+                    color: 'bg-amber-100 text-amber-600',
+                    href: '/notes',
+                },
+            ]
+
+        },
+        {
+            name: 'HR & Recruitment',
+            description: 'Talent acquisition and resume management',
+            tools: [
+                {
+                    title: 'HR Contacts',
+                    description: 'Recruitment outreach',
+                    icon: Users,
+                    color: 'bg-pink-100 text-pink-600',
+                    href: '/hr/contacts',
+                },
+                {
+                    title: 'Resume Builder',
+                    description: 'Build professional CVs',
+                    icon: PenTool,
+                    color: 'bg-blue-100 text-blue-600',
+                    href: '/resumes',
                 },
             ]
         }

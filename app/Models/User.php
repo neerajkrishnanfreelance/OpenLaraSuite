@@ -41,6 +41,11 @@ class User extends Authenticatable
         return $this->hasMany(OvertimeRequest::class);
     }
 
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
+
     /**
      * The attributes that are mass assignable.
      *

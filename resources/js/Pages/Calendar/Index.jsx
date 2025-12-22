@@ -4,7 +4,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import FormHeader from '@/Components/FormHeader';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CreateMeetingModal from '@/Components/CreateMeetingModal';
 import CreateTaskModal from '@/Components/CreateTaskModal';
 import Modal from '@/Components/Modal';
@@ -14,8 +14,24 @@ const localizer = momentLocalizer(moment);
 export default function Index({ auth, events, projects, users }) {
     const [showMeetingModal, setShowMeetingModal] = useState(false);
     const [showTaskModal, setShowTaskModal] = useState(false);
+    const [view, setView] = useState(window.innerWidth < 768 ? 'agenda' : 'month');
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [showTypeSelection, setShowTypeSelection] = useState(false);
+
+    // Handle window resize to switch views automatically if properly desired.
+    // Or just set initial state. Let's add a listener for robustness.
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768 && view !== 'agenda') {
+                setView('agenda');
+            } else if (window.innerWidth >= 768 && view === 'agenda') {
+                setView('month');
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [view]);
 
     const handleSelectSlot = (slotInfo) => {
         setSelectedSlot(slotInfo);
@@ -76,6 +92,8 @@ export default function Index({ auth, events, projects, users }) {
                                 endAccessor="end"
                                 style={{ height: '100%' }}
                                 selectable
+                                view={view}
+                                onView={setView}
                                 onSelectSlot={handleSelectSlot}
                                 onSelectEvent={handleSelectEvent}
                                 eventPropGetter={(event) => {

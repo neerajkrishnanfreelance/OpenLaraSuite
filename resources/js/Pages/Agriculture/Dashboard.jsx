@@ -17,7 +17,7 @@ export default function Dashboard({ auth, activeCrops, rndCrops, recentLogs }) {
                         <StatCard title="R&D Projects" value={rndCrops} icon="flask" color="blue" />
                         <Link href={route('agriculture.crops.create')}>
                             <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center justify-center h-full hover:bg-gray-50 cursor-pointer border-2 border-dashed border-gray-300">
-                                <span className="text-gray-500 font-medium">+ Add New Crop</span>
+                                <span className="text-gray-500 font-medium">Add New Crop</span>
                             </div>
                         </Link>
                     </div>

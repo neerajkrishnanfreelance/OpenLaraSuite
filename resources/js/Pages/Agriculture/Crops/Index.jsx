@@ -11,7 +11,7 @@ export default function Index({ auth, crops }) {
             label: 'Status',
             render: (item) => (
                 <span className={`px-2 py-1 text-xs font-bold uppercase rounded ${item.status === 'active' ? 'bg-green-100 text-green-800' :
-                        item.status === 'harvested' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                    item.status === 'harvested' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                     }`}>
                     {item.status}
                 </span>
@@ -42,7 +42,7 @@ export default function Index({ auth, crops }) {
                 <div className="flex justify-between items-center">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">Your Crops</h2>
                     <Link href={route('agriculture.crops.create')}>
-                        <PrimaryButton>+ New Crop</PrimaryButton>
+                        <PrimaryButton>New Crop</PrimaryButton>
                     </Link>
                 </div>
             }

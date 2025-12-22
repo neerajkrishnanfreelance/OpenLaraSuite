@@ -64,7 +64,6 @@ export default function Leads({ auth, leads, lead_stages = [], users, filters })
 
                         <Link href={route('crm.leads.create')}>
                             <PrimaryButton>
-                                <Plus className="w-4 h-4 mr-1" />
                                 New Lead
                             </PrimaryButton>
                         </Link>
