@@ -288,6 +288,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // HR & Recruitment Module Routes
     Route::prefix('hr')->group(function () {
+        Route::post('/contacts/bulk-delete', [App\Http\Controllers\HrContactController::class, 'bulkDelete'])->name('hr-contacts.bulk-delete');
         Route::resource('contacts', App\Http\Controllers\HrContactController::class)->names([
             'index' => 'hr-contacts.index',
             'create' => 'hr-contacts.create',

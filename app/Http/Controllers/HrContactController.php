@@ -109,4 +109,18 @@ class HrContactController extends Controller
 
         return back()->with('success', 'Welcome email sent successfully.');
     }
+    /**
+     * Remove the specified resources from storage.
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:hr_contacts,id',
+        ]);
+
+        HrContact::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('hr-contacts.index')->with('success', 'Selected contacts deleted successfully.');
+    }
 }
