@@ -6,15 +6,20 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
 
     server: {
-        host: true,
+        host: '0.0.0.0', // Explicitly bind to all interfaces
         port: 5173,
         strictPort: true,
         cors: true,
+        hmr: {
+            host: 'localhost', // Default to localhost, but client will try to derive it usually. 
+            // For Ngrok/LAN, it's safer to rely on the client knowing where it connected.
+        },
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': '*',
         },
+        allowedHosts: ['all'], // Allow any host for Ngrok
     },
 
     plugins: [
