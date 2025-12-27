@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Plus, Edit, Trash2, FileText, Download, Mic, Paperclip, Youtube } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Download, Mic, Paperclip, Youtube, Table, CheckSquare, PenTool } from 'lucide-react';
 import Pagination from '@/Components/Pagination';
 
 export default function Index({ auth, notes }) {
@@ -80,6 +80,18 @@ export default function Index({ auth, notes }) {
                                                 {/* YouTube */}
                                                 {note.attachments && note.attachments.some(a => a.type === 'youtube') && (
                                                     <Youtube className="w-4 h-4 text-red-500" title="Has Video" />
+                                                )}
+                                                {/* Drawing */}
+                                                {note.drawing_data && (
+                                                    <PenTool className="w-4 h-4 text-indigo-500" title="Has Drawing" />
+                                                )}
+                                                {/* Spreadsheet */}
+                                                {note.spreadsheet_data && (
+                                                    <Table className="w-4 h-4 text-green-500" title="Has Spreadsheet" />
+                                                )}
+                                                {/* Document/Checklist */}
+                                                {note.document_data && (
+                                                    <CheckSquare className="w-4 h-4 text-purple-500" title="Has Document" />
                                                 )}
                                                 <span className="text-xs text-gray-500 whitespace-nowrap">
                                                     {new Date(note.created_at).toLocaleDateString()}

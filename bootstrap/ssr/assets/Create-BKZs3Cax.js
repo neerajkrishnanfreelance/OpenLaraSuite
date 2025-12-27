@@ -21,7 +21,8 @@ function Create({ auth, projects, tasks }) {
     start_time: "",
     end_time: "",
     hours: "",
-    description: ""
+    description: "",
+    is_overtime: false
   });
   const [calcMode, setCalcMode] = React.useState("manual");
   React.useEffect(() => {
@@ -159,7 +160,19 @@ function Create({ auth, projects, tasks }) {
               }
             ),
             /* @__PURE__ */ jsx(InputError, { message: errors.description, className: "mt-2" })
-          ] })
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "mt-4", children: /* @__PURE__ */ jsxs("label", { className: "flex items-center cursor-pointer", children: [
+            /* @__PURE__ */ jsx(
+              "input",
+              {
+                type: "checkbox",
+                className: "rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500",
+                checked: data.is_overtime,
+                onChange: (e) => setData("is_overtime", e.target.checked)
+              }
+            ),
+            /* @__PURE__ */ jsx("span", { className: "ml-2 text-sm text-gray-700 font-medium", children: "Mark as Overtime" })
+          ] }) })
         ] }) })
       ]
     }

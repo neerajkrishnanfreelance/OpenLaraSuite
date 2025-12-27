@@ -43,6 +43,15 @@ class TimesheetController extends Controller
                  $query->where('is_overtime', true);
              }
         }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
         
         // Timer check: is there an active timer?
         $activeTimer = Timesheet::where('user_id', Auth::id())
@@ -55,7 +64,8 @@ class TimesheetController extends Controller
         return Inertia::render('Timesheets/Index', [
             'timesheets' => $timesheets,
             'projects' => Auth::user()->projects,
-            'filters' => $request->only(['project_id', 'is_overtime']),
+            'users' => \App\Models\User::select('id', 'name')->get(),
+            'filters' => $request->only(['project_id', 'user_id', 'status', 'date_from', 'date_to', 'is_overtime']),
             'activeTimer' => $activeTimer,
         ]);
     }
@@ -142,6 +152,7 @@ class TimesheetController extends Controller
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
             'description' => 'nullable|string',
+            'is_overtime' => 'boolean',
         ]);
 
         // Auto-calculate hours if start/end provided
@@ -215,6 +226,7 @@ class TimesheetController extends Controller
                 'start_time' => 'nullable|date_format:H:i',
                 'end_time' => 'nullable|date_format:H:i|after:start_time',
                 'description' => 'nullable|string',
+                'is_overtime' => 'boolean',
             ]);
 
             if ($request->filled('start_time') && $request->filled('end_time')) {

@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import FabricCanvas from '@/Components/FabricCanvas';
+import SpreadsheetEditor from '@/Components/SpreadsheetEditor';
+import DocumentEditor from '@/Components/DocumentEditor';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import TextArea from '@/Components/TextArea';
@@ -30,7 +32,8 @@ import {
     Paperclip,
     Youtube,
     Link as LinkIcon,
-    FileText
+    FileText,
+    Table as TableIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -57,10 +60,16 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
     // Relations
     const [availableTasks, setAvailableTasks] = useState([]);
 
+    const [viewMode, setViewMode] = useState('canvas'); // 'canvas' | 'spreadsheet' | 'document'
+    const spreadsheetRef = useRef(null);
+    const documentRef = useRef(null);
+
     const { data, setData, post, put, processing, errors } = useForm({
         title: note ? note.title : '',
         content: note ? note.content : '',
         drawing_data: note ? note.drawing_data : '',
+        spreadsheet_data: note ? note.spreadsheet_data : '',
+        document_data: note ? note.document_data : '',
         project_id: note ? note.project_id : (preselected_project_id || ''),
         task_id: note ? note.task_id : '',
     });
@@ -282,16 +291,29 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
         if (e) e.preventDefault();
 
         const finalPages = saveCurrentPage();
+
+        let finalSpreadsheetData = data.spreadsheet_data;
+        if (spreadsheetRef.current) {
+            finalSpreadsheetData = spreadsheetRef.current.getData();
+        }
+
+        let finalDocumentData = data.document_data;
+        if (documentRef.current) {
+            finalDocumentData = documentRef.current.getContent();
+        }
+
         const payload = {
             title: data.title,
             content: data.content,
             drawing_data: JSON.stringify({ version: 2, pages: finalPages }),
+            spreadsheet_data: finalSpreadsheetData,
+            document_data: finalDocumentData,
             project_id: data.project_id,
             task_id: data.task_id
         };
 
         const options = {
-            onSuccess: () => { }, // No auto-save status update needed
+            onSuccess: () => { },
             preserveScroll: true,
             preserveState: true,
         };
@@ -301,6 +323,19 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
         } else {
             router.post(route('notes.store'), payload, options);
         }
+    };
+
+    const handleViewSwitch = (newMode) => {
+        if (newMode === viewMode) return;
+
+        // Save current view data before switching
+        if (viewMode === 'spreadsheet' && spreadsheetRef.current) {
+            setData('spreadsheet_data', spreadsheetRef.current.getData());
+        } else if (viewMode === 'document' && documentRef.current) {
+            setData('document_data', documentRef.current.getContent());
+        }
+
+        setViewMode(newMode);
     };
 
     // Auto-Save Logic Removed as per user request
@@ -387,7 +422,10 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
 
     const handleFullScreenToggle = () => {
         if (!document.fullscreenElement) {
-            const el = document.getElementById('edit-canvas-container');
+            const containerId = viewMode === 'canvas' ? 'edit-canvas-container'
+                : viewMode === 'spreadsheet' ? 'edit-spreadsheet-container'
+                    : 'edit-document-container';
+            const el = document.getElementById(containerId);
             if (el) {
                 el.requestFullscreen().then(() => setIsFullScreen(true)).catch(err => console.log(err));
             }
@@ -660,9 +698,33 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
                                     </div>
                                 </div>
 
-                                {/* Canvas Area */}
+                                {/* Canvas/Spreadsheet Area */}
                                 <div ref={containerRef} className="w-full relative">
-                                    <div id="edit-canvas-container" className={`border-x border-b border-gray-300 bg-gray-50 shadow-inner overflow-hidden flex flex-col items-center justify-center relative ${isFullScreen ? 'h-screen w-screen fixed top-0 left-0 z-50' : 'h-[600px] min-h-[500px]'}`}>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleViewSwitch('canvas')}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === 'canvas' ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500 ring-offset-2' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}
+                                        >
+                                            <PenTool className="w-4 h-4" /> Drawing
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleViewSwitch('spreadsheet')}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === 'spreadsheet' ? 'bg-green-100 text-green-700 ring-2 ring-green-500 ring-offset-2' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}
+                                        >
+                                            <TableIcon className="w-4 h-4" /> Spreadsheet
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleViewSwitch('document')}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === 'document' ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-500 ring-offset-2' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}
+                                        >
+                                            <FileText className="w-4 h-4" /> Document
+                                        </button>
+                                    </div>
+
+                                    <div id="edit-canvas-container" className={`${viewMode === 'canvas' ? 'flex' : 'hidden'} border-x border-b border-gray-300 bg-gray-50 shadow-inner overflow-hidden flex-col items-center justify-center relative ${isFullScreen ? 'h-screen w-screen fixed top-0 left-0 z-50' : 'h-[600px] min-h-[500px]'}`}>
 
                                         {/* Floating Toolbar - Responsive */}
                                         <div className={`absolute top-4 left-4 z-30 flex flex-col gap-2 bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg border border-gray-200 transition-opacity duration-300 max-h-[calc(100%-2rem)] overflow-y-auto ${isFullScreen ? 'opacity-100' : 'opacity-100'}`}>
@@ -769,9 +831,71 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
                                             onChange={handleCanvasChange}
                                         />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2 text-center md:text-left">
-                                        Use tools to draw. Tip: Double click text objects to edit.
-                                    </p>
+                                    {viewMode === 'spreadsheet' && (
+                                        <div id="edit-spreadsheet-container" className={`relative border-x border-b border-gray-300 bg-white shadow-inner overflow-hidden ${isFullScreen ? 'h-screen w-screen fixed top-0 left-0 z-50' : 'h-[600px] min-h-[500px]'}`}>
+                                            {/* Fullscreen Toggle - Floating Top Right */}
+                                            <div className="absolute top-4 right-4 z-20">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleFullScreenToggle}
+                                                    className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-green-600 hover:bg-gray-50 transition-all"
+                                                    title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
+                                                >
+                                                    {isFullScreen ? <Minimize className="w-5 h-5" /> : <Expand className="w-5 h-5" />}
+                                                </button>
+                                            </div>
+
+                                            <SpreadsheetEditor
+                                                ref={spreadsheetRef}
+                                                initialData={data.spreadsheet_data}
+                                                height={isFullScreen ? "100vh" : "600px"}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {viewMode === 'document' && (
+                                        <div id="edit-document-container" className={`relative border-x border-b border-gray-300 bg-white shadow-inner overflow-hidden ${isFullScreen ? 'h-screen w-screen fixed top-0 left-0 z-50' : 'h-[642px]'}`}>
+                                            {/* Fullscreen & Download Tools - Floating Top Right */}
+                                            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => documentRef.current?.downloadText()}
+                                                    className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-all"
+                                                    title="Download as Text"
+                                                >
+                                                    <Download className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => documentRef.current?.downloadHTML()}
+                                                    className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-all"
+                                                    title="Download as HTML"
+                                                >
+                                                    <FileText className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleFullScreenToggle}
+                                                    className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-all"
+                                                    title={isFullScreen ? "Exit Full Screen" : "Full Screen"}
+                                                >
+                                                    {isFullScreen ? <Minimize className="w-5 h-5" /> : <Expand className="w-5 h-5" />}
+                                                </button>
+                                            </div>
+
+                                            <DocumentEditor
+                                                ref={documentRef}
+                                                initialData={data.document_data}
+                                                height={isFullScreen ? "100vh" : "600px"}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {viewMode === 'canvas' && (
+                                        <p className="text-xs text-gray-500 mt-2 text-center md:text-left">
+                                            Use tools to draw. Tip: Double click text objects to edit.
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* Bottom Action Bar - Modern Android Style */}

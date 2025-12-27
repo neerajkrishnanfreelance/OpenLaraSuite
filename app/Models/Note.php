@@ -13,6 +13,8 @@ class Note extends Model
         'title',
         'content',
         'drawing_data',
+        'spreadsheet_data',
+        'document_data',
     ];
 
     public function user()

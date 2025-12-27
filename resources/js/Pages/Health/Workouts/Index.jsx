@@ -10,6 +10,8 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
     const { data, setData, post, put, processing, reset } = useForm({
         workout_type_id: '',
         duration_minutes: 30,
+        distance: '',
+        distance_unit: 'km',
         intensity: 'medium',
         performed_at: new Date().toISOString().slice(0, 16),
         sets: '',
@@ -50,6 +52,8 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
         setData({
             workout_type_id: workout.workout_type_id,
             duration_minutes: workout.duration_minutes,
+            distance: workout.distance || '',
+            distance_unit: workout.distance_unit || 'km',
             intensity: workout.intensity,
             performed_at: new Date(workout.performed_at).toISOString().slice(0, 16),
             sets: workout.sets || '',
@@ -70,6 +74,7 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
 
     const selectedWorkoutType = workoutTypes.find(t => t.id === parseInt(data.workout_type_id));
     const isStrength = selectedWorkoutType?.category === 'strength';
+    const isCardio = selectedWorkoutType?.category === 'cardio';
 
     return (
         <AuthenticatedLayout
@@ -98,7 +103,7 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
                     {/* Daily Summary */}
                     <div className="bg-white rounded-lg shadow p-6 mb-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Workout Summary</h3>
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div className="text-center">
                                 <p className="text-3xl font-bold text-blue-600">{dailyTotals.count}</p>
                                 <p className="text-sm text-gray-600">Workouts</p>
@@ -111,6 +116,12 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
                                 <p className="text-3xl font-bold text-red-600">{Math.round(dailyTotals.total_calories)}</p>
                                 <p className="text-sm text-gray-600">Calories Burned</p>
                             </div>
+                            {dailyTotals.total_distance > 0 && (
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold text-purple-600">{dailyTotals.total_distance.toFixed(2)}</p>
+                                    <p className="text-sm text-gray-600">km Covered</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -132,7 +143,15 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
                                                     <h4 className="font-medium text-gray-900">{workout.workout_type.name}</h4>
                                                     <p className="text-sm text-gray-600">
                                                         {workout.duration_minutes} min • {workout.intensity} intensity
+                                                        {workout.distance && (
+                                                            <> • {workout.distance} {workout.distance_unit || 'km'}</>
+                                                        )}
                                                     </p>
+                                                    {workout.distance && workout.speed && (
+                                                        <p className="text-sm text-gray-500">
+                                                            Speed: {workout.speed} {workout.distance_unit || 'km'}/h • Pace: {workout.pace} min/{workout.distance_unit || 'km'}
+                                                        </p>
+                                                    )}
                                                     {workout.sets && workout.reps && (
                                                         <p className="text-sm text-gray-500">
                                                             {workout.sets} sets × {workout.reps} reps
@@ -252,6 +271,39 @@ export default function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotal
                                     </select>
                                 </div>
                             </div>
+
+                            {isCardio && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Distance
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.distance}
+                                            onChange={(e) => setData('distance', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                            placeholder="Optional"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Unit
+                                        </label>
+                                        <select
+                                            value={data.distance_unit}
+                                            onChange={(e) => setData('distance_unit', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        >
+                                            <option value="km">Kilometers</option>
+                                            <option value="mi">Miles</option>
+                                            <option value="m">Meters</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            )}
 
                             {isStrength && (
                                 <div className="grid grid-cols-3 gap-4">

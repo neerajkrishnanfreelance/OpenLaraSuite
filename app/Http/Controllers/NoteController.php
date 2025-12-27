@@ -41,6 +41,8 @@ class NoteController extends Controller
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
             'drawing_data' => 'nullable|string',
+            'spreadsheet_data' => 'nullable|string',
+            'document_data' => 'nullable|string',
             'project_id' => 'nullable|exists:projects,id',
             'task_id' => 'nullable|exists:tasks,id',
         ]);
@@ -88,6 +90,8 @@ class NoteController extends Controller
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
             'drawing_data' => 'nullable|string',
+            'spreadsheet_data' => 'nullable|string',
+            'document_data' => 'nullable|string',
             'project_id' => 'nullable|exists:projects,id',
             'task_id' => 'nullable|exists:tasks,id',
         ]);

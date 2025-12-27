@@ -19,6 +19,7 @@ export default function Create({ auth, projects, tasks }) {
         end_time: '',
         hours: '',
         description: '',
+        is_overtime: false,
     });
 
     const [calcMode, setCalcMode] = React.useState('manual'); // 'manual' or 'time'
@@ -152,6 +153,18 @@ export default function Create({ auth, projects, tasks }) {
                             onChange={(e) => setData('description', e.target.value)}
                         />
                         <InputError message={errors.description} className="mt-2" />
+                    </div>
+
+                    <div className="mt-4">
+                        <label className="flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500"
+                                checked={data.is_overtime}
+                                onChange={(e) => setData('is_overtime', e.target.checked)}
+                            />
+                            <span className="ml-2 text-sm text-gray-700 font-medium">Mark as Overtime</span>
+                        </label>
                     </div>
                 </form>
             </FormPageLayout>

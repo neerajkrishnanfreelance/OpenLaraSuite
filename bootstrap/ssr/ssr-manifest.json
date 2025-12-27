@@ -4,6 +4,16 @@
     "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
+  "node_modules/react-quill/dist/quill.snow.css": [
+    "/build/assets/Edit-DGVDAeaH.js",
+    "/build/assets/Edit-jPLXI00t.css",
+    "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
+  ],
+  "node_modules/x-data-spreadsheet/dist/xspreadsheet.css": [
+    "/build/assets/Edit-DGVDAeaH.js",
+    "/build/assets/Edit-jPLXI00t.css",
+    "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
+  ],
   "resources/js/Components/ApplicationLogo.jsx": [
     "/build/assets/ApplicationLogo-BcNgH8MP.js"
   ],
@@ -49,6 +59,11 @@
   ],
   "resources/js/Components/DataTable.jsx": [
     "/build/assets/DataTable-Cf56Cbah.js"
+  ],
+  "resources/js/Components/DocumentEditor.jsx": [
+    "/build/assets/Edit-DGVDAeaH.js",
+    "/build/assets/Edit-jPLXI00t.css",
+    "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
   "resources/js/Components/DocumentUpload.jsx": [
     "/build/assets/TaskStepper-iRLRBtsr.js"
@@ -113,6 +128,11 @@
   "resources/js/Components/Select.jsx": [
     "/build/assets/Dashboard-qyxnwUKs.js",
     "/build/assets/Dashboard-C9-NpoDc.css"
+  ],
+  "resources/js/Components/SpreadsheetEditor.jsx": [
+    "/build/assets/Edit-DGVDAeaH.js",
+    "/build/assets/Edit-jPLXI00t.css",
+    "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
   "resources/js/Components/StatusBadge.jsx": [
     "/build/assets/StatusBadge-CkNaSVC0.js"
@@ -309,7 +329,7 @@
     "/build/assets/Index-B1N075ED.js"
   ],
   "resources/js/Pages/Health/Workouts/Index.jsx": [
-    "/build/assets/Index-Ckfg0a7D.js"
+    "/build/assets/Index-VOtlOWCh.js"
   ],
   "resources/js/Pages/HrContacts/Create.jsx": [
     "/build/assets/Create-DjI8wj6F.js"
@@ -342,10 +362,12 @@
     "/build/assets/Show-Bal4kfLD.js"
   ],
   "resources/js/Pages/Notes/Edit.jsx": [
-    "/build/assets/Edit-Bvqunw1x.js"
+    "/build/assets/Edit-DGVDAeaH.js",
+    "/build/assets/Edit-jPLXI00t.css",
+    "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
   "resources/js/Pages/Notes/Index.jsx": [
-    "/build/assets/Index-CMv8_uvl.js"
+    "/build/assets/Index-B6x7C-1g.js"
   ],
   "resources/js/Pages/Notes/Show.jsx": [
     "/build/assets/Show-DMN0ZOup.js"
@@ -435,10 +457,10 @@
     "/build/assets/Show-DAH1pBeT.js"
   ],
   "resources/js/Pages/Timesheets/Create.jsx": [
-    "/build/assets/Create-DAK2KebR.js"
+    "/build/assets/Create-BKZs3Cax.js"
   ],
   "resources/js/Pages/Timesheets/Edit.jsx": [
-    "/build/assets/Edit-N9YjqoG0.js"
+    "/build/assets/Edit-Cg8zJIy-.js"
   ],
   "resources/js/Pages/Timesheets/Index.jsx": [
     "/build/assets/Index-COrNJvLi.js"

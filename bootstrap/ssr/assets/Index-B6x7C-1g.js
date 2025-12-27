@@ -2,7 +2,7 @@ import { jsxs, jsx } from "react/jsx-runtime";
 import "react";
 import { A as Authenticated } from "./AuthenticatedLayout-DHAmaW8y.js";
 import { usePage, Head, Link, router } from "@inertiajs/react";
-import { Mic, Paperclip, Youtube, FileText, Download, Edit, Trash2 } from "lucide-react";
+import { Mic, Paperclip, Youtube, PenTool, Table, CheckSquare, FileText, Download, Edit, Trash2 } from "lucide-react";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
 import "@headlessui/react";
@@ -57,6 +57,9 @@ function Index({ auth, notes }) {
                   note.recordings && note.recordings.length > 0 && /* @__PURE__ */ jsx(Mic, { className: "w-4 h-4 text-indigo-500", title: "Has Voice Note" }),
                   note.attachments && note.attachments.some((a) => a.type === "file") && /* @__PURE__ */ jsx(Paperclip, { className: "w-4 h-4 text-gray-500", title: "Has Attachments" }),
                   note.attachments && note.attachments.some((a) => a.type === "youtube") && /* @__PURE__ */ jsx(Youtube, { className: "w-4 h-4 text-red-500", title: "Has Video" }),
+                  note.drawing_data && /* @__PURE__ */ jsx(PenTool, { className: "w-4 h-4 text-indigo-500", title: "Has Drawing" }),
+                  note.spreadsheet_data && /* @__PURE__ */ jsx(Table, { className: "w-4 h-4 text-green-500", title: "Has Spreadsheet" }),
+                  note.document_data && /* @__PURE__ */ jsx(CheckSquare, { className: "w-4 h-4 text-purple-500", title: "Has Document" }),
                   /* @__PURE__ */ jsx("span", { className: "text-xs text-gray-500 whitespace-nowrap", children: new Date(note.created_at).toLocaleDateString() })
                 ] })
               ] }),

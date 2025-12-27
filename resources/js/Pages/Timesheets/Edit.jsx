@@ -8,16 +8,56 @@ import FormPageLayout from '@/Components/FormPageLayout';
 import FormHeader from '@/Components/FormHeader';
 
 export default function Edit({ auth, timesheet, projects, tasks, chatter_data, meetings_data }) {
+    // Helper function to extract time in HH:MM format
+    const extractTime = (datetime) => {
+        if (!datetime) return '';
+        // If it's already in HH:MM format, return as is
+        if (typeof datetime === 'string' && datetime.match(/^\d{2}:\d{2}$/)) {
+            return datetime;
+        }
+        // If it's a full datetime string, extract the time portion
+        if (typeof datetime === 'string') {
+            const date = new Date(datetime);
+            if (!isNaN(date.getTime())) {
+                return date.toTimeString().substring(0, 5);
+            }
+            // Try to extract HH:MM from the string directly
+            const timeMatch = datetime.match(/(\d{2}):(\d{2})/);
+            if (timeMatch) {
+                return `${timeMatch[1]}:${timeMatch[2]}`;
+            }
+        }
+        return '';
+    };
+
+    // Helper function to extract date in YYYY-MM-DD format
+    const extractDate = (date) => {
+        if (!date) return '';
+        // If it's already in YYYY-MM-DD format, return as is
+        if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return date;
+        }
+        // Convert to Date object and format
+        const dateObj = new Date(date);
+        if (!isNaN(dateObj.getTime())) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        return '';
+    };
+
     const { data, setData, put, processing, errors } = useForm({
         project_id: timesheet.project_id,
         task_id: timesheet.task_id || '',
-        date: timesheet.date,
-
-        start_time: timesheet.start_time ? timesheet.start_time.substring(0, 5) : '', // Trim seconds if any
-        end_time: timesheet.end_time ? timesheet.end_time.substring(0, 5) : '',
+        date: extractDate(timesheet.date),
+        start_time: extractTime(timesheet.start_time),
+        end_time: extractTime(timesheet.end_time),
         hours: timesheet.hours,
         description: timesheet.description,
         status: timesheet.status,
+        is_overtime: Boolean(timesheet.is_overtime),
     });
 
     const [availableTasks, setAvailableTasks] = useState([]);
@@ -178,6 +218,18 @@ export default function Edit({ auth, timesheet, projects, tasks, chatter_data, m
                         onChange={(e) => setData('description', e.target.value)}
                     />
                     <InputError message={errors.description} className="mt-2" />
+                </div>
+
+                <div>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            className="rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500"
+                            checked={data.is_overtime}
+                            onChange={(e) => setData('is_overtime', e.target.checked)}
+                        />
+                        <span className="ml-2 text-sm text-gray-700 font-medium">Mark as Overtime</span>
+                    </label>
                 </div>
 
                 {/* Status / Approval Section for Admins/Managers */}

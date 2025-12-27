@@ -31,6 +31,7 @@ class WorkoutLogController extends Controller
             'count' => $workouts->count(),
             'total_minutes' => $workouts->sum('duration_minutes'),
             'total_calories' => $workouts->sum('calories_burned'),
+            'total_distance' => $workouts->whereNotNull('distance')->sum('distance'),
         ];
 
         return Inertia::render('Health/Workouts/Index', [
@@ -46,6 +47,8 @@ class WorkoutLogController extends Controller
         $validated = $request->validate([
             'workout_type_id' => 'required|exists:workout_types,id',
             'duration_minutes' => 'required|integer|min:1',
+            'distance' => 'nullable|numeric|min:0',
+            'distance_unit' => 'nullable|in:km,mi,m',
             'intensity' => 'required|in:low,medium,high',
             'performed_at' => 'required|date',
             'sets' => 'nullable|integer|min:1',
@@ -60,7 +63,9 @@ class WorkoutLogController extends Controller
         $validated['calories_burned'] = WorkoutLog::calculateCalories(
             $workoutType,
             $validated['duration_minutes'],
-            $validated['intensity']
+            $validated['intensity'],
+            $validated['distance'] ?? null,
+            $validated['distance_unit'] ?? 'km'
         );
 
         $validated['user_id'] = $request->user()->id;
@@ -74,6 +79,8 @@ class WorkoutLogController extends Controller
     {
         $validated = $request->validate([
             'duration_minutes' => 'required|integer|min:1',
+            'distance' => 'nullable|numeric|min:0',
+            'distance_unit' => 'nullable|in:km,mi,m',
             'intensity' => 'required|in:low,medium,high',
             'performed_at' => 'required|date',
             'sets' => 'nullable|integer|min:1',
@@ -86,7 +93,9 @@ class WorkoutLogController extends Controller
         $validated['calories_burned'] = WorkoutLog::calculateCalories(
             $workoutLog->workoutType,
             $validated['duration_minutes'],
-            $validated['intensity']
+            $validated['intensity'],
+            $validated['distance'] ?? null,
+            $validated['distance_unit'] ?? 'km'
         );
 
         $workoutLog->update($validated);

@@ -10,16 +10,47 @@ import { F as FormHeader } from "./FormHeader-CQAGRAnh.js";
 import "./Chatter-QayPlM-X.js";
 import "./Checkbox-5PHg8iNz.js";
 function Edit({ auth, timesheet, projects, tasks, chatter_data, meetings_data }) {
+  const extractTime = (datetime) => {
+    if (!datetime) return "";
+    if (typeof datetime === "string" && datetime.match(/^\d{2}:\d{2}$/)) {
+      return datetime;
+    }
+    if (typeof datetime === "string") {
+      const date = new Date(datetime);
+      if (!isNaN(date.getTime())) {
+        return date.toTimeString().substring(0, 5);
+      }
+      const timeMatch = datetime.match(/(\d{2}):(\d{2})/);
+      if (timeMatch) {
+        return `${timeMatch[1]}:${timeMatch[2]}`;
+      }
+    }
+    return "";
+  };
+  const extractDate = (date) => {
+    if (!date) return "";
+    if (typeof date === "string" && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return date;
+    }
+    const dateObj = new Date(date);
+    if (!isNaN(dateObj.getTime())) {
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const day = String(dateObj.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+    return "";
+  };
   const { data, setData, put, processing, errors } = useForm({
     project_id: timesheet.project_id,
     task_id: timesheet.task_id || "",
-    date: timesheet.date,
-    start_time: timesheet.start_time ? timesheet.start_time.substring(0, 5) : "",
-    // Trim seconds if any
-    end_time: timesheet.end_time ? timesheet.end_time.substring(0, 5) : "",
+    date: extractDate(timesheet.date),
+    start_time: extractTime(timesheet.start_time),
+    end_time: extractTime(timesheet.end_time),
     hours: timesheet.hours,
     description: timesheet.description,
-    status: timesheet.status
+    status: timesheet.status,
+    is_overtime: Boolean(timesheet.is_overtime)
   });
   const [availableTasks, setAvailableTasks] = useState([]);
   useEffect(() => {
@@ -189,6 +220,18 @@ function Edit({ auth, timesheet, projects, tasks, chatter_data, meetings_data })
             ),
             /* @__PURE__ */ jsx(InputError, { message: errors.description, className: "mt-2" })
           ] }),
+          /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsxs("label", { className: "flex items-center cursor-pointer", children: [
+            /* @__PURE__ */ jsx(
+              "input",
+              {
+                type: "checkbox",
+                className: "rounded border-gray-300 text-purple-600 shadow-sm focus:ring-purple-500",
+                checked: data.is_overtime,
+                onChange: (e) => setData("is_overtime", e.target.checked)
+              }
+            ),
+            /* @__PURE__ */ jsx("span", { className: "ml-2 text-sm text-gray-700 font-medium", children: "Mark as Overtime" })
+          ] }) }),
           isApprovable && /* @__PURE__ */ jsxs("div", { className: "bg-purple-50 p-4 rounded-lg border border-purple-100", children: [
             /* @__PURE__ */ jsx("h3", { className: "text-sm font-medium text-purple-900 mb-2", children: "Approval Action" }),
             /* @__PURE__ */ jsxs("div", { className: "flex gap-4", children: [

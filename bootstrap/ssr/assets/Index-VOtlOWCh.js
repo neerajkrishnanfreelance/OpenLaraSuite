@@ -1,4 +1,4 @@
-import { jsxs, jsx } from "react/jsx-runtime";
+import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import { A as Authenticated } from "./AuthenticatedLayout-DHAmaW8y.js";
 import { useForm, Head, router } from "@inertiajs/react";
 import { useState } from "react";
@@ -12,6 +12,8 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
   const { data, setData, post, put, processing, reset } = useForm({
     workout_type_id: "",
     duration_minutes: 30,
+    distance: "",
+    distance_unit: "km",
     intensity: "medium",
     performed_at: (/* @__PURE__ */ new Date()).toISOString().slice(0, 16),
     sets: "",
@@ -48,6 +50,8 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
     setData({
       workout_type_id: workout.workout_type_id,
       duration_minutes: workout.duration_minutes,
+      distance: workout.distance || "",
+      distance_unit: workout.distance_unit || "km",
       intensity: workout.intensity,
       performed_at: new Date(workout.performed_at).toISOString().slice(0, 16),
       sets: workout.sets || "",
@@ -66,6 +70,7 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
   }, {});
   const selectedWorkoutType = workoutTypes.find((t) => t.id === parseInt(data.workout_type_id));
   const isStrength = selectedWorkoutType?.category === "strength";
+  const isCardio = selectedWorkoutType?.category === "cardio";
   return /* @__PURE__ */ jsxs(
     Authenticated,
     {
@@ -92,7 +97,7 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
         /* @__PURE__ */ jsx("div", { className: "py-6", children: /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8", children: [
           /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-lg shadow p-6 mb-6", children: [
             /* @__PURE__ */ jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-4", children: "Today's Workout Summary" }),
-            /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-3 gap-4", children: [
+            /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 md:grid-cols-4 gap-4", children: [
               /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
                 /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-blue-600", children: dailyTotals.count }),
                 /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Workouts" })
@@ -104,6 +109,10 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
               /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
                 /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-red-600", children: Math.round(dailyTotals.total_calories) }),
                 /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Calories Burned" })
+              ] }),
+              dailyTotals.total_distance > 0 && /* @__PURE__ */ jsxs("div", { className: "text-center", children: [
+                /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-purple-600", children: dailyTotals.total_distance.toFixed(2) }),
+                /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "km Covered" })
               ] })
             ] })
           ] }),
@@ -118,7 +127,23 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
                     workout.duration_minutes,
                     " min • ",
                     workout.intensity,
-                    " intensity"
+                    " intensity",
+                    workout.distance && /* @__PURE__ */ jsxs(Fragment, { children: [
+                      " • ",
+                      workout.distance,
+                      " ",
+                      workout.distance_unit || "km"
+                    ] })
+                  ] }),
+                  workout.distance && workout.speed && /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500", children: [
+                    "Speed: ",
+                    workout.speed,
+                    " ",
+                    workout.distance_unit || "km",
+                    "/h • Pace: ",
+                    workout.pace,
+                    " min/",
+                    workout.distance_unit || "km"
                   ] }),
                   workout.sets && workout.reps && /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-500", children: [
                     workout.sets,
@@ -218,6 +243,39 @@ function WorkoutsIndex({ auth, workouts, workoutTypes, dailyTotals, currentDate 
                       /* @__PURE__ */ jsx("option", { value: "low", children: "Low" }),
                       /* @__PURE__ */ jsx("option", { value: "medium", children: "Medium" }),
                       /* @__PURE__ */ jsx("option", { value: "high", children: "High" })
+                    ]
+                  }
+                )
+              ] })
+            ] }),
+            isCardio && /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Distance" }),
+                /* @__PURE__ */ jsx(
+                  "input",
+                  {
+                    type: "number",
+                    step: "0.01",
+                    min: "0",
+                    value: data.distance,
+                    onChange: (e) => setData("distance", e.target.value),
+                    className: "w-full px-3 py-2 border border-gray-300 rounded-md",
+                    placeholder: "Optional"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxs("div", { children: [
+                /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-700 mb-1", children: "Unit" }),
+                /* @__PURE__ */ jsxs(
+                  "select",
+                  {
+                    value: data.distance_unit,
+                    onChange: (e) => setData("distance_unit", e.target.value),
+                    className: "w-full px-3 py-2 border border-gray-300 rounded-md",
+                    children: [
+                      /* @__PURE__ */ jsx("option", { value: "km", children: "Kilometers" }),
+                      /* @__PURE__ */ jsx("option", { value: "mi", children: "Miles" }),
+                      /* @__PURE__ */ jsx("option", { value: "m", children: "Meters" })
                     ]
                   }
                 )

@@ -1,19 +1,169 @@
-import { jsxs, jsx } from "react/jsx-runtime";
-import { useRef, useState, useEffect } from "react";
+import { jsx, jsxs } from "react/jsx-runtime";
+import { forwardRef, useRef, useEffect, useImperativeHandle, useState } from "react";
 import { A as Authenticated } from "./AuthenticatedLayout-DHAmaW8y.js";
 import { useForm, Head, Link, router } from "@inertiajs/react";
 import { F as FabricCanvas } from "./FabricCanvas-o9Jhirq6.js";
+import Spreadsheet from "x-data-spreadsheet";
+import ReactQuill from "react-quill";
 import { I as InputLabel } from "./InputLabel-CE_n4Upz.js";
 import { T as TextInput } from "./TextInput-Xf9xHrLa.js";
 import { T as TextArea } from "./TextArea-DrhkzIc8.js";
 import { P as PrimaryButton } from "./PrimaryButton-BMCZH-oa.js";
 import { I as InputError } from "./InputError-CBvD_6aD.js";
 import axios from "axios";
-import { Mic, StopCircle, Play, Trash, Download, Paperclip, FileText, Plus, Youtube, PenTool, Eraser, Square, Circle, Triangle, Minus, Type, ArrowLeft, ArrowRight, Minimize, Expand, Save } from "lucide-react";
+import { Mic, StopCircle, Play, Trash, Download, Paperclip, FileText, Plus, Youtube, PenTool, Table, Eraser, Square, Circle, Triangle, Minus, Type, ArrowLeft, ArrowRight, Minimize, Expand, Save } from "lucide-react";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
 import "@headlessui/react";
 import "fabric";
+const SpreadsheetEditor = forwardRef(({ initialData, onChange, className = "", height = "600px" }, ref) => {
+  const containerRef = useRef(null);
+  const spreadsheetRef = useRef(null);
+  const dataLoadedRef = useRef(false);
+  useEffect(() => {
+    if (containerRef.current && !spreadsheetRef.current) {
+      const options = {
+        mode: "edit",
+        showToolbar: true,
+        showGrid: true,
+        showContextmenu: true,
+        view: {
+          height: () => containerRef.current ? containerRef.current.clientHeight : 600,
+          width: () => containerRef.current ? containerRef.current.clientWidth : 800
+        },
+        row: {
+          len: 100,
+          height: 25
+        },
+        col: {
+          len: 26,
+          width: 100,
+          indexWidth: 60,
+          minWidth: 60
+        }
+      };
+      spreadsheetRef.current = new Spreadsheet(containerRef.current, options).change((data) => {
+        if (onChange) onChange(JSON.stringify(data));
+      });
+      if (initialData) {
+        try {
+          const parsed = typeof initialData === "string" ? JSON.parse(initialData) : initialData;
+          spreadsheetRef.current.loadData(parsed);
+        } catch (e) {
+          console.error("Failed to load spreadsheet data", e);
+        }
+      } else {
+        spreadsheetRef.current.loadData({});
+      }
+      dataLoadedRef.current = true;
+    }
+  }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      if (spreadsheetRef.current) ;
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  useImperativeHandle(ref, () => ({
+    getData: () => {
+      if (spreadsheetRef.current) {
+        return JSON.stringify(spreadsheetRef.current.getData());
+      }
+      return null;
+    }
+  }));
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      ref: containerRef,
+      className: `w-full bg-white overflow-hidden ${className}`,
+      style: { height }
+    }
+  );
+});
+const DocumentEditor = forwardRef(({ initialData, onChange, className = "", height = "600px" }, ref) => {
+  const quillRef = useRef(null);
+  const [content, setContent] = useState(initialData || "");
+  const modules = {
+    toolbar: [
+      [{ "header": [1, 2, 3, 4, 5, 6, false] }],
+      [{ "font": [] }],
+      [{ "size": ["small", false, "large", "huge"] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ "color": [] }, { "background": [] }],
+      [{ "script": "sub" }, { "script": "super" }],
+      [{ "list": "ordered" }, { "list": "bullet" }, { "list": "check" }, { "indent": "-1" }, { "indent": "+1" }],
+      [{ "align": [] }],
+      ["blockquote", "code-block"],
+      ["link", "image", "video"],
+      ["clean"]
+    ]
+  };
+  const formats = [
+    "header",
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "color",
+    "background",
+    "script",
+    "list",
+    "bullet",
+    "check",
+    "indent",
+    "align",
+    "blockquote",
+    "code-block",
+    "link",
+    "image",
+    "video"
+  ];
+  const handleChange = (value) => {
+    setContent(value);
+    if (onChange) onChange(value);
+  };
+  useImperativeHandle(ref, () => ({
+    getContent: () => content,
+    downloadHTML: () => {
+      const blob = new Blob([content], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `document-${Date.now()}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    downloadText: () => {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = content;
+      const text = tempDiv.textContent || tempDiv.innerText || "";
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `document-${Date.now()}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }));
+  return /* @__PURE__ */ jsx("div", { className: `relative ${className}`, style: { height }, children: /* @__PURE__ */ jsx(
+    ReactQuill,
+    {
+      ref: quillRef,
+      theme: "snow",
+      value: content,
+      onChange: handleChange,
+      modules,
+      formats,
+      style: { height: `calc(${height} - 42px)` },
+      className: "bg-white"
+    }
+  ) });
+});
 function Edit({ auth, note, projects = [], preselected_project_id = null }) {
   const canvasRef = useRef(null);
   const [pages, setPages] = useState([]);
@@ -30,10 +180,15 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
   const [recordings, setRecordings] = useState(note ? note.recordings || [] : []);
   const timerRef = useRef(null);
   const [availableTasks, setAvailableTasks] = useState([]);
+  const [viewMode, setViewMode] = useState("canvas");
+  const spreadsheetRef = useRef(null);
+  const documentRef = useRef(null);
   const { data, setData, post, put, processing, errors } = useForm({
     title: note ? note.title : "",
     content: note ? note.content : "",
     drawing_data: note ? note.drawing_data : "",
+    spreadsheet_data: note ? note.spreadsheet_data : "",
+    document_data: note ? note.document_data : "",
     project_id: note ? note.project_id : preselected_project_id || "",
     task_id: note ? note.task_id : ""
   });
@@ -208,17 +363,26 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const finalPages = saveCurrentPage();
+    let finalSpreadsheetData = data.spreadsheet_data;
+    if (spreadsheetRef.current) {
+      finalSpreadsheetData = spreadsheetRef.current.getData();
+    }
+    let finalDocumentData = data.document_data;
+    if (documentRef.current) {
+      finalDocumentData = documentRef.current.getContent();
+    }
     const payload = {
       title: data.title,
       content: data.content,
       drawing_data: JSON.stringify({ version: 2, pages: finalPages }),
+      spreadsheet_data: finalSpreadsheetData,
+      document_data: finalDocumentData,
       project_id: data.project_id,
       task_id: data.task_id
     };
     const options = {
       onSuccess: () => {
       },
-      // No auto-save status update needed
       preserveScroll: true,
       preserveState: true
     };
@@ -227,6 +391,15 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
     } else {
       router.post(route("notes.store"), payload, options);
     }
+  };
+  const handleViewSwitch = (newMode) => {
+    if (newMode === viewMode) return;
+    if (viewMode === "spreadsheet" && spreadsheetRef.current) {
+      setData("spreadsheet_data", spreadsheetRef.current.getData());
+    } else if (viewMode === "document" && documentRef.current) {
+      setData("document_data", documentRef.current.getContent());
+    }
+    setViewMode(newMode);
   };
   const handleCanvasChange = () => {
   };
@@ -293,7 +466,8 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
   };
   const handleFullScreenToggle = () => {
     if (!document.fullscreenElement) {
-      const el = document.getElementById("edit-canvas-container");
+      const containerId = viewMode === "canvas" ? "edit-canvas-container" : viewMode === "spreadsheet" ? "edit-spreadsheet-container" : "edit-document-container";
+      const el = document.getElementById(containerId);
       if (el) {
         el.requestFullscreen().then(() => setIsFullScreen(true)).catch((err) => console.log(err));
       }
@@ -537,7 +711,45 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
               ] })
             ] }),
             /* @__PURE__ */ jsxs("div", { ref: containerRef, className: "w-full relative", children: [
-              /* @__PURE__ */ jsxs("div", { id: "edit-canvas-container", className: `border-x border-b border-gray-300 bg-gray-50 shadow-inner overflow-hidden flex flex-col items-center justify-center relative ${isFullScreen ? "h-screen w-screen fixed top-0 left-0 z-50" : "h-[600px] min-h-[500px]"}`, children: [
+              /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 mb-2", children: [
+                /* @__PURE__ */ jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => handleViewSwitch("canvas"),
+                    className: `flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === "canvas" ? "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500 ring-offset-2" : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"}`,
+                    children: [
+                      /* @__PURE__ */ jsx(PenTool, { className: "w-4 h-4" }),
+                      " Drawing"
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => handleViewSwitch("spreadsheet"),
+                    className: `flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === "spreadsheet" ? "bg-green-100 text-green-700 ring-2 ring-green-500 ring-offset-2" : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"}`,
+                    children: [
+                      /* @__PURE__ */ jsx(Table, { className: "w-4 h-4" }),
+                      " Spreadsheet"
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => handleViewSwitch("document"),
+                    className: `flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${viewMode === "document" ? "bg-purple-100 text-purple-700 ring-2 ring-purple-500 ring-offset-2" : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"}`,
+                    children: [
+                      /* @__PURE__ */ jsx(FileText, { className: "w-4 h-4" }),
+                      " Document"
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxs("div", { id: "edit-canvas-container", className: `${viewMode === "canvas" ? "flex" : "hidden"} border-x border-b border-gray-300 bg-gray-50 shadow-inner overflow-hidden flex-col items-center justify-center relative ${isFullScreen ? "h-screen w-screen fixed top-0 left-0 z-50" : "h-[600px] min-h-[500px]"}`, children: [
                 /* @__PURE__ */ jsxs("div", { className: `absolute top-4 left-4 z-30 flex flex-col gap-2 bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg border border-gray-200 transition-opacity duration-300 max-h-[calc(100%-2rem)] overflow-y-auto ${isFullScreen ? "opacity-100" : "opacity-100"}`, children: [
                   /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-1 w-20 sm:w-24", children: [
                     /* @__PURE__ */ jsx(ToolBtn, { icon: PenTool, active: activeTool === "pencil", onClick: () => handleToolChange("pencil"), title: "Pencil" }),
@@ -636,7 +848,69 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 mt-2 text-center md:text-left", children: "Use tools to draw. Tip: Double click text objects to edit." })
+              viewMode === "spreadsheet" && /* @__PURE__ */ jsxs("div", { id: "edit-spreadsheet-container", className: `relative border-x border-b border-gray-300 bg-white shadow-inner overflow-hidden ${isFullScreen ? "h-screen w-screen fixed top-0 left-0 z-50" : "h-[600px] min-h-[500px]"}`, children: [
+                /* @__PURE__ */ jsx("div", { className: "absolute top-4 right-4 z-20", children: /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleFullScreenToggle,
+                    className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-green-600 hover:bg-gray-50 transition-all",
+                    title: isFullScreen ? "Exit Full Screen" : "Full Screen",
+                    children: isFullScreen ? /* @__PURE__ */ jsx(Minimize, { className: "w-5 h-5" }) : /* @__PURE__ */ jsx(Expand, { className: "w-5 h-5" })
+                  }
+                ) }),
+                /* @__PURE__ */ jsx(
+                  SpreadsheetEditor,
+                  {
+                    ref: spreadsheetRef,
+                    initialData: data.spreadsheet_data,
+                    height: isFullScreen ? "100vh" : "600px"
+                  }
+                )
+              ] }),
+              viewMode === "document" && /* @__PURE__ */ jsxs("div", { id: "edit-document-container", className: `relative border-x border-b border-gray-300 bg-white shadow-inner overflow-hidden ${isFullScreen ? "h-screen w-screen fixed top-0 left-0 z-50" : "h-[642px]"}`, children: [
+                /* @__PURE__ */ jsxs("div", { className: "absolute top-4 right-4 z-20 flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => documentRef.current?.downloadText(),
+                      className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-all",
+                      title: "Download as Text",
+                      children: /* @__PURE__ */ jsx(Download, { className: "w-5 h-5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => documentRef.current?.downloadHTML(),
+                      className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-all",
+                      title: "Download as HTML",
+                      children: /* @__PURE__ */ jsx(FileText, { className: "w-5 h-5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleFullScreenToggle,
+                      className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-purple-600 hover:bg-gray-50 transition-all",
+                      title: isFullScreen ? "Exit Full Screen" : "Full Screen",
+                      children: isFullScreen ? /* @__PURE__ */ jsx(Minimize, { className: "w-5 h-5" }) : /* @__PURE__ */ jsx(Expand, { className: "w-5 h-5" })
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsx(
+                  DocumentEditor,
+                  {
+                    ref: documentRef,
+                    initialData: data.document_data,
+                    height: isFullScreen ? "100vh" : "600px"
+                  }
+                )
+              ] }),
+              viewMode === "canvas" && /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 mt-2 text-center md:text-left", children: "Use tools to draw. Tip: Double click text objects to edit." })
             ] }),
             /* @__PURE__ */ jsxs("div", { className: "fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 p-4 md:static md:bg-transparent md:border-t-0 md:p-0 z-50 flex items-center justify-between md:justify-end gap-4 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] md:shadow-none", children: [
               /* @__PURE__ */ jsx(
