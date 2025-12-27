@@ -152,8 +152,13 @@ class TimesheetController extends Controller
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
             'description' => 'nullable|string',
-            'is_overtime' => 'boolean',
+            'is_overtime' => 'nullable|boolean',
         ]);
+
+        // Handle unchecked checkbox (not sent in request)
+        if (!$request->has('is_overtime')) {
+            $validated['is_overtime'] = false;
+        }
 
         // Auto-calculate hours if start/end provided
         if ($request->filled('start_time') && $request->filled('end_time')) {
@@ -198,7 +203,7 @@ class TimesheetController extends Controller
         $user = Auth::user();
 
         // If manager/admin, can approve/reject
-        if ($user->hasAnyRole(['admin', 'manager']) && $request->has('status')) {
+        if ($user->hasAnyRole(['admin', 'manager']) && $request->has('status') && !$request->has('project_id')) {
             $validated = $request->validate([
                 'status' => 'required|in:pending,approved,rejected',
             ]);
@@ -207,7 +212,7 @@ class TimesheetController extends Controller
         }
 
         // If updating end_time (from timer)
-        if ($request->has('end_time')) {
+        if ($request->has('end_time') && !$request->has('project_id')) {
             $validated = $request->validate([
                 'end_time' => 'required|date_format:H:i',
                 'hours' => 'required|numeric|min:0.01|max:24',
@@ -216,8 +221,8 @@ class TimesheetController extends Controller
             return redirect()->back()->with('message', 'Timer stopped and hours calculated.');
         }
 
-        // If owner and pending, can edit details
-        if ($timesheet->user_id === $user->id && $timesheet->status === 'pending') {
+        // If owner and pending, can edit details OR if manager/admin editing full form
+        if (($timesheet->user_id === $user->id && $timesheet->status === 'pending') || $user->hasAnyRole(['admin', 'manager'])) {
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'task_id' => 'nullable|exists:tasks,id',
@@ -226,8 +231,14 @@ class TimesheetController extends Controller
                 'start_time' => 'nullable|date_format:H:i',
                 'end_time' => 'nullable|date_format:H:i|after:start_time',
                 'description' => 'nullable|string',
-                'is_overtime' => 'boolean',
+                'is_overtime' => 'nullable|boolean',
+                'status' => 'nullable|in:pending,approved,rejected',
             ]);
+
+            // Handle unchecked checkbox (not sent in request)
+            if (!$request->has('is_overtime')) {
+                $validated['is_overtime'] = false;
+            }
 
             if ($request->filled('start_time') && $request->filled('end_time')) {
                  $start = \Carbon\Carbon::parse($request->start_time);
