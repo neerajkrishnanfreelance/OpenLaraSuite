@@ -44,10 +44,16 @@ function DailyReport({ start_date, end_date, logs }) {
               ")"
             ] })
           ] }),
-          /* @__PURE__ */ jsx("div", { className: "text-right text-sm text-gray-500", children: log.stage && /* @__PURE__ */ jsxs("span", { className: "block", children: [
-            "Stage: ",
-            log.stage
-          ] }) })
+          /* @__PURE__ */ jsxs("div", { className: "text-right text-sm text-gray-500", children: [
+            log.duration_minutes && /* @__PURE__ */ jsxs("span", { className: "block font-bold", children: [
+              log.duration_minutes,
+              " mins"
+            ] }),
+            log.stage && /* @__PURE__ */ jsxs("span", { className: "block", children: [
+              "Stage: ",
+              log.stage
+            ] })
+          ] })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-4", children: [
           /* @__PURE__ */ jsxs("div", { className: "col-span-2", children: [

@@ -29,6 +29,7 @@ class CropLogController extends Controller
             'crop_id' => 'required|exists:crops,id',
             'log_date' => 'required|date',
             'log_type' => 'required|string|in:observation,nutrition,pesticide,water,harvest',
+            'duration_minutes' => 'nullable|integer|min:0',
             'stage' => 'nullable|string',
             'notes' => 'nullable|string',
             'image' => 'nullable|image|max:10240', // Max 10MB
@@ -48,6 +49,7 @@ class CropLogController extends Controller
             'crop_id' => $validated['crop_id'],
             'log_date' => $validated['log_date'],
             'log_type' => $validated['log_type'],
+            'duration_minutes' => $validated['duration_minutes'] ?? null,
             'stage' => $validated['stage'],
             'notes' => $validated['notes'],
             'image_path' => $imagePath,

@@ -60,6 +60,7 @@ export default function DailyReport({ start_date, end_date, logs }) {
                                         <span className="text-sm text-gray-500">({log.crop?.variety})</span>
                                     </div>
                                     <div className="text-right text-sm text-gray-500">
+                                        {log.duration_minutes && <span className="block font-bold">{log.duration_minutes} mins</span>}
                                         {log.stage && <span className="block">Stage: {log.stage}</span>}
                                     </div>
                                 </div>

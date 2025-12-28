@@ -17,7 +17,9 @@ export default function Show({ auth, crop }) {
     const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
         crop_id: crop.id,
         log_date: new Date().toISOString().split('T')[0],
+        log_date: new Date().toISOString().split('T')[0],
         log_type: 'observation',
+        duration_minutes: '',
         stage: '',
         notes: '',
         image: null,
@@ -40,7 +42,9 @@ export default function Show({ auth, crop }) {
         const options = {
             onSuccess: () => {
                 setIsLogModalOpen(false);
-                reset('notes', 'image', 'stage', 'temperature', 'humidity', 'log_type', 'input_name', 'input_quantity', 'input_unit');
+                setIsLogModalOpen(false);
+                reset('notes', 'image', 'stage', 'temperature', 'humidity', 'log_type', 'input_name', 'input_quantity', 'input_unit', 'duration_minutes');
+                setEditingLog(null);
                 setEditingLog(null);
             },
         };
@@ -60,7 +64,9 @@ export default function Show({ auth, crop }) {
         setData({
             crop_id: crop.id,
             log_date: log.log_date,
+            log_date: log.log_date,
             log_type: log.log_type,
+            duration_minutes: log.duration_minutes || '',
             stage: log.stage || '',
             notes: log.notes || '',
             image: null,
@@ -98,7 +104,8 @@ export default function Show({ auth, crop }) {
 
     const openLogModal = () => {
         setEditingLog(null);
-        reset('notes', 'image', 'stage', 'temperature', 'humidity', 'log_type', 'input_name', 'input_quantity', 'input_unit');
+        setEditingLog(null);
+        reset('notes', 'image', 'stage', 'temperature', 'humidity', 'log_type', 'input_name', 'input_quantity', 'input_unit', 'duration_minutes');
         setData('log_date', new Date().toISOString().split('T')[0]);
         clearErrors();
         setIsLogModalOpen(true);
@@ -204,6 +211,7 @@ export default function Show({ auth, crop }) {
                                                                 {log.stage || log.log_type}
                                                             </span>
                                                             {log.notes && <p className="text-gray-800">{log.notes}</p>}
+                                                            {log.duration_minutes && <p className="text-xs text-gray-500 mt-1">Duration: {log.duration_minutes} mins</p>}
                                                         </div>
                                                         {(log.temperature || log.humidity) && (
                                                             <div className="text-xs text-gray-500 text-right">
@@ -283,18 +291,31 @@ export default function Show({ auth, crop }) {
                             </div>
                             <div>
                                 <InputLabel htmlFor="log_type" value="Activity Type" />
-                                <select
-                                    id="log_type"
-                                    className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                    value={data.log_type}
-                                    onChange={(e) => setData('log_type', e.target.value)}
-                                >
-                                    <option value="observation">Observation / Check</option>
-                                    <option value="nutrition">Nutrition / Fertilizer</option>
-                                    <option value="pesticide">Pesticide / Disease Control</option>
-                                    <option value="water">Watering</option>
-                                    <option value="harvest">Harvest</option>
-                                </select>
+                                <div className="flex gap-2">
+                                    <select
+                                        id="log_type"
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                        value={data.log_type}
+                                        onChange={(e) => setData('log_type', e.target.value)}
+                                    >
+                                        <option value="observation">Observation / Check</option>
+                                        <option value="nutrition">Nutrition / Fertilizer</option>
+                                        <option value="pesticide">Pesticide / Disease Control</option>
+                                        <option value="water">Watering</option>
+                                        <option value="harvest">Harvest</option>
+                                    </select>
+                                    <div className="w-1/3">
+                                        <TextInput
+                                            id="duration_minutes"
+                                            type="number"
+                                            className="mt-1 block w-full"
+                                            value={data.duration_minutes}
+                                            onChange={(e) => setData('duration_minutes', e.target.value)}
+                                            placeholder="Mins"
+                                            title="Duration in minutes"
+                                        />
+                                    </div>
+                                </div>
                                 <InputError message={errors.log_type} className="mt-2" />
                             </div>
                         </div>
