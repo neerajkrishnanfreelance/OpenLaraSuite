@@ -63,15 +63,38 @@ export default function Index({ auth, timesheets, projects, users, filters }) {
         {
             key: 'time',
             label: 'Time',
-            render: (item) => (
-                <div className="text-sm">
-                    {item.start_time && item.end_time ? (
-                        <span className="text-gray-600">{item.start_time} - {item.end_time}</span>
-                    ) : (
-                        <span className="text-gray-400">-</span>
-                    )}
-                </div>
-            )
+            render: (item) => {
+                const formatTime = (time) => {
+                    if (!time) return '';
+                    // First try parsing as a full Date object (handles ISO and YYYY-MM-DD HH:mm:ss)
+                    const date = new Date(time);
+                    if (!isNaN(date.getTime()) && time.length > 8 && (time.includes('T') || time.includes(' '))) {
+                        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                    }
+
+                    // Fallback for simple time strings like "14:30" or "14:30:00"
+                    const [hours, minutes] = time.split(':');
+                    if (hours !== undefined && minutes !== undefined) {
+                        const h = parseInt(hours);
+                        if (!isNaN(h)) {
+                            const ampm = h >= 12 ? 'PM' : 'AM';
+                            const h12 = h % 12 || 12;
+                            return `${h12}:${minutes.substring(0, 2)} ${ampm}`;
+                        }
+                    }
+                    return time;
+                };
+
+                return (
+                    <div className="text-sm">
+                        {item.start_time && item.end_time ? (
+                            <span className="text-gray-600">{formatTime(item.start_time)} - {formatTime(item.end_time)}</span>
+                        ) : (
+                            <span className="text-gray-400">-</span>
+                        )}
+                    </div>
+                );
+            }
         },
         {
             key: 'hours',

@@ -52,6 +52,8 @@ class CropController extends Controller
     {
         $crop->load(['logs' => function ($query) {
             $query->orderBy('log_date', 'desc');
+        }, 'schedules' => function ($query) {
+            $query->orderBy('scheduled_date', 'asc');
         }]);
         return Inertia::render('Agriculture/Crops/Show', ['crop' => $crop]);
     }

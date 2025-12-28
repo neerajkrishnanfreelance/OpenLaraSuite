@@ -230,11 +230,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/journal/categories/{category}', [App\Http\Controllers\JournalController::class, 'destroyCategory'])->name('journal.categories.destroy');
 
     // System Backups
+    Route::redirect('/settings', '/settings/email')->name('settings.index');
     Route::get('/settings/backups', [App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
     Route::post('/settings/backups', [App\Http\Controllers\BackupController::class, 'store'])->name('backups.store');
     Route::get('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
     Route::delete('/settings/backups/{name}', [App\Http\Controllers\BackupController::class, 'destroy'])->name('backups.destroy');
     Route::post('/settings/backups/{name}/restore', [App\Http\Controllers\BackupController::class, 'restore'])->name('backups.restore');
+
+    // Email Configuration
+    Route::get('/settings/email', [App\Http\Controllers\EmailConfigurationController::class, 'edit'])->name('settings.email.edit');
+    Route::patch('/settings/email', [App\Http\Controllers\EmailConfigurationController::class, 'update'])->name('settings.email.update');
+    Route::get('/settings/email/send', [App\Http\Controllers\EmailTestController::class, 'show'])->name('settings.email.send');
+    Route::post('/settings/email/send', [App\Http\Controllers\EmailTestController::class, 'send'])->name('settings.email.post-send');
+
+    // Tools
+    Route::get('/tools/image-cropper', function () {
+        return Inertia::render('Tools/ImageCropperDemo');
+    })->name('tools.image-cropper');
 
     // CRM Module Routes
     Route::prefix('crm')->group(function () {

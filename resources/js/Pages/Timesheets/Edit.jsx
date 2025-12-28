@@ -6,6 +6,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import FormPageLayout from '@/Components/FormPageLayout';
 import FormHeader from '@/Components/FormHeader';
+import TimeInput12Hour from '@/Components/TimeInput12Hour';
 
 export default function Edit({ auth, timesheet, projects, tasks, chatter_data, meetings_data }) {
     // Helper function to extract time in HH:MM format
@@ -70,16 +71,24 @@ export default function Edit({ auth, timesheet, projects, tasks, chatter_data, m
         }
     }, [data.project_id, tasks]);
 
+
     // Auto-calculate hours
     useEffect(() => {
         if (data.start_time && data.end_time) {
-            const start = new Date(`2000-01-01T${data.start_time}`);
-            const end = new Date(`2000-01-01T${data.end_time}`);
+            // Use dummy date for robust calculation
+            const d1 = new Date(`2000-01-01T${data.start_time}`);
+            const d2 = new Date(`2000-01-01T${data.end_time}`);
 
-            if (end > start) {
-                const diffMs = end - start;
-                const diffHrs = (diffMs / (1000 * 60 * 60)).toFixed(2);
-                setData(d => ({ ...d, hours: diffHrs }));
+            if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+                if (d2 < d1) {
+                    d2.setDate(d2.getDate() + 1);
+                }
+                const diffMs = d2 - d1;
+                const hours = (diffMs / (1000 * 60 * 60)).toFixed(2);
+
+                if (!isNaN(hours) && hours >= 0) {
+                    setData(d => ({ ...d, hours: hours }));
+                }
             }
         }
     }, [data.start_time, data.end_time]);
@@ -184,30 +193,30 @@ export default function Edit({ auth, timesheet, projects, tasks, chatter_data, m
                     </div>
                 </div>
 
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <InputLabel htmlFor="start_time" value="Start Time (Optional)" />
-                        <TextInput
+                        <TimeInput12Hour
                             id="start_time"
-                            type="time"
                             className="mt-1 block w-full"
                             value={data.start_time}
-                            onChange={(e) => setData('start_time', e.target.value)}
+                            onChange={(val) => setData('start_time', val)}
                         />
                         <InputError message={errors.start_time} className="mt-2" />
                     </div>
                     <div>
                         <InputLabel htmlFor="end_time" value="End Time (Optional)" />
-                        <TextInput
+                        <TimeInput12Hour
                             id="end_time"
-                            type="time"
                             className="mt-1 block w-full"
                             value={data.end_time}
-                            onChange={(e) => setData('end_time', e.target.value)}
+                            onChange={(val) => setData('end_time', val)}
                         />
                         <InputError message={errors.end_time} className="mt-2" />
                     </div>
                 </div>
+
 
                 <div>
                     <InputLabel htmlFor="description" value="Description" />

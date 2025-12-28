@@ -6,16 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Crop extends Model
 {
-    protected $fillable = ['name', 'type', 'variety', 'planting_date', 'harvest_date', 'status', 'check_r_n_d', 'notes'];
+    protected $fillable = ['name', 'type', 'variety', 'planting_date', 'harvest_date', 'status', 'check_r_n_d', 'notes', 'watering_schedule', 'fertilizer_schedule'];
 
     protected $casts = [
         'planting_date' => 'date',
         'harvest_date' => 'date',
         'check_r_n_d' => 'boolean',
+        'watering_schedule' => 'date',
+        'fertilizer_schedule' => 'date',
     ];
 
     public function logs()
     {
         return $this->hasMany(CropLog::class);
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(CropSchedule::class);
     }
 }
