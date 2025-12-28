@@ -85,11 +85,23 @@ class CropLogController extends Controller
         $validated = $request->validate([
             'log_date' => 'required|date',
             'log_type' => 'required|string',
+            'duration_minutes' => 'nullable|integer|min:0',
             'stage' => 'nullable|string',
             'notes' => 'nullable|string',
             'temperature' => 'nullable|numeric',
             'humidity' => 'nullable|numeric',
+            'input_name' => 'nullable|string',
+            'input_quantity' => 'nullable|numeric',
+            'input_unit' => 'nullable|string',
+            'image' => 'nullable|image|max:10240',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($cropLog->image_path) {
+                Storage::disk('public')->delete($cropLog->image_path);
+            }
+            $validated['image_path'] = $request->file('image')->store('crop_logs', 'public');
+        }
 
         $cropLog->update($validated);
 

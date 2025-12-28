@@ -1,12 +1,12 @@
 import { jsxs, jsx } from "react/jsx-runtime";
 import { Head } from "@inertiajs/react";
 import "react";
-function DailyReport({ date, logs }) {
+function DailyReport({ start_date, end_date, logs }) {
   const handlePrint = () => {
     window.print();
   };
   return /* @__PURE__ */ jsxs("div", { className: "bg-white min-h-screen font-sans text-gray-900", children: [
-    /* @__PURE__ */ jsx(Head, { title: `Daily Report - ${date}` }),
+    /* @__PURE__ */ jsx(Head, { title: `Report - ${start_date} to ${end_date}` }),
     /* @__PURE__ */ jsxs("div", { className: "print:hidden bg-gray-100 p-4 border-b flex justify-between items-center sticky top-0", children: [
       /* @__PURE__ */ jsx("a", { href: route("agriculture.reports.index"), className: "text-indigo-600 hover:text-indigo-800 font-medium", children: "← Back to Reports" }),
       /* @__PURE__ */ jsx(
@@ -21,12 +21,16 @@ function DailyReport({ date, logs }) {
     /* @__PURE__ */ jsxs("div", { className: "max-w-4xl mx-auto p-8", id: "printable-area", children: [
       /* @__PURE__ */ jsxs("div", { className: "border-b-2 border-gray-800 pb-4 mb-8 flex justify-between items-end", children: [
         /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold uppercase tracking-wide", children: "Daily Agriculture Report" }),
+          /* @__PURE__ */ jsx("h1", { className: "text-3xl font-bold uppercase tracking-wide", children: "Agriculture Report" }),
           /* @__PURE__ */ jsx("p", { className: "text-gray-500 mt-1", children: "OpenLaraSuite Agriculture Module" })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "text-right", children: [
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 uppercase", children: "Date" }),
-          /* @__PURE__ */ jsx("p", { className: "text-xl font-bold", children: new Date(date).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }) })
+          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 uppercase", children: "Period" }),
+          /* @__PURE__ */ jsxs("p", { className: "text-xl font-bold", children: [
+            new Date(start_date).toLocaleDateString(),
+            " - ",
+            new Date(end_date).toLocaleDateString()
+          ] })
         ] })
       ] }),
       logs.length === 0 ? /* @__PURE__ */ jsx("div", { className: "text-center py-12 bg-gray-50 border border-gray-200 rounded", children: /* @__PURE__ */ jsx("p", { className: "text-gray-500 italic", children: "No activity logs recorded for this date." }) }) : /* @__PURE__ */ jsx("div", { className: "space-y-6", children: logs.map((log) => /* @__PURE__ */ jsxs("div", { className: "border border-gray-200 rounded-lg p-4 break-inside-avoid", children: [

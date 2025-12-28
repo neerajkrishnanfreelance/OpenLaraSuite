@@ -10,6 +10,7 @@ class CropLog extends Model
         'crop_id', 
         'log_date', 
         'log_type',
+        'duration_minutes',
         'stage', 
         'notes', 
         'image_path', 

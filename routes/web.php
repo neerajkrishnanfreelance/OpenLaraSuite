@@ -64,6 +64,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/agriculture', [\App\Http\Controllers\AgricultureController::class, 'index'])->name('agriculture.dashboard');
     Route::resource('crops', \App\Http\Controllers\CropController::class)->names('agriculture.crops');
     Route::resource('crop-logs', \App\Http\Controllers\CropLogController::class)->names('agriculture.crop-logs');
+    Route::post('/crops/{crop}/schedules', [\App\Http\Controllers\CropScheduleController::class, 'store'])->name('agriculture.crops.schedules.store');
+    Route::patch('/crops/schedules/{schedule}/complete', [\App\Http\Controllers\CropScheduleController::class, 'markAsComplete'])->name('agriculture.crops.schedules.complete');
     Route::get('/agriculture/reports', [\App\Http\Controllers\AgricultureReportController::class, 'index'])->name('agriculture.reports.index');
     Route::get('/agriculture/reports/daily', [\App\Http\Controllers\AgricultureReportController::class, 'daily'])->name('agriculture.reports.daily');
     Route::resource('stocks-definitions', \App\Http\Controllers\StockController::class)->names([

@@ -1,8 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import StatCard from '@/Components/Dashboard/StatCard';
 
 export default function Dashboard({ auth, activeCrops, rndCrops, recentLogs, upcomingSchedules }) {
+    const markScheduleComplete = (scheduleId) => {
+        if (confirm('Mark this schedule as done?')) {
+            router.patch(route('agriculture.crops.schedules.complete', scheduleId), {}, {
+                preserveScroll: true,
+            });
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Agriculture Dashboard</h2>}
@@ -43,18 +51,29 @@ export default function Dashboard({ auth, activeCrops, rndCrops, recentLogs, upc
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
-                                {upcomingSchedules.map((schedule) => (
-                                    <div key={schedule.id} className="bg-white p-4 rounded-md shadow-sm border border-blue-100 flex justify-between items-center">
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-800 capitalize">{schedule.activity_type} for {schedule.crop.name}</p>
-                                            <p className="text-xs text-gray-500 mt-1">Scheduled for: {new Date(schedule.scheduled_date).toLocaleDateString()}</p>
-                                            {schedule.notes && <p className="text-xs text-gray-600 mt-1 italic">{schedule.notes}</p>}
+                                <div className="grid grid-cols-1 gap-4">
+                                    {upcomingSchedules.filter(s => !s.completed_at).length === 0 && <p className="text-sm text-gray-500 italic">No pending schedules.</p>}
+                                    {upcomingSchedules.filter(s => !s.completed_at).map((schedule) => (
+                                        <div key={schedule.id} className="bg-white p-4 rounded-md shadow-sm border border-blue-100 flex justify-between items-center">
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-800 capitalize">{schedule.activity_type} for {schedule.crop.name}</p>
+                                                <p className="text-xs text-gray-500 mt-1">Scheduled for: {new Date(schedule.scheduled_date).toLocaleDateString()}</p>
+                                                {schedule.notes && <p className="text-xs text-gray-600 mt-1 italic">{schedule.notes}</p>}
+                                            </div>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <Link href={route('agriculture.crops.show', schedule.crop_id)} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                    View Crop
+                                                </Link>
+                                                <button
+                                                    onClick={() => markScheduleComplete(schedule.id)}
+                                                    className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded shadow-sm"
+                                                >
+                                                    Mark Done
+                                                </button>
+                                            </div>
                                         </div>
-                                        <Link href={route('agriculture.crops.show', schedule.crop_id)} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            View Crop
-                                        </Link>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}

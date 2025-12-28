@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useRef } from 'react';
 
-export default function DailyReport({ date, logs }) {
+export default function DailyReport({ start_date, end_date, logs }) {
 
     const handlePrint = () => {
         window.print();
@@ -9,7 +9,7 @@ export default function DailyReport({ date, logs }) {
 
     return (
         <div className="bg-white min-h-screen font-sans text-gray-900">
-            <Head title={`Daily Report - ${date}`} />
+            <Head title={`Report - ${start_date} to ${end_date}`} />
 
             {/* Print Controls - Hidden when printing */}
             <div className="print:hidden bg-gray-100 p-4 border-b flex justify-between items-center sticky top-0">
@@ -26,12 +26,14 @@ export default function DailyReport({ date, logs }) {
                 {/* Header */}
                 <div className="border-b-2 border-gray-800 pb-4 mb-8 flex justify-between items-end">
                     <div>
-                        <h1 className="text-3xl font-bold uppercase tracking-wide">Daily Agriculture Report</h1>
+                        <h1 className="text-3xl font-bold uppercase tracking-wide">Agriculture Report</h1>
                         <p className="text-gray-500 mt-1">OpenLaraSuite Agriculture Module</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-sm text-gray-500 uppercase">Date</p>
-                        <p className="text-xl font-bold">{new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p className="text-sm text-gray-500 uppercase">Period</p>
+                        <p className="text-xl font-bold">
+                            {new Date(start_date).toLocaleDateString()} - {new Date(end_date).toLocaleDateString()}
+                        </p>
                     </div>
                 </div>
 

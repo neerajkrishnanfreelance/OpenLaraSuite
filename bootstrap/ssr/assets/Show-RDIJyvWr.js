@@ -43,7 +43,10 @@ function Show({ auth, crop }) {
       }
     };
     if (editingLog) {
-      put(route("agriculture.crop-logs.update", editingLog.id), options);
+      router.post(route("agriculture.crop-logs.update", editingLog.id), {
+        _method: "put",
+        ...data
+      }, options);
     } else {
       post(route("agriculture.crop-logs.store"), options);
     }
@@ -91,6 +94,21 @@ function Show({ auth, crop }) {
     setData("log_date", (/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
     clearErrors();
     setIsLogModalOpen(true);
+  };
+  const markScheduleComplete = (scheduleId) => {
+    if (confirm("Mark this schedule as done?")) {
+      router.patch(route("agriculture.crops.schedules.complete", scheduleId), {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+        }
+      });
+    }
+  };
+  const getScheduleColor = (date) => {
+    const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+    if (date < today) return "text-red-600 bg-red-50 border-red-200";
+    if (date === today) return "text-yellow-600 bg-yellow-50 border-yellow-200 shadow-md";
+    return "text-gray-800";
   };
   return /* @__PURE__ */ jsxs(
     Authenticated,
@@ -144,9 +162,9 @@ function Show({ auth, crop }) {
                 ] }),
                 /* @__PURE__ */ jsxs("div", { className: "flex-grow bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden relative group", children: [
                   /* @__PURE__ */ jsxs("div", { className: "p-4", children: [
-                    /* @__PURE__ */ jsxs("div", { className: "absolute top-2 right-2 hidden group-hover:flex gap-2", children: [
-                      /* @__PURE__ */ jsx("button", { onClick: () => editLog(log), className: "text-yellow-600 hover:text-yellow-800 text-sm", children: "Edit" }),
-                      /* @__PURE__ */ jsx("button", { onClick: () => deleteLog(log.id), className: "text-red-500 hover:text-red-700 text-sm", children: "Delete" })
+                    /* @__PURE__ */ jsxs("div", { className: "absolute top-2 right-2 flex gap-2 is-visible", children: [
+                      /* @__PURE__ */ jsx("button", { onClick: () => editLog(log), className: "text-yellow-600 hover:text-yellow-800 text-sm bg-white/80 px-2 py-1 rounded shadow-sm", children: "Edit" }),
+                      /* @__PURE__ */ jsx("button", { onClick: () => deleteLog(log.id), className: "text-red-500 hover:text-red-700 text-sm bg-white/80 px-2 py-1 rounded shadow-sm", children: "Delete" })
                     ] }),
                     /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-start", children: [
                       /* @__PURE__ */ jsxs("div", { children: [
@@ -178,12 +196,20 @@ function Show({ auth, crop }) {
             ] }),
             /* @__PURE__ */ jsxs("div", { children: [
               /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-gray-900 mb-4", children: "Upcoming Schedules" }),
-              /* @__PURE__ */ jsx("div", { className: "bg-white rounded-lg shadow-sm border border-gray-100 p-4", children: crop.schedules && crop.schedules.length > 0 ? /* @__PURE__ */ jsx("ul", { className: "space-y-4", children: crop.schedules.map((schedule) => /* @__PURE__ */ jsxs("li", { className: "pb-4 border-b last:border-0 last:pb-0", children: [
+              /* @__PURE__ */ jsx("div", { className: "bg-white rounded-lg shadow-sm border border-gray-100 p-4", children: crop.schedules && crop.schedules.length > 0 ? /* @__PURE__ */ jsx("ul", { className: "space-y-4", children: crop.schedules.filter((s) => !s.completed_at).map((schedule) => /* @__PURE__ */ jsxs("li", { className: `pb-4 border-b last:border-0 last:pb-0 p-2 rounded ${getScheduleColor(schedule.scheduled_date)}`, children: [
                 /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center", children: [
-                  /* @__PURE__ */ jsx("span", { className: "font-bold text-gray-800 capitalize", children: schedule.activity_type }),
-                  /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-500", children: new Date(schedule.scheduled_date).toLocaleDateString() })
+                  /* @__PURE__ */ jsx("span", { className: "font-bold capitalize", children: schedule.activity_type }),
+                  /* @__PURE__ */ jsx("span", { className: "text-sm", children: new Date(schedule.scheduled_date).toLocaleDateString() })
                 ] }),
-                schedule.notes && /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 mt-1", children: schedule.notes })
+                schedule.notes && /* @__PURE__ */ jsx("p", { className: "text-sm mt-1", children: schedule.notes }),
+                /* @__PURE__ */ jsx("div", { className: "mt-2 text-right", children: /* @__PURE__ */ jsx(
+                  "button",
+                  {
+                    onClick: () => markScheduleComplete(schedule.id),
+                    className: "text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition",
+                    children: "Mark as Done"
+                  }
+                ) })
               ] }, schedule.id)) }) : /* @__PURE__ */ jsx("p", { className: "text-center text-gray-500 text-sm py-4", children: "No upcoming schedules." }) })
             ] })
           ] })

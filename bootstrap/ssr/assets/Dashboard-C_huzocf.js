@@ -1,6 +1,6 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { A as Authenticated } from "./AuthenticatedLayout-DksizGbA.js";
-import { Head, Link as Link$1 } from "@inertiajs/react";
+import { Head, Link as Link$1, router } from "@inertiajs/react";
 import "react";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
@@ -22,6 +22,13 @@ function StatCard({ title, subtitle, value, valueLabel, color = "purple", href }
   return /* @__PURE__ */ jsx(Content, {});
 }
 function Dashboard({ auth, activeCrops, rndCrops, recentLogs, upcomingSchedules }) {
+  const markScheduleComplete = (scheduleId) => {
+    if (confirm("Mark this schedule as done?")) {
+      router.patch(route("agriculture.crops.schedules.complete", scheduleId), {}, {
+        preserveScroll: true
+      });
+    }
+  };
   return /* @__PURE__ */ jsxs(
     Authenticated,
     {
@@ -40,21 +47,34 @@ function Dashboard({ auth, activeCrops, rndCrops, recentLogs, upcomingSchedules 
               /* @__PURE__ */ jsx("div", { className: "flex-shrink-0", children: /* @__PURE__ */ jsx("svg", { className: "h-5 w-5 text-blue-400", viewBox: "0 0 20 20", fill: "currentColor", children: /* @__PURE__ */ jsx("path", { fillRule: "evenodd", d: "M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z", clipRule: "evenodd" }) }) }),
               /* @__PURE__ */ jsx("div", { className: "ml-3", children: /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-blue-800", children: "Upcoming Schedules" }) })
             ] }),
-            /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 gap-4", children: upcomingSchedules.map((schedule) => /* @__PURE__ */ jsxs("div", { className: "bg-white p-4 rounded-md shadow-sm border border-blue-100 flex justify-between items-center", children: [
-              /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsxs("p", { className: "text-sm font-bold text-gray-800 capitalize", children: [
-                  schedule.activity_type,
-                  " for ",
-                  schedule.crop.name
+            /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 gap-4", children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 gap-4", children: [
+              upcomingSchedules.filter((s) => !s.completed_at).length === 0 && /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500 italic", children: "No pending schedules." }),
+              upcomingSchedules.filter((s) => !s.completed_at).map((schedule) => /* @__PURE__ */ jsxs("div", { className: "bg-white p-4 rounded-md shadow-sm border border-blue-100 flex justify-between items-center", children: [
+                /* @__PURE__ */ jsxs("div", { children: [
+                  /* @__PURE__ */ jsxs("p", { className: "text-sm font-bold text-gray-800 capitalize", children: [
+                    schedule.activity_type,
+                    " for ",
+                    schedule.crop.name
+                  ] }),
+                  /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 mt-1", children: [
+                    "Scheduled for: ",
+                    new Date(schedule.scheduled_date).toLocaleDateString()
+                  ] }),
+                  schedule.notes && /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-600 mt-1 italic", children: schedule.notes })
                 ] }),
-                /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-500 mt-1", children: [
-                  "Scheduled for: ",
-                  new Date(schedule.scheduled_date).toLocaleDateString()
-                ] }),
-                schedule.notes && /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-600 mt-1 italic", children: schedule.notes })
-              ] }),
-              /* @__PURE__ */ jsx(Link$1, { href: route("agriculture.crops.show", schedule.crop_id), className: "text-blue-600 hover:text-blue-800 text-sm font-medium", children: "View Crop" })
-            ] }, schedule.id)) })
+                /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-end gap-2", children: [
+                  /* @__PURE__ */ jsx(Link$1, { href: route("agriculture.crops.show", schedule.crop_id), className: "text-blue-600 hover:text-blue-800 text-sm font-medium", children: "View Crop" }),
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      onClick: () => markScheduleComplete(schedule.id),
+                      className: "text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded shadow-sm",
+                      children: "Mark Done"
+                    }
+                  )
+                ] })
+              ] }, schedule.id))
+            ] }) })
           ] }),
           /* @__PURE__ */ jsx("div", { className: "bg-white overflow-hidden shadow-sm sm:rounded-lg", children: /* @__PURE__ */ jsxs("div", { className: "p-6", children: [
             /* @__PURE__ */ jsx("h3", { className: "text-lg font-medium text-gray-900 mb-4", children: "Recent Monitoring Logs" }),
