@@ -20,11 +20,10 @@ class AgricultureController extends Controller
             : [];
 
         $upcomingSchedules = \App\Models\CropSchedule::with('crop')
-            ->where('scheduled_date', '>=', now()->toDateString())
-            ->where('scheduled_date', '<=', now()->addDays(14)->toDateString()) // Next 2 weeks
+            ->whereBetween('scheduled_date', [now()->toDateString(), now()->addDays(7)->toDateString()])
             ->whereNull('completed_at')
             ->orderBy('scheduled_date', 'asc')
-            ->take(10)
+            ->take(20)
             ->get();
 
         return \Inertia\Inertia::render('Agriculture/Dashboard', [

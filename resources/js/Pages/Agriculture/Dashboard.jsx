@@ -47,7 +47,7 @@ export default function Dashboard({ auth, activeCrops, rndCrops, recentLogs, upc
                                     </svg>
                                 </div>
                                 <div className="ml-3">
-                                    <h3 className="text-lg font-medium text-blue-800">Upcoming Schedules</h3>
+                                    <h3 className="text-lg font-medium text-blue-800">Upcoming Schedules (7 Days)</h3>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 gap-4">

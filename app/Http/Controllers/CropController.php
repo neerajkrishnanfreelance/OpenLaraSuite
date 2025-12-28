@@ -55,7 +55,31 @@ class CropController extends Controller
         }, 'schedules' => function ($query) {
             $query->orderBy('scheduled_date', 'asc');
         }]);
-        return Inertia::render('Agriculture/Crops/Show', ['crop' => $crop]);
+
+
+
+        // Match 'orderBy created_at desc' (Newest First) from index
+        
+        // "Previous" in the UI (Left Arrow) should go to the NEWER record (Higher ID)
+        $prevCrop = Crop::where('id', '>', $crop->id)->orderBy('id', 'asc')->first('id');
+        
+        // "Next" in the UI (Right Arrow) should go to the OLDER record (Lower ID)
+        $nextCrop = Crop::where('id', '<', $crop->id)->orderBy('id', 'desc')->first('id');
+
+        // Odoo-style pager calculations
+        $totalCrops = Crop::count();
+        // Position in a DESC list: Count of records with ID >= Current ID
+        $currentPosition = Crop::where('id', '>=', $crop->id)->count();
+
+        return Inertia::render('Agriculture/Crops/Show', [
+            'crop' => $crop,
+            'prevCropId' => $prevCrop ? $prevCrop->id : null,
+            'nextCropId' => $nextCrop ? $nextCrop->id : null,
+            'pager' => [
+                'current' => $currentPosition,
+                'total' => $totalCrops,
+            ]
+        ]);
     }
 
     /**

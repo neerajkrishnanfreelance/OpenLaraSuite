@@ -11,13 +11,12 @@ import { useState } from "react";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
 import "@headlessui/react";
-function Show({ auth, crop }) {
+function Show({ auth, crop, prevCropId, nextCropId, pager }) {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [editingLog, setEditingLog] = useState(null);
   const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm({
     crop_id: crop.id,
-    log_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
     log_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
     log_type: "observation",
     duration_minutes: "",
@@ -40,9 +39,7 @@ function Show({ auth, crop }) {
     const options = {
       onSuccess: () => {
         setIsLogModalOpen(false);
-        setIsLogModalOpen(false);
         reset("notes", "image", "stage", "temperature", "humidity", "log_type", "input_name", "input_quantity", "input_unit", "duration_minutes");
-        setEditingLog(null);
         setEditingLog(null);
       }
     };
@@ -59,7 +56,6 @@ function Show({ auth, crop }) {
     setEditingLog(log);
     setData({
       crop_id: crop.id,
-      log_date: log.log_date,
       log_date: log.log_date,
       log_type: log.log_type,
       duration_minutes: log.duration_minutes || "",
@@ -96,7 +92,6 @@ function Show({ auth, crop }) {
   };
   const openLogModal = () => {
     setEditingLog(null);
-    setEditingLog(null);
     reset("notes", "image", "stage", "temperature", "humidity", "log_type", "input_name", "input_quantity", "input_unit", "duration_minutes");
     setData("log_date", (/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
     clearErrors();
@@ -121,17 +116,42 @@ function Show({ auth, crop }) {
     Authenticated,
     {
       header: /* @__PURE__ */ jsxs("div", { className: "flex flex-col md:flex-row justify-between items-center gap-4", children: [
-        /* @__PURE__ */ jsxs("h2", { className: "font-semibold text-xl text-gray-800 leading-tight", children: [
-          "Crop Details: ",
-          crop.name,
-          crop.check_r_n_d && /* @__PURE__ */ jsx("span", { className: "ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full align-middle", children: "R&D" })
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
+          /* @__PURE__ */ jsx(Link, { href: route("agriculture.crops.index"), className: "text-gray-500 hover:text-gray-700", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M10 19l-7-7m0 0l7-7m-7 7h18" }) }) }),
+          /* @__PURE__ */ jsxs("h2", { className: "font-semibold text-xl text-gray-800 leading-tight", children: [
+            crop.name,
+            crop.check_r_n_d && /* @__PURE__ */ jsx("span", { className: "ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full align-middle", children: "R&D" })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-2 flex-wrap justify-center", children: [
-          /* @__PURE__ */ jsx(Link, { href: route("agriculture.crops.index"), className: "px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300", children: "Back" }),
-          /* @__PURE__ */ jsx(Link, { href: route("agriculture.crops.edit", crop.id), className: "px-4 py-2 bg-yellow-500 text-white rounded-md text-sm font-medium hover:bg-yellow-600", children: "Edit Crop" }),
-          /* @__PURE__ */ jsx("button", { onClick: deleteCrop, className: "px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700", children: "Delete" }),
-          /* @__PURE__ */ jsx(SecondaryButton, { onClick: () => setIsScheduleModalOpen(true), children: "+ Schedule Activity" }),
-          /* @__PURE__ */ jsx(PrimaryButton, { onClick: openLogModal, children: "+ Add Daily Log" })
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ jsxs("div", { className: "flex items-center bg-white rounded-md shadow-sm border border-gray-300", children: [
+            /* @__PURE__ */ jsxs("span", { className: "px-3 py-1.5 text-sm font-medium text-gray-600 border-r border-gray-200", children: [
+              pager?.current || "?",
+              " / ",
+              pager?.total || "?"
+            ] }),
+            /* @__PURE__ */ jsx(
+              Link,
+              {
+                href: prevCropId ? route("agriculture.crops.show", prevCropId) : "#",
+                className: `p-1.5 text-gray-500 hover:bg-gray-50 ${!prevCropId && "opacity-50 cursor-not-allowed pointer-events-none"}`,
+                children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M15 19l-7-7 7-7" }) })
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              Link,
+              {
+                href: nextCropId ? route("agriculture.crops.show", nextCropId) : "#",
+                className: `p-1.5 text-gray-500 hover:bg-gray-50 border-l border-gray-200 ${!nextCropId && "opacity-50 cursor-not-allowed pointer-events-none"}`,
+                children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: "2", d: "M9 5l7 7-7 7" }) })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsx("div", { className: "h-6 w-px bg-gray-300 mx-1" }),
+          /* @__PURE__ */ jsx(Link, { href: route("agriculture.crops.edit", crop.id), className: "px-3 py-1.5 bg-yellow-500 text-white rounded-md text-sm font-medium hover:bg-yellow-600", children: "Edit" }),
+          /* @__PURE__ */ jsx("button", { onClick: deleteCrop, className: "px-3 py-1.5 bg-white text-red-600 border border-red-200 rounded-md text-sm font-medium hover:bg-red-50", children: "Delete" }),
+          /* @__PURE__ */ jsx(SecondaryButton, { onClick: () => setIsScheduleModalOpen(true), className: "text-xs", children: "Schedule" }),
+          /* @__PURE__ */ jsx(PrimaryButton, { onClick: openLogModal, className: "text-xs", children: "Log" })
         ] })
       ] }),
       children: [
