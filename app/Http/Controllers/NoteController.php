@@ -130,7 +130,7 @@ class NoteController extends Controller
         $pdf = Pdf::loadView('pdf.note', [
             'note' => $note,
             'images' => $images
-        ]);
+        ])->setPaper([0, 0, 598, 449], 'landscape'); // 211mm x 158mm in points (1mm = 2.83465 points)
 
         return $pdf->download('note-' . $note->id . '.pdf');
     }

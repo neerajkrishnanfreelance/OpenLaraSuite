@@ -4,110 +4,70 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>{{ $note->title }}</title>
     <style>
-        body {
-            font-family: sans-serif;
-            color: #333;
-            line-height: 1.6;
-        }
-        .header {
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
-        }
-        .title {
-            font-size: 24px;
-            font-weight: bold;
+        * {
             margin: 0;
-            color: #111;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .meta {
-            font-size: 12px;
-            color: #777;
-            margin-top: 5px;
+        
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            color: #333;
+            background: white;
         }
-        .meta span {
-            margin-right: 15px;
-        }
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            color: #555;
-            border-bottom: 1px solid #eee;
-        }
-        .content {
-            white-space: pre-wrap;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        .attachments {
-            font-size: 12px;
-        }
-        .attachment-item {
-            margin-bottom: 5px;
-        }
-        .attachment-link {
-            text-decoration: none;
-            color: #2563eb;
-        }
-        .page-break {
+        
+        /* Slide container - matches canvas aspect ratio (800x600) */
+        .slide {
+            width: 211mm;
+            height: 158mm;
             page-break-after: always;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: white;
         }
+        
+        /* Drawing Slide - Full page image */
+        .drawing-slide {
+            padding: 0;
+            margin: 0;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
         .drawing-image {
+            max-width: 211mm;
+            max-height: 158mm;
             width: 100%;
-            height: auto;
-            margin-top: 10px;
+            height: 100%;
+            object-fit: contain;
             display: block;
         }
-        .slide-label {
-            font-size: 10px;
+        
+        /* Slide number footer */
+        .slide-footer {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 12px;
             color: #999;
-            text-align: right;
-            margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 12px;
+            border-radius: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 class="title">{{ $note->title ?? 'Untitled Note' }}</h1>
-        <div class="meta">
-            <span>Created: {{ $note->created_at->format('M d, Y H:i') }}</span>
-            @if($note->project)
-                <span>Project: {{ $note->project->name }}</span>
-            @endif
-            @if($note->task)
-                <span>Task: {{ $note->task->title }}</span>
-            @endif
-        </div>
-    </div>
-
-    @if($note->content)
-        <div class="section-title">Notes</div>
-        <div class="content">{{ $note->content }}</div>
-    @endif
-
-    @if($note->attachments->count() > 0)
-        <div class="section-title">Attachments</div>
-        <div class="attachments">
-            @foreach($note->attachments as $att)
-                <div class="attachment-item">
-                    @php
-                        $url = $att->type === 'youtube' ? $att->url : asset('storage/' . $att->file_path);
-                    @endphp
-                    &bull; <a href="{{ $url }}" class="attachment-link" target="_blank">{{ $att->name }}</a>
-                    <span style="color: #999;">({{ $att->type === 'youtube' ? 'Video' : 'File' }})</span>
-                </div>
-            @endforeach
-        </div>
-    @endif
-
+    <!-- Drawing Slides Only - One per image -->
     @if(!empty($images))
         @foreach($images as $index => $img)
-            <div class="page-break"></div>
-            <div class="slide-label">Slide {{ $index + 1 }}</div>
-            <img src="{{ $img }}" class="drawing-image" />
+            <div class="slide drawing-slide">
+                <img src="{{ $img }}" class="drawing-image" alt="Drawing {{ $index + 1 }}" />
+                <div class="slide-footer">{{ $index + 1 }}</div>
+            </div>
         @endforeach
     @endif
 </body>
