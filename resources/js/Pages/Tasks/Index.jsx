@@ -5,16 +5,22 @@ import StatusBadge from '@/Components/StatusBadge';
 import PriorityLabel from '@/Components/PriorityLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ClickableLink from '@/Components/ClickableLink';
-import { useState } from 'react';
+import FilterBar from '@/Components/FilterBar';
+import { useState, useMemo } from 'react';
 
 export default function Index({ auth, tasks, projects, users, lead_stages = [], filters }) {
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
-    const [kanbanGroupBy, setKanbanGroupBy] = useState('status'); // 'status' or 'stage'
     const [filterData, setFilterData] = useState({
         project_id: filters.project_id || '',
         assigned_to: filters.assigned_to || '',
         status: filters.status || '',
+        groupBy: 'status', // default group by
+        search: filters.search || '',
     });
+
+    // Update kanbanGroupBy when filterData.groupBy changes
+    const kanbanGroupBy = filterData.groupBy;
+    const setKanbanGroupBy = (val) => handleFilterChange('groupBy', val);
 
     const handleFilterChange = (key, value) => {
         const newFilters = { ...filterData, [key]: value };
@@ -92,17 +98,7 @@ export default function Index({ auth, tasks, projects, users, lead_stages = [], 
                         </button>
                     </div>
 
-                    {/* Kanban Group Toggle */}
-                    {viewMode === 'kanban' && (
-                        <select
-                            value={kanbanGroupBy}
-                            onChange={(e) => setKanbanGroupBy(e.target.value)}
-                            className="bg-white border-gray-300 text-gray-700 text-sm rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block p-1.5"
-                        >
-                            <option value="status">By Status</option>
-                            <option value="stage">By Lead Stage</option>
-                        </select>
-                    )}
+
 
                     <button
                         onClick={() => {
@@ -124,43 +120,26 @@ export default function Index({ auth, tasks, projects, users, lead_stages = [], 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     {/* Filters */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-wrap gap-4 items-end">
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Project</label>
-                            <select
-                                className="w-full border-gray-300 rounded-md shadow-sm text-sm"
-                                value={filterData.project_id}
-                                onChange={(e) => handleFilterChange('project_id', e.target.value)}
-                            >
-                                <option value="">All Projects</option>
-                                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                            </select>
-                        </div>
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Assigned To</label>
-                            <select
-                                className="w-full border-gray-300 rounded-md shadow-sm text-sm"
-                                value={filterData.assigned_to}
-                                onChange={(e) => handleFilterChange('assigned_to', e.target.value)}
-                            >
-                                <option value="">All Employees</option>
-                                {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-                            </select>
-                        </div>
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                            <select
-                                className="w-full border-gray-300 rounded-md shadow-sm text-sm"
-                                value={filterData.status}
-                                onChange={(e) => handleFilterChange('status', e.target.value)}
-                            >
-                                <option value="">All Statuses</option>
-                                <option value="todo">To Do</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="review">Review</option>
-                                <option value="done">Done</option>
-                            </select>
-                        </div>
+                    {/* Filters using FilterBar */}
+                    <div className="mb-6">
+                        <FilterBar
+                            filters={[
+                                // Quick Filters
+                                { key: 'assigned_to', value: auth.user.id.toString(), label: 'My Tasks' },
+                                { key: 'assigned_to', value: 'unassigned', label: 'Unassigned' },
+                                { key: 'priority', value: 'high', label: 'High Priority' },
+                                { key: 'status', value: 'todo', label: 'To Do' },
+                                { key: 'status', value: 'done', label: 'Done' },
+                            ]}
+                            groupByOptions={[
+                                { value: 'status', label: 'Status' },
+                                { value: 'stage', label: 'Lead Stage' },
+                                { value: 'project', label: 'Project' }, // Example, handling in frontend list might be needed or just API
+                                { value: 'assigned_to', label: 'Assigned User' }
+                            ]}
+                            activeFilters={filterData}
+                            onFilterChange={handleFilterChange}
+                        />
                     </div>
 
                     {viewMode === 'list' ? (

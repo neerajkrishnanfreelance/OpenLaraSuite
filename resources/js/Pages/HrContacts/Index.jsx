@@ -1,12 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Plus, Edit, Trash2, Mail, Phone, Send, ExternalLink } from 'lucide-react';
 import StatusBadge from '@/Components/StatusBadge';
+import FilterBar from '@/Components/FilterBar';
 
-export default function Index({ auth, contacts }) {
+export default function Index({ auth, contacts, filters = {} }) {
     const { flash } = usePage().props;
     const [selectedIds, setSelectedIds] = useState([]);
+
+    const [filterData, setFilterData] = useState({
+        search: filters.search || '',
+        status: filters.status || '',
+    });
+
+    const handleFilterChange = (key, value) => {
+        setFilterData(prev => ({ ...prev, [key]: value }));
+    };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            router.get(
+                route('hr-contacts.index'),
+                filterData,
+                { preserveState: true, replace: true }
+            );
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [filterData]);
 
     const toggleSelectAll = (e) => {
         if (e.target.checked) {
@@ -65,7 +86,22 @@ export default function Index({ auth, contacts }) {
 
 
                     <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <div className="flex-1 flex gap-2">
+                        <div className="w-full md:w-2/3">
+                            <FilterBar
+                                placeholder="Search contacts..."
+                                filters={[
+                                    { key: 'status', value: 'New', label: 'New' },
+                                    { key: 'status', value: 'Contacted', label: 'Contacted' },
+                                    { key: 'status', value: 'Interviewed', label: 'Interviewed' },
+                                    { key: 'status', value: 'Hired', label: 'Hired' },
+                                    { key: 'status', value: 'Rejected', label: 'Rejected' },
+                                ]}
+                                groupByOptions={[]}
+                                activeFilters={filterData}
+                                onFilterChange={handleFilterChange}
+                            />
+                        </div>
+                        <div className="flex space-x-2">
                             {selectedIds.length > 0 && (
                                 <button
                                     onClick={handleBulkDelete}
@@ -75,6 +111,7 @@ export default function Index({ auth, contacts }) {
                                     Delete Selected ({selectedIds.length})
                                 </button>
                             )}
+
                         </div>
                         <Link
                             href={route('hr-contacts.create')}
@@ -83,6 +120,7 @@ export default function Index({ auth, contacts }) {
                             Add HR Contact
                         </Link>
                     </div>
+
 
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="overflow-x-auto">
@@ -193,6 +231,6 @@ export default function Index({ auth, contacts }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AuthenticatedLayout >
     );
 }

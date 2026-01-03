@@ -13,11 +13,34 @@ class NoteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $notes = auth()->user()->notes()->with(['recordings', 'attachments', 'project', 'task'])->latest()->get();
+        $query = auth()->user()->notes()->with(['recordings', 'attachments', 'project', 'task'])->latest();
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('content', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('has_drawing')) {
+            $query->whereNotNull('drawing_data')->where('drawing_data', '!=', '');
+        }
+        
+         if ($request->filled('has_attachment')) {
+            $query->whereHas('attachments', function($q) {
+                // Filter if needed, or just checks existence
+            });
+            // Since we don't have a simple boolean column, this might be complex if strict performance needed
+            // But for now, we can filter in PHP or use whereHas. 
+            // Simplified:
+            $query->has('attachments');
+        }
+
+        $notes = $query->get();
+
         return Inertia::render('Notes/Index', [
-            'notes' => $notes
+            'notes' => $notes,
+            'filters' => $request->only(['search', 'has_drawing', 'has_attachment'])
         ]);
     }
 

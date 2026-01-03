@@ -4,8 +4,32 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus, Edit, Trash2, FileText, Download, Mic, Paperclip, Youtube, Table, CheckSquare, PenTool } from 'lucide-react';
 import Pagination from '@/Components/Pagination';
 
-export default function Index({ auth, notes }) {
+import Pagination from '@/Components/Pagination';
+import FilterBar from '@/Components/FilterBar';
+import { useState, useEffect } from 'react';
+
+export default function Index({ auth, notes, filters = {} }) {
     const { flash } = usePage().props;
+    const [filterData, setFilterData] = useState({
+        search: filters.search || '',
+        has_drawing: filters.has_drawing || '',
+        has_attachment: filters.has_attachment || '',
+    });
+
+    const handleFilterChange = (key, value) => {
+        setFilterData(prev => ({ ...prev, [key]: value }));
+    };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            router.get(
+                route('notes.index'),
+                filterData,
+                { preserveState: true, replace: true }
+            );
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [filterData]);
 
     const handleDelete = (id) => {
         if (confirm('Are you sure you want to delete this note?')) {
@@ -48,7 +72,19 @@ export default function Index({ auth, notes }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
 
-                    <div className="flex justify-end mb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <div className="w-full md:w-2/3">
+                            <FilterBar
+                                placeholder="Search notes..."
+                                filters={[
+                                    { key: 'has_drawing', value: 'true', label: 'Has Drawing' },
+                                    { key: 'has_attachment', value: 'true', label: 'Has Attachment' },
+                                ]}
+                                groupByOptions={[]}
+                                activeFilters={filterData}
+                                onFilterChange={handleFilterChange}
+                            />
+                        </div>
                         <Link
                             href={route('notes.create')}
                             className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:border-indigo-900 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"

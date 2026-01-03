@@ -5,40 +5,41 @@ import StatusBadge from '@/Components/StatusBadge';
 import PrimaryButton from '@/Components/PrimaryButton';
 import ClickableLink from '@/Components/ClickableLink';
 import KanbanBoard from '@/Components/Projects/KanbanBoard';
+import FilterBar from '@/Components/FilterBar';
 import { useState, useEffect } from 'react';
-import { LayoutList, LayoutGrid, Filter, X } from 'lucide-react';
+import { LayoutList, LayoutGrid } from 'lucide-react';
 
 export default function Index({ auth, projects, filters = {} }) {
     const { flash } = usePage().props;
     const [viewMode, setViewMode] = useState(localStorage.getItem('projectsViewMode') || 'list');
-    const [showFilters, setShowFilters] = useState(false);
 
     // Filter State
-    const [search, setSearch] = useState(filters.search || '');
-    const [status, setStatus] = useState(filters.status || 'all');
-    const [dateRange, setDateRange] = useState(filters.date_range || '');
+    const [filterData, setFilterData] = useState({
+        search: filters.search || '',
+        status: filters.status || '',
+        date_range: filters.date_range || '',
+    });
 
     useEffect(() => {
         localStorage.setItem('projectsViewMode', viewMode);
     }, [viewMode]);
 
     // Debounce search and apply filters
+    // Debounce search and apply filters
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            if (
-                search !== (filters.search || '') ||
-                status !== (filters.status || 'all') ||
-                dateRange !== (filters.date_range || '')
-            ) {
-                router.get(
-                    route('projects.index'),
-                    { search, status, dateRange },
-                    { preserveState: true, replace: true }
-                );
-            }
+            router.get(
+                route('projects.index'),
+                filterData,
+                { preserveState: true, replace: true }
+            );
         }, 300);
         return () => clearTimeout(timeoutId);
-    }, [search, status, dateRange]);
+    }, [filterData]);
+
+    const handleFilterChange = (key, value) => {
+        setFilterData(prev => ({ ...prev, [key]: value }));
+    };
 
     const columns = [
         { key: 'name', label: 'Name', render: (item) => <ClickableLink routeName="projects.show" params={item.id}>{item.name}</ClickableLink> },
@@ -138,31 +139,18 @@ export default function Index({ auth, projects, filters = {} }) {
                     )}
 
                     {/* Filters Bar */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
-                        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-center">
-                            <div className="flex-1 w-full">
-                                <input
-                                    type="text"
-                                    placeholder="Search projects..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-                            </div>
-                            <div className="w-full sm:w-48">
-                                <select
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                >
-                                    <option value="all">All Statuses</option>
-                                    <option value="active">Active</option>
-                                    <option value="on_hold">On Hold</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="archived">Archived</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div className="mb-6">
+                        <FilterBar
+                            filters={[
+                                { key: 'status', value: 'active', label: 'Active' },
+                                { key: 'status', value: 'on_hold', label: 'On Hold' },
+                                { key: 'status', value: 'completed', label: 'Completed' },
+                                { key: 'status', value: 'archived', label: 'Archived' },
+                            ]}
+                            groupByOptions={[]} // Projects usually don't group or we can add later
+                            activeFilters={filterData}
+                            onFilterChange={handleFilterChange}
+                        />
                     </div>
 
                     {viewMode === 'list' ? (

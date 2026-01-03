@@ -78,6 +78,9 @@
   "resources/js/Components/FabricCanvas.jsx": [
     "/build/assets/FabricCanvas-BXClyFfy.js"
   ],
+  "resources/js/Components/FilterBar.jsx": [
+    "/build/assets/Index-BnWbLw8Y.js"
+  ],
   "resources/js/Components/FormHeader.jsx": [
     "/build/assets/FormHeader-CQAGRAnh.js"
   ],
@@ -471,7 +474,7 @@
     "/build/assets/Edit-ByUShXy0.js"
   ],
   "resources/js/Pages/Tasks/Index.jsx": [
-    "/build/assets/Index-XdEGexRH.js"
+    "/build/assets/Index-BnWbLw8Y.js"
   ],
   "resources/js/Pages/Tasks/Show.jsx": [
     "/build/assets/Show-BxnET1RZ.js"

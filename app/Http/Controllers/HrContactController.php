@@ -13,11 +13,25 @@ class HrContactController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $contacts = HrContact::latest()->get();
+        $query = HrContact::latest();
+
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%')
+                  ->orWhere('company', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         return Inertia::render('HrContacts/Index', [
-            'contacts' => $contacts
+            'contacts' => $query->get(),
+            'filters' => $request->only(['search', 'status'])
         ]);
     }
 
