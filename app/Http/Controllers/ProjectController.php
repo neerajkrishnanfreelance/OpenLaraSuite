@@ -102,8 +102,8 @@ class ProjectController extends Controller
 
         return Inertia::render('Projects/Show', [
             'project' => $project,
-            'users' => User::all(),
-            'projects' => Project::all(),
+            'users' => User::select('id', 'name')->get(),
+            'projects' => Project::select('id', 'name')->get(),
         ]);
     }
 

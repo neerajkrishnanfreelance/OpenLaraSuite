@@ -2,7 +2,7 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import { forwardRef, useRef, useEffect, useImperativeHandle, useState } from "react";
 import { A as Authenticated } from "./AuthenticatedLayout-DksizGbA.js";
 import { useForm, Head, Link, router } from "@inertiajs/react";
-import { F as FabricCanvas } from "./FabricCanvas-o9Jhirq6.js";
+import { F as FabricCanvas } from "./FabricCanvas-BXClyFfy.js";
 import Spreadsheet from "x-data-spreadsheet";
 import ReactQuill from "react-quill";
 import { I as InputLabel } from "./InputLabel-CE_n4Upz.js";
@@ -11,7 +11,7 @@ import { T as TextArea } from "./TextArea-DrhkzIc8.js";
 import { P as PrimaryButton } from "./PrimaryButton-BMCZH-oa.js";
 import { I as InputError } from "./InputError-CBvD_6aD.js";
 import axios from "axios";
-import { Mic, StopCircle, Play, Trash, Download, Paperclip, FileText, Plus, Youtube, PenTool, Table, Eraser, Square, Circle, Triangle, Minus, Type, ArrowLeft, ArrowRight, Minimize, Expand, Save } from "lucide-react";
+import { Mic, StopCircle, Play, Trash, Download, Paperclip, FileText, Plus, Youtube, PenTool, Table, MousePointer, Move, Eraser, Square, Circle, Triangle, Minus, Type, ArrowLeft, ArrowRight, Printer, Minimize, Expand, Save } from "lucide-react";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
 import "@headlessui/react";
@@ -342,6 +342,7 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
   const handleToolChange = (tool) => {
     setActiveTool(tool);
     if (canvasRef.current) {
+      canvasRef.current.setPanMode(false);
       if (tool === "pencil") {
         canvasRef.current.setDrawingMode(true);
         canvasRef.current.setBrushColor(brushColor);
@@ -350,13 +351,16 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
       } else if (tool === "eraser") {
         canvasRef.current.setDrawingMode(true);
         canvasRef.current.setEraserMode(true);
+      } else if (tool === "select") {
+        canvasRef.current.setDrawingMode(false);
+        canvasRef.current.setEraserMode(false);
+      } else if (tool === "pan") {
+        canvasRef.current.setPanMode(true);
       } else {
         canvasRef.current.setDrawingMode(false);
         canvasRef.current.setEraserMode(false);
-        if (tool !== "select") {
-          canvasRef.current.addShape(tool, { stroke: brushColor, strokeWidth: parseInt(brushWidth) });
-          setActiveTool("select");
-        }
+        canvasRef.current.addShape(tool, { stroke: brushColor, strokeWidth: parseInt(brushWidth) });
+        setActiveTool("select");
       }
     }
   };
@@ -482,6 +486,90 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
     document.addEventListener("fullscreenchange", handleFSChange);
     return () => document.removeEventListener("fullscreenchange", handleFSChange);
   }, []);
+  const handleDownloadPDF = async () => {
+    if (!note || !note.id) {
+      alert("Please save the note before downloading PDF.");
+      return;
+    }
+    const finalPages = saveCurrentPage();
+    const images = [];
+    if (finalPages.length > 0 && canvasRef.current) {
+      for (let i = 0; i < finalPages.length; i++) {
+        const pageData = finalPages[i];
+        if (!pageData || Object.keys(pageData).length === 0) continue;
+        await new Promise((resolve) => {
+          canvasRef.current.clear();
+          canvasRef.current.loadFromJSON(pageData, () => {
+            resolve();
+          });
+        });
+        const imgData = canvasRef.current.toDataURL({ format: "png", quality: 1, multiplier: 2 });
+        images.push(imgData);
+      }
+      if (finalPages[currentPageIndex]) {
+        canvasRef.current.clear();
+        canvasRef.current.loadFromJSON(finalPages[currentPageIndex]);
+      }
+    }
+    try {
+      const response = await axios.post(route("notes.pdf", note.id), {
+        images
+      }, {
+        responseType: "blob"
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `note-${note.id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("PDF generation failed", error);
+      alert("Failed to generate PDF");
+    }
+  };
+  const handlePrintPreview = async () => {
+    if (!note || !note.id) {
+      alert("Please save the note before printing.");
+      return;
+    }
+    const finalPages = saveCurrentPage();
+    const images = [];
+    if (finalPages.length > 0 && canvasRef.current) {
+      for (let i = 0; i < finalPages.length; i++) {
+        const pageData = finalPages[i];
+        if (!pageData || Object.keys(pageData).length === 0) continue;
+        await new Promise((resolve) => {
+          canvasRef.current.clear();
+          canvasRef.current.loadFromJSON(pageData, () => {
+            resolve();
+          });
+        });
+        const imgData = canvasRef.current.toDataURL({ format: "png", quality: 1, multiplier: 2 });
+        images.push(imgData);
+      }
+      if (finalPages[currentPageIndex]) {
+        canvasRef.current.clear();
+        canvasRef.current.loadFromJSON(finalPages[currentPageIndex]);
+      }
+    }
+    try {
+      const response = await axios.post(route("notes.print", note.id), {
+        images
+      });
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(response.data);
+        printWindow.document.close();
+      } else {
+        alert("Please allow popups for this site to use print preview.");
+      }
+    } catch (error) {
+      console.error("Print preview failed", error);
+      alert("Failed to open print preview");
+    }
+  };
   return /* @__PURE__ */ jsxs(
     Authenticated,
     {
@@ -752,6 +840,8 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
               /* @__PURE__ */ jsxs("div", { id: "edit-canvas-container", className: `${viewMode === "canvas" ? "flex" : "hidden"} border-x border-b border-gray-300 bg-gray-50 shadow-inner overflow-hidden flex-col items-center justify-center relative ${isFullScreen ? "h-screen w-screen fixed top-0 left-0 z-50" : "h-[600px] min-h-[500px]"}`, children: [
                 /* @__PURE__ */ jsxs("div", { className: `absolute top-4 left-4 z-30 flex flex-col gap-2 bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg border border-gray-200 transition-opacity duration-300 max-h-[calc(100%-2rem)] overflow-y-auto ${isFullScreen ? "opacity-100" : "opacity-100"}`, children: [
                   /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-1 w-20 sm:w-24", children: [
+                    /* @__PURE__ */ jsx(ToolBtn, { icon: MousePointer, active: activeTool === "select", onClick: () => handleToolChange("select"), title: "Select & Resize" }),
+                    /* @__PURE__ */ jsx(ToolBtn, { icon: Move, active: activeTool === "pan", onClick: () => handleToolChange("pan"), title: "Pan Canvas" }),
                     /* @__PURE__ */ jsx(ToolBtn, { icon: PenTool, active: activeTool === "pencil", onClick: () => handleToolChange("pencil"), title: "Pencil" }),
                     /* @__PURE__ */ jsx(ToolBtn, { icon: Eraser, active: activeTool === "eraser", onClick: () => handleToolChange("eraser"), title: "Eraser Brush" }),
                     /* @__PURE__ */ jsx(ToolBtn, { icon: Square, active: activeTool === "rect", onClick: () => handleToolChange("rect"), title: "Rectangle" }),
@@ -827,16 +917,40 @@ function Edit({ auth, note, projects = [], preselected_project_id = null }) {
                   /* @__PURE__ */ jsx("button", { type: "button", onClick: handleAddPage, className: "p-1 rounded-full hover:bg-green-50 text-green-600", title: "Add Slide", children: /* @__PURE__ */ jsx(Plus, { className: "w-4 h-4" }) }),
                   /* @__PURE__ */ jsx("button", { type: "button", onClick: handleDeletePage, className: "p-1 rounded-full hover:bg-red-50 text-red-500", title: "Delete Slide", children: /* @__PURE__ */ jsx(Trash, { className: "w-4 h-4" }) })
                 ] }),
-                /* @__PURE__ */ jsx("div", { className: "absolute top-4 right-4 z-20", children: /* @__PURE__ */ jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: handleFullScreenToggle,
-                    className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all",
-                    title: isFullScreen ? "Exit Full Screen" : "Full Screen",
-                    children: isFullScreen ? /* @__PURE__ */ jsx(Minimize, { className: "w-5 h-5" }) : /* @__PURE__ */ jsx(Expand, { className: "w-5 h-5" })
-                  }
-                ) }),
+                /* @__PURE__ */ jsxs("div", { className: "absolute top-4 right-4 z-20 flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handlePrintPreview,
+                      disabled: !note,
+                      className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-green-600 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                      title: "Print Preview",
+                      children: /* @__PURE__ */ jsx(Printer, { className: "w-5 h-5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleDownloadPDF,
+                      disabled: !note,
+                      className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                      title: "Download PDF",
+                      children: /* @__PURE__ */ jsx(Download, { className: "w-5 h-5" })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: handleFullScreenToggle,
+                      className: "bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all",
+                      title: isFullScreen ? "Exit Full Screen" : "Full Screen",
+                      children: isFullScreen ? /* @__PURE__ */ jsx(Minimize, { className: "w-5 h-5" }) : /* @__PURE__ */ jsx(Expand, { className: "w-5 h-5" })
+                    }
+                  )
+                ] }),
                 /* @__PURE__ */ jsx(
                   FabricCanvas,
                   {

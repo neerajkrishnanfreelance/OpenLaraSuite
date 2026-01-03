@@ -48,6 +48,11 @@ class Project extends Model
         return $this->hasMany(Requirement::class);
     }
 
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
+
     public function scopeLearning($query)
     {
         return $query->where('is_learning', true);

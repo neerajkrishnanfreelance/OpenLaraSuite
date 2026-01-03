@@ -578,9 +578,9 @@ function Show({ auth, project, users = [], projects = [] }) {
                 ] }),
                 /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500 line-clamp-2 mb-2", children: task.description || "No description" }),
                 /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between mt-2", children: [
-                  /* @__PURE__ */ jsx("div", { className: "flex items-center text-xs text-gray-400", children: task.assigned_user ? /* @__PURE__ */ jsxs("div", { className: "flex items-center", title: `Assigned to ${task.assigned_user.name}`, children: [
-                    /* @__PURE__ */ jsx("div", { className: "h-5 w-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-[10px] font-bold mr-1", children: task.assigned_user.name.charAt(0) }),
-                    /* @__PURE__ */ jsx("span", { children: task.assigned_user.name.split(" ")[0] })
+                  /* @__PURE__ */ jsx("div", { className: "flex items-center text-xs text-gray-400", children: task.assignedUser ? /* @__PURE__ */ jsxs("div", { className: "flex items-center", title: `Assigned to ${task.assignedUser.name}`, children: [
+                    /* @__PURE__ */ jsx("div", { className: "h-5 w-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-[10px] font-bold mr-1", children: task.assignedUser.name.charAt(0) }),
+                    /* @__PURE__ */ jsx("span", { children: task.assignedUser.name.split(" ")[0] })
                   ] }) : /* @__PURE__ */ jsx("span", { children: "Unassigned" }) }),
                   /* @__PURE__ */ jsx("div", { className: "text-[10px] text-gray-400", children: task.due_date ? new Date(task.due_date).toLocaleDateString() : "No Due Date" })
                 ] })

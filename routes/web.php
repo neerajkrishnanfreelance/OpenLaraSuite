@@ -325,6 +325,7 @@ Route::delete('/notes/recordings/{recording}', [App\Http\Controllers\NoteRecordi
     Route::post('notes/{note}/attachments', [App\Http\Controllers\NoteAttachmentController::class, 'store'])->name('notes.attachments.store');
     Route::delete('notes/attachments/{attachment}', [App\Http\Controllers\NoteAttachmentController::class, 'destroy'])->name('notes.attachments.destroy');
     Route::post('notes/{note}/pdf', [App\Http\Controllers\NoteController::class, 'downloadPdf'])->name('notes.pdf');
+    Route::post('notes/{note}/print', [App\Http\Controllers\NoteController::class, 'printPreview'])->name('notes.print');
 
 });
 

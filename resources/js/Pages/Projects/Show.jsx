@@ -103,12 +103,12 @@ export default function Show({ auth, project, users = [], projects = [] }) {
                                     <p className="text-xs text-gray-500 line-clamp-2 mb-2">{task.description || 'No description'}</p>
                                     <div className="flex items-center justify-between mt-2">
                                         <div className="flex items-center text-xs text-gray-400">
-                                            {task.assigned_user ? (
-                                                <div className="flex items-center" title={`Assigned to ${task.assigned_user.name}`}>
+                                            {task.assignedUser ? (
+                                                <div className="flex items-center" title={`Assigned to ${task.assignedUser.name}`}>
                                                     <div className="h-5 w-5 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center text-[10px] font-bold mr-1">
-                                                        {task.assigned_user.name.charAt(0)}
+                                                        {task.assignedUser.name.charAt(0)}
                                                     </div>
-                                                    <span>{task.assigned_user.name.split(' ')[0]}</span>
+                                                    <span>{task.assignedUser.name.split(' ')[0]}</span>
                                                 </div>
                                             ) : <span>Unassigned</span>}
                                         </div>

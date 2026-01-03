@@ -181,6 +181,73 @@ const FabricCanvas = forwardRef(({ width = 800, height = 600, className = '', re
                 fabricRef.current.requestRenderAll();
             }
         },
+        setPanMode: (enabled) => {
+            if (!fabricRef.current) return;
+
+            if (enabled) {
+                // Disable drawing and selection
+                fabricRef.current.isDrawingMode = false;
+                fabricRef.current.selection = false;
+                fabricRef.current.defaultCursor = 'grab';
+                fabricRef.current.hoverCursor = 'grab';
+
+                // Make all objects non-selectable
+                fabricRef.current.forEachObject(obj => {
+                    obj.selectable = false;
+                    obj.evented = false;
+                });
+
+                // Enable panning
+                let isPanning = false;
+                let lastPosX = 0;
+                let lastPosY = 0;
+
+                fabricRef.current.on('mouse:down', function (opt) {
+                    const evt = opt.e;
+                    isPanning = true;
+                    fabricRef.current.defaultCursor = 'grabbing';
+                    fabricRef.current.hoverCursor = 'grabbing';
+                    lastPosX = evt.clientX;
+                    lastPosY = evt.clientY;
+                });
+
+                fabricRef.current.on('mouse:move', function (opt) {
+                    if (isPanning) {
+                        const evt = opt.e;
+                        const vpt = fabricRef.current.viewportTransform;
+                        vpt[4] += evt.clientX - lastPosX;
+                        vpt[5] += evt.clientY - lastPosY;
+                        fabricRef.current.requestRenderAll();
+                        lastPosX = evt.clientX;
+                        lastPosY = evt.clientY;
+                    }
+                });
+
+                fabricRef.current.on('mouse:up', function () {
+                    isPanning = false;
+                    fabricRef.current.defaultCursor = 'grab';
+                    fabricRef.current.hoverCursor = 'grab';
+                });
+            } else {
+                // Disable panning - remove all pan-related event listeners
+                fabricRef.current.off('mouse:down');
+                fabricRef.current.off('mouse:move');
+                fabricRef.current.off('mouse:up');
+
+                // Reset cursor
+                fabricRef.current.defaultCursor = 'default';
+                fabricRef.current.hoverCursor = 'move';
+
+                // Re-enable selection
+                fabricRef.current.selection = true;
+
+                // Make objects selectable again
+                fabricRef.current.forEachObject(obj => {
+                    obj.selectable = true;
+                    obj.evented = true;
+                });
+            }
+        },
         deleteSelected: () => {
             if (fabricRef.current) {
                 const activeObjects = fabricRef.current.getActiveObjects();

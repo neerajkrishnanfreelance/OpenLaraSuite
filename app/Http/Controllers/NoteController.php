@@ -130,8 +130,30 @@ class NoteController extends Controller
         $pdf = Pdf::loadView('pdf.note', [
             'note' => $note,
             'images' => $images
-        ])->setPaper([0, 0, 598, 449], 'landscape'); // 211mm x 158mm in points (1mm = 2.83465 points)
+        ])->setPaper([0, 0, 800, 600], 'landscape'); // Match canvas size: 800x600px (4:3 aspect ratio)
 
         return $pdf->download('note-' . $note->id . '.pdf');
+    }
+
+    public function printPreview(Request $request, Note $note)
+    {
+        if ($note->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'images' => 'nullable|array',
+            'images.*' => 'string', // Base64 encoded images
+        ]);
+        
+        $images = $data['images'] ?? [];
+
+        // Load relations for metadata display
+        $note->load(['project', 'task']);
+
+        return view('notes.print-preview', [
+            'note' => $note,
+            'images' => $images
+        ]);
     }
 }

@@ -149,6 +149,57 @@ const FabricCanvas = forwardRef(({ width = 800, height = 600, className = "", re
         fabricRef.current.requestRenderAll();
       }
     },
+    setPanMode: (enabled) => {
+      if (!fabricRef.current) return;
+      if (enabled) {
+        fabricRef.current.isDrawingMode = false;
+        fabricRef.current.selection = false;
+        fabricRef.current.defaultCursor = "grab";
+        fabricRef.current.hoverCursor = "grab";
+        fabricRef.current.forEachObject((obj) => {
+          obj.selectable = false;
+          obj.evented = false;
+        });
+        let isPanning = false;
+        let lastPosX = 0;
+        let lastPosY = 0;
+        fabricRef.current.on("mouse:down", function(opt) {
+          const evt = opt.e;
+          isPanning = true;
+          fabricRef.current.defaultCursor = "grabbing";
+          fabricRef.current.hoverCursor = "grabbing";
+          lastPosX = evt.clientX;
+          lastPosY = evt.clientY;
+        });
+        fabricRef.current.on("mouse:move", function(opt) {
+          if (isPanning) {
+            const evt = opt.e;
+            const vpt = fabricRef.current.viewportTransform;
+            vpt[4] += evt.clientX - lastPosX;
+            vpt[5] += evt.clientY - lastPosY;
+            fabricRef.current.requestRenderAll();
+            lastPosX = evt.clientX;
+            lastPosY = evt.clientY;
+          }
+        });
+        fabricRef.current.on("mouse:up", function() {
+          isPanning = false;
+          fabricRef.current.defaultCursor = "grab";
+          fabricRef.current.hoverCursor = "grab";
+        });
+      } else {
+        fabricRef.current.off("mouse:down");
+        fabricRef.current.off("mouse:move");
+        fabricRef.current.off("mouse:up");
+        fabricRef.current.defaultCursor = "default";
+        fabricRef.current.hoverCursor = "move";
+        fabricRef.current.selection = true;
+        fabricRef.current.forEachObject((obj) => {
+          obj.selectable = true;
+          obj.evented = true;
+        });
+      }
+    },
     deleteSelected: () => {
       if (fabricRef.current) {
         const activeObjects = fabricRef.current.getActiveObjects();

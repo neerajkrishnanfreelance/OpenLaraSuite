@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { A as Authenticated } from "./AuthenticatedLayout-DksizGbA.js";
 import { Head, Link, router } from "@inertiajs/react";
 import { Calendar, Download, Play, Paperclip, FileText, Youtube, ArrowLeft, ArrowRight, Minimize, Expand, Edit, Trash2 } from "lucide-react";
-import { F as FabricCanvas } from "./FabricCanvas-o9Jhirq6.js";
+import { F as FabricCanvas } from "./FabricCanvas-BXClyFfy.js";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
 import "@headlessui/react";

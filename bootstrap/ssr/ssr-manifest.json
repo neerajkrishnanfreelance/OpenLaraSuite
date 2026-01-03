@@ -9,12 +9,12 @@
     "/build/assets/ImageCropperDemo-JOTqagGk.css"
   ],
   "node_modules/react-quill/dist/quill.snow.css": [
-    "/build/assets/Edit-C8fkFl7t.js",
+    "/build/assets/Edit-DSECTrUH.js",
     "/build/assets/Edit-jPLXI00t.css",
     "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
   "node_modules/x-data-spreadsheet/dist/xspreadsheet.css": [
-    "/build/assets/Edit-C8fkFl7t.js",
+    "/build/assets/Edit-DSECTrUH.js",
     "/build/assets/Edit-jPLXI00t.css",
     "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
@@ -65,7 +65,7 @@
     "/build/assets/DataTable-Cf56Cbah.js"
   ],
   "resources/js/Components/DocumentEditor.jsx": [
-    "/build/assets/Edit-C8fkFl7t.js",
+    "/build/assets/Edit-DSECTrUH.js",
     "/build/assets/Edit-jPLXI00t.css",
     "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
@@ -76,7 +76,7 @@
     "/build/assets/AuthenticatedLayout-DksizGbA.js"
   ],
   "resources/js/Components/FabricCanvas.jsx": [
-    "/build/assets/FabricCanvas-o9Jhirq6.js"
+    "/build/assets/FabricCanvas-BXClyFfy.js"
   ],
   "resources/js/Components/FormHeader.jsx": [
     "/build/assets/FormHeader-CQAGRAnh.js"
@@ -116,13 +116,13 @@
     "/build/assets/Index-uRnSvpXH.js"
   ],
   "resources/js/Components/Requirements/CreateRequirementModal.jsx": [
-    "/build/assets/Show-mQKARJQ5.js"
+    "/build/assets/Show-BBFoGUyw.js"
   ],
   "resources/js/Components/Requirements/ImportRequirementsModal.jsx": [
-    "/build/assets/Show-mQKARJQ5.js"
+    "/build/assets/Show-BBFoGUyw.js"
   ],
   "resources/js/Components/Requirements/RequirementList.jsx": [
-    "/build/assets/Show-mQKARJQ5.js"
+    "/build/assets/Show-BBFoGUyw.js"
   ],
   "resources/js/Components/ScheduledActivities.jsx": [
     "/build/assets/ScheduledActivities-BVSQ5ZVE.js"
@@ -138,7 +138,7 @@
     "/build/assets/Dashboard-C9-NpoDc.css"
   ],
   "resources/js/Components/SpreadsheetEditor.jsx": [
-    "/build/assets/Edit-C8fkFl7t.js",
+    "/build/assets/Edit-DSECTrUH.js",
     "/build/assets/Edit-jPLXI00t.css",
     "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
@@ -376,7 +376,7 @@
     "/build/assets/Show-Dgm2BTwj.js"
   ],
   "resources/js/Pages/Notes/Edit.jsx": [
-    "/build/assets/Edit-C8fkFl7t.js",
+    "/build/assets/Edit-DSECTrUH.js",
     "/build/assets/Edit-jPLXI00t.css",
     "/build/assets/58eaeb4e52248a5c75936c6f4c33a370-TQ-VM369.svg"
   ],
@@ -384,7 +384,7 @@
     "/build/assets/Index-BfL3q--F.js"
   ],
   "resources/js/Pages/Notes/Show.jsx": [
-    "/build/assets/Show-DFKDHsxk.js"
+    "/build/assets/Show-ChXOXbQf.js"
   ],
   "resources/js/Pages/Overtime/Create.jsx": [
     "/build/assets/Create--n6BbCkZ.js"
@@ -420,7 +420,7 @@
     "/build/assets/Planning-cPPbg85i.js"
   ],
   "resources/js/Pages/Projects/Show.jsx": [
-    "/build/assets/Show-mQKARJQ5.js"
+    "/build/assets/Show-BBFoGUyw.js"
   ],
   "resources/js/Pages/QrCode/Index.jsx": [
     "/build/assets/Index-D72dpyyT.js"

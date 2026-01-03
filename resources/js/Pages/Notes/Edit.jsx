@@ -9,7 +9,7 @@ import TextInput from '@/Components/TextInput';
 import TextArea from '@/Components/TextArea';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
-import axios from 'axios'; // For file uploads
+import axios from 'axios'; // For file uploads and PDF generation
 import {
     Save,
     Eraser,
@@ -33,7 +33,10 @@ import {
     Youtube,
     Link as LinkIcon,
     FileText,
-    Table as TableIcon
+    Table as TableIcon,
+    Printer,
+    Move,
+    MousePointer
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -262,6 +265,9 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
     const handleToolChange = (tool) => {
         setActiveTool(tool);
         if (canvasRef.current) {
+            // Disable pan mode first if it was active
+            canvasRef.current.setPanMode(false);
+
             if (tool === 'pencil') {
                 canvasRef.current.setDrawingMode(true);
                 canvasRef.current.setBrushColor(brushColor);
@@ -270,13 +276,19 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
             } else if (tool === 'eraser') {
                 canvasRef.current.setDrawingMode(true);
                 canvasRef.current.setEraserMode(true);
-            } else {
+            } else if (tool === 'select') {
+                // Selection mode - disable drawing, enable selection
                 canvasRef.current.setDrawingMode(false);
                 canvasRef.current.setEraserMode(false);
-                if (tool !== 'select') {
-                    canvasRef.current.addShape(tool, { stroke: brushColor, strokeWidth: parseInt(brushWidth) });
-                    setActiveTool('select');
-                }
+            } else if (tool === 'pan') {
+                // Pan mode - enable panning
+                canvasRef.current.setPanMode(true);
+            } else {
+                // Shape tools
+                canvasRef.current.setDrawingMode(false);
+                canvasRef.current.setEraserMode(false);
+                canvasRef.current.addShape(tool, { stroke: brushColor, strokeWidth: parseInt(brushWidth) });
+                setActiveTool('select');
             }
         }
     };
@@ -442,6 +454,119 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
         return () => document.removeEventListener('fullscreenchange', handleFSChange);
     }, []);
 
+    // PDF Download Handler
+    const handleDownloadPDF = async () => {
+        if (!note || !note.id) {
+            alert("Please save the note before downloading PDF.");
+            return;
+        }
+
+        // Save current page first
+        const finalPages = saveCurrentPage();
+
+        const images = [];
+        if (finalPages.length > 0 && canvasRef.current) {
+            // Process each page
+            for (let i = 0; i < finalPages.length; i++) {
+                const pageData = finalPages[i];
+                if (!pageData || Object.keys(pageData).length === 0) continue;
+
+                await new Promise((resolve) => {
+                    canvasRef.current.clear();
+                    canvasRef.current.loadFromJSON(pageData, () => {
+                        resolve();
+                    });
+                });
+
+                // High quality export
+                const imgData = canvasRef.current.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+                images.push(imgData);
+            }
+
+            // Restore current page
+            if (finalPages[currentPageIndex]) {
+                canvasRef.current.clear();
+                canvasRef.current.loadFromJSON(finalPages[currentPageIndex]);
+            }
+        }
+
+        // Send to backend
+        try {
+            const response = await axios.post(route('notes.pdf', note.id), {
+                images: images
+            }, {
+                responseType: 'blob'
+            });
+
+            // Trigger download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `note-${note.id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("PDF generation failed", error);
+            alert("Failed to generate PDF");
+        }
+    };
+
+    // Print Preview Handler
+    const handlePrintPreview = async () => {
+        if (!note || !note.id) {
+            alert("Please save the note before printing.");
+            return;
+        }
+
+        // Save current page first
+        const finalPages = saveCurrentPage();
+
+        const images = [];
+        if (finalPages.length > 0 && canvasRef.current) {
+            // Process each page
+            for (let i = 0; i < finalPages.length; i++) {
+                const pageData = finalPages[i];
+                if (!pageData || Object.keys(pageData).length === 0) continue;
+
+                await new Promise((resolve) => {
+                    canvasRef.current.clear();
+                    canvasRef.current.loadFromJSON(pageData, () => {
+                        resolve();
+                    });
+                });
+
+                // High quality export for printing
+                const imgData = canvasRef.current.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+                images.push(imgData);
+            }
+
+            // Restore current page
+            if (finalPages[currentPageIndex]) {
+                canvasRef.current.clear();
+                canvasRef.current.loadFromJSON(finalPages[currentPageIndex]);
+            }
+        }
+
+        // Open print preview in new window using axios
+        try {
+            const response = await axios.post(route('notes.print', note.id), {
+                images: images
+            });
+
+            // Open the HTML response in a new window
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+                printWindow.document.write(response.data);
+                printWindow.document.close();
+            } else {
+                alert("Please allow popups for this site to use print preview.");
+            }
+        } catch (error) {
+            console.error("Print preview failed", error);
+            alert("Failed to open print preview");
+        }
+    };
 
     return (
         <AuthenticatedLayout
@@ -729,6 +854,8 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
                                         {/* Floating Toolbar - Responsive */}
                                         <div className={`absolute top-4 left-4 z-30 flex flex-col gap-2 bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg border border-gray-200 transition-opacity duration-300 max-h-[calc(100%-2rem)] overflow-y-auto ${isFullScreen ? 'opacity-100' : 'opacity-100'}`}>
                                             <div className="grid grid-cols-2 gap-1 w-20 sm:w-24">
+                                                <ToolBtn icon={MousePointer} active={activeTool === 'select'} onClick={() => handleToolChange('select')} title="Select & Resize" />
+                                                <ToolBtn icon={Move} active={activeTool === 'pan'} onClick={() => handleToolChange('pan')} title="Pan Canvas" />
                                                 <ToolBtn icon={PenTool} active={activeTool === 'pencil'} onClick={() => handleToolChange('pencil')} title="Pencil" />
                                                 <ToolBtn icon={Eraser} active={activeTool === 'eraser'} onClick={() => handleToolChange('eraser')} title="Eraser Brush" />
                                                 <ToolBtn icon={Square} active={activeTool === 'rect'} onClick={() => handleToolChange('rect')} title="Rectangle" />
@@ -811,8 +938,26 @@ export default function Edit({ auth, note, projects = [], preselected_project_id
                                             </button>
                                         </div>
 
-                                        {/* Fullscreen Toggle - Floating Top Right */}
-                                        <div className="absolute top-4 right-4 z-20">
+                                        {/* Fullscreen Toggle & Download - Floating Top Right */}
+                                        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={handlePrintPreview}
+                                                disabled={!note}
+                                                className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-green-600 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                title="Print Preview"
+                                            >
+                                                <Printer className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleDownloadPDF}
+                                                disabled={!note}
+                                                className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                title="Download PDF"
+                                            >
+                                                <Download className="w-5 h-5" />
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={handleFullScreenToggle}
