@@ -11,7 +11,12 @@ export default function Index({ auth, contacts, filters = {} }) {
 
     const [filterData, setFilterData] = useState({
         search: filters.search || '',
+        search_name: filters.search_name || '',
+        search_email: filters.search_email || '',
+        search_company: filters.search_company || '',
+        search_position: filters.search_position || '',
         status: filters.status || '',
+        groupBy: filters.groupBy || '',
     });
 
     const handleFilterChange = (key, value) => {
@@ -96,7 +101,16 @@ export default function Index({ auth, contacts, filters = {} }) {
                                     { key: 'status', value: 'Hired', label: 'Hired' },
                                     { key: 'status', value: 'Rejected', label: 'Rejected' },
                                 ]}
-                                groupByOptions={[]}
+                                searchableFields={[
+                                    { key: 'search_name', label: 'Name' },
+                                    { key: 'search_email', label: 'Email' },
+                                    { key: 'search_company', label: 'Company' },
+                                    { key: 'search_position', label: 'Position' },
+                                ]}
+                                groupByOptions={[
+                                    { value: 'status', label: 'Status' },
+                                    { value: 'company', label: 'Company' }
+                                ]}
                                 activeFilters={filterData}
                                 onFilterChange={handleFilterChange}
                             />
@@ -122,113 +136,221 @@ export default function Index({ auth, contacts, filters = {} }) {
                     </div>
 
 
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3">
-                                            <input
-                                                type="checkbox"
-                                                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                checked={contacts.length > 0 && selectedIds.length === contacts.length}
-                                                onChange={toggleSelectAll}
-                                            />
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Name
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Company / Position
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Contact Info
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {contacts.length > 0 ? (
-                                        contacts.map((contact) => (
-                                            <tr key={contact.id} className="hover:bg-gray-50 transition">
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                                        checked={selectedIds.includes(contact.id)}
-                                                        onChange={() => toggleSelect(contact.id)}
-                                                    />
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="flex items-center">
-                                                        <div className="flex-shrink-0 h-10 w-10">
-                                                            <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg">
-                                                                {contact.name.charAt(0)}
+                    {filterData.groupBy ? (
+                        Object.entries(contacts.reduce((groups, contact) => {
+                            const key = contact[filterData.groupBy] || 'Ungrouped';
+                            if (!groups[key]) groups[key] = [];
+                            groups[key].push(contact);
+                            return groups;
+                        }, {})).map(([groupName, groupContacts]) => (
+                            <div key={groupName} className="mb-8">
+                                <h3 className="font-bold text-lg text-gray-700 mb-2 px-2 border-l-4 border-indigo-500 bg-gray-50 py-1">{groupName}</h3>
+                                <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-3">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                            checked={groupContacts.length > 0 && groupContacts.every(c => selectedIds.includes(c.id))}
+                                                            onChange={(e) => {
+                                                                if (e.target.checked) {
+                                                                    setSelectedIds(prev => [...new Set([...prev, ...groupContacts.map(c => c.id)])]);
+                                                                } else {
+                                                                    setSelectedIds(prev => prev.filter(id => !groupContacts.find(c => c.id === id)));
+                                                                }
+                                                            }}
+                                                        />
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company / Position</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Info</th>
+                                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {groupContacts.map((contact) => (
+                                                    <tr key={contact.id} className="hover:bg-gray-50 transition">
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <input
+                                                                type="checkbox"
+                                                                className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                                checked={selectedIds.includes(contact.id)}
+                                                                onChange={() => toggleSelect(contact.id)}
+                                                            />
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="flex items-center">
+                                                                <div className="flex-shrink-0 h-10 w-10">
+                                                                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg">
+                                                                        {contact.name.charAt(0)}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="ml-4">
+                                                                    <div className="text-sm font-medium text-gray-900">
+                                                                        {contact.name}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-900">{contact.company || '-'}</div>
+                                                            <div className="text-xs text-gray-500">{contact.position || '-'}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <StatusBadge status={contact.status} />
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-900 flex items-center mb-1">
+                                                                <Mail className="w-3 h-3 mr-2 text-gray-400" />
+                                                                {contact.email || '-'}
+                                                            </div>
+                                                            <div className="text-sm text-gray-500 flex items-center">
+                                                                <Phone className="w-3 h-3 mr-2 text-gray-400" />
+                                                                {contact.phone || '-'}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button
+                                                                onClick={() => handleSendWelcome(contact.id)}
+                                                                className="text-blue-600 hover:text-blue-900 mr-4 inline-flex items-center"
+                                                                title="Send Welcome Email"
+                                                            >
+                                                                <Send className="w-4 h-4" />
+                                                            </button>
+                                                            <Link
+                                                                href={route('hr-contacts.edit', contact.id)}
+                                                                className="text-indigo-600 hover:text-indigo-900 mr-4 inline-flex items-center"
+                                                            >
+                                                                <Edit className="w-4 h-4" />
+                                                            </Link>
+                                                            <button
+                                                                onClick={() => handleDelete(contact.id)}
+                                                                className="text-red-600 hover:text-red-900 inline-flex items-center"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-3">
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                    checked={contacts.length > 0 && selectedIds.length === contacts.length}
+                                                    onChange={toggleSelectAll}
+                                                />
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Name
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Company / Position
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Contact Info
+                                            </th>
+                                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {contacts.length > 0 ? (
+                                            contacts.map((contact) => (
+                                                <tr key={contact.id} className="hover:bg-gray-50 transition">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                            checked={selectedIds.includes(contact.id)}
+                                                            onChange={() => toggleSelect(contact.id)}
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="flex items-center">
+                                                            <div className="flex-shrink-0 h-10 w-10">
+                                                                <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg">
+                                                                    {contact.name.charAt(0)}
+                                                                </div>
+                                                            </div>
+                                                            <div className="ml-4">
+                                                                <div className="text-sm font-medium text-gray-900">
+                                                                    {contact.name}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="ml-4">
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                {contact.name}
-                                                            </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm text-gray-900">{contact.company || '-'}</div>
+                                                        <div className="text-xs text-gray-500">{contact.position || '-'}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <StatusBadge status={contact.status} />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm text-gray-900 flex items-center mb-1">
+                                                            <Mail className="w-3 h-3 mr-2 text-gray-400" />
+                                                            {contact.email || '-'}
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm text-gray-900">{contact.company || '-'}</div>
-                                                    <div className="text-xs text-gray-500">{contact.position || '-'}</div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <StatusBadge status={contact.status} />
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm text-gray-900 flex items-center mb-1">
-                                                        <Mail className="w-3 h-3 mr-2 text-gray-400" />
-                                                        {contact.email || '-'}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500 flex items-center">
-                                                        <Phone className="w-3 h-3 mr-2 text-gray-400" />
-                                                        {contact.phone || '-'}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button
-                                                        onClick={() => handleSendWelcome(contact.id)}
-                                                        className="text-blue-600 hover:text-blue-900 mr-4 inline-flex items-center"
-                                                        title="Send Welcome Email"
-                                                    >
-                                                        <Send className="w-4 h-4" />
-                                                    </button>
-                                                    <Link
-                                                        href={route('hr-contacts.edit', contact.id)}
-                                                        className="text-indigo-600 hover:text-indigo-900 mr-4 inline-flex items-center"
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => handleDelete(contact.id)}
-                                                        className="text-red-600 hover:text-red-900 inline-flex items-center"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                        <div className="text-sm text-gray-500 flex items-center">
+                                                            <Phone className="w-3 h-3 mr-2 text-gray-400" />
+                                                            {contact.phone || '-'}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <button
+                                                            onClick={() => handleSendWelcome(contact.id)}
+                                                            className="text-blue-600 hover:text-blue-900 mr-4 inline-flex items-center"
+                                                            title="Send Welcome Email"
+                                                        >
+                                                            <Send className="w-4 h-4" />
+                                                        </button>
+                                                        <Link
+                                                            href={route('hr-contacts.edit', contact.id)}
+                                                            className="text-indigo-600 hover:text-indigo-900 mr-4 inline-flex items-center"
+                                                        >
+                                                            <Edit className="w-4 h-4" />
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => handleDelete(contact.id)}
+                                                            className="text-red-600 hover:text-red-900 inline-flex items-center"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="6" className="px-6 py-10 text-center text-gray-500">
+                                                    No HR contacts found.
                                                 </td>
                                             </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="6" className="px-6 py-10 text-center text-gray-500">
-                                                No HR contacts found.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout >

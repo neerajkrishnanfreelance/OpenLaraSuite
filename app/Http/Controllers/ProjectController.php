@@ -16,7 +16,7 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'status', 'date_range']);
+        $filters = $request->only(['search', 'search_name', 'search_description', 'status', 'date_range']);
         
         $projects = Project::with('users')
             ->filter($filters)

@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useSensors, useSensor, PointerSensor, KeyboardSensor, DndContext, closestCenter } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { F as FilterBar } from "./FilterBar-DbqRwFAj.js";
 import { LayoutList, LayoutGrid } from "lucide-react";
 import "./ApplicationLogo-BcNgH8MP.js";
 import "@heroicons/react/24/outline";
@@ -95,25 +96,29 @@ function KanbanBoard({ projects = [] }) {
 function Index({ auth, projects, filters = {} }) {
   const { flash } = usePage().props;
   const [viewMode, setViewMode] = useState(localStorage.getItem("projectsViewMode") || "list");
-  const [showFilters, setShowFilters] = useState(false);
-  const [search, setSearch] = useState(filters.search || "");
-  const [status, setStatus] = useState(filters.status || "all");
-  const [dateRange, setDateRange] = useState(filters.date_range || "");
+  const [filterData, setFilterData] = useState({
+    search: filters.search || "",
+    search_name: filters.search_name || "",
+    search_description: filters.search_description || "",
+    status: filters.status || "",
+    date_range: filters.date_range || ""
+  });
   useEffect(() => {
     localStorage.setItem("projectsViewMode", viewMode);
   }, [viewMode]);
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (search !== (filters.search || "") || status !== (filters.status || "all") || dateRange !== (filters.date_range || "")) {
-        router.get(
-          route("projects.index"),
-          { search, status, dateRange },
-          { preserveState: true, replace: true }
-        );
-      }
+      router.get(
+        route("projects.index"),
+        filterData,
+        { preserveState: true, replace: true }
+      );
     }, 300);
     return () => clearTimeout(timeoutId);
-  }, [search, status, dateRange]);
+  }, [filterData]);
+  const handleFilterChange = (key, value) => {
+    setFilterData((prev) => ({ ...prev, [key]: value }));
+  };
   const columns = [
     { key: "name", label: "Name", render: (item) => /* @__PURE__ */ jsx(ClickableLink, { routeName: "projects.show", params: item.id, children: item.name }) },
     {
@@ -188,34 +193,43 @@ function Index({ auth, projects, filters = {} }) {
         /* @__PURE__ */ jsx(Head, { title: "Projects" }),
         /* @__PURE__ */ jsx("div", { className: "py-12", children: /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto sm:px-6 lg:px-8", children: [
           flash && flash.message && /* @__PURE__ */ jsx("div", { className: "mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative", role: "alert", children: /* @__PURE__ */ jsx("span", { className: "block sm:inline", children: flash.message }) }),
-          /* @__PURE__ */ jsx("div", { className: "bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-center", children: [
-            /* @__PURE__ */ jsx("div", { className: "flex-1 w-full", children: /* @__PURE__ */ jsx(
-              "input",
+          /* @__PURE__ */ jsx("div", { className: "mb-6", children: /* @__PURE__ */ jsx(
+            FilterBar,
+            {
+              filters: [
+                { key: "status", value: "active", label: "Active" },
+                { key: "status", value: "on_hold", label: "On Hold" },
+                { key: "status", value: "completed", label: "Completed" },
+                { key: "status", value: "archived", label: "Archived" }
+              ],
+              searchableFields: [
+                { key: "search_name", label: "Name" },
+                { key: "search_description", label: "Description" }
+              ],
+              groupByOptions: [
+                { value: "status", label: "Status" }
+              ],
+              activeFilters: filterData,
+              onFilterChange: handleFilterChange
+            }
+          ) }),
+          viewMode === "list" ? filterData.groupBy ? Object.entries(projects.data.reduce((groups, project) => {
+            const key = project[filterData.groupBy] || "Ungrouped";
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(project);
+            return groups;
+          }, {})).map(([groupName, groupProjects]) => /* @__PURE__ */ jsxs("div", { className: "mb-8", children: [
+            /* @__PURE__ */ jsx("h3", { className: "font-bold text-lg text-gray-700 mb-2 px-2 border-l-4 border-indigo-500 bg-gray-50 py-1 capitalize", children: groupName.replace("_", " ") }),
+            /* @__PURE__ */ jsx(
+              DataTable,
               {
-                type: "text",
-                placeholder: "Search projects...",
-                value: search,
-                onChange: (e) => setSearch(e.target.value),
-                className: "w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                columns,
+                data: groupProjects,
+                pagination: { ...projects, data: groupProjects, links: [] },
+                actions
               }
-            ) }),
-            /* @__PURE__ */ jsx("div", { className: "w-full sm:w-48", children: /* @__PURE__ */ jsxs(
-              "select",
-              {
-                value: status,
-                onChange: (e) => setStatus(e.target.value),
-                className: "w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
-                children: [
-                  /* @__PURE__ */ jsx("option", { value: "all", children: "All Statuses" }),
-                  /* @__PURE__ */ jsx("option", { value: "active", children: "Active" }),
-                  /* @__PURE__ */ jsx("option", { value: "on_hold", children: "On Hold" }),
-                  /* @__PURE__ */ jsx("option", { value: "completed", children: "Completed" }),
-                  /* @__PURE__ */ jsx("option", { value: "archived", children: "Archived" })
-                ]
-              }
-            ) })
-          ] }) }),
-          viewMode === "list" ? /* @__PURE__ */ jsx(
+            )
+          ] }, groupName)) : /* @__PURE__ */ jsx(
             DataTable,
             {
               columns,

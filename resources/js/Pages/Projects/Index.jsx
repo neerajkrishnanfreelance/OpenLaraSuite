@@ -16,6 +16,8 @@ export default function Index({ auth, projects, filters = {} }) {
     // Filter State
     const [filterData, setFilterData] = useState({
         search: filters.search || '',
+        search_name: filters.search_name || '',
+        search_description: filters.search_description || '',
         status: filters.status || '',
         date_range: filters.date_range || '',
     });
@@ -147,19 +149,46 @@ export default function Index({ auth, projects, filters = {} }) {
                                 { key: 'status', value: 'completed', label: 'Completed' },
                                 { key: 'status', value: 'archived', label: 'Archived' },
                             ]}
-                            groupByOptions={[]} // Projects usually don't group or we can add later
+                            searchableFields={[
+                                { key: 'search_name', label: 'Name' },
+                                { key: 'search_description', label: 'Description' }
+                            ]}
+                            groupByOptions={[
+                                { value: 'status', label: 'Status' }
+                            ]}
                             activeFilters={filterData}
                             onFilterChange={handleFilterChange}
                         />
                     </div>
 
                     {viewMode === 'list' ? (
-                        <DataTable
-                            columns={columns}
-                            data={projects.data}
-                            pagination={projects}
-                            actions={actions}
-                        />
+                        filterData.groupBy ? (
+                            Object.entries(projects.data.reduce((groups, project) => {
+                                const key = project[filterData.groupBy] || 'Ungrouped';
+                                if (!groups[key]) groups[key] = [];
+                                groups[key].push(project);
+                                return groups;
+                            }, {})).map(([groupName, groupProjects]) => (
+                                <div key={groupName} className="mb-8">
+                                    <h3 className="font-bold text-lg text-gray-700 mb-2 px-2 border-l-4 border-indigo-500 bg-gray-50 py-1 capitalize">
+                                        {groupName.replace('_', ' ')}
+                                    </h3>
+                                    <DataTable
+                                        columns={columns}
+                                        data={groupProjects}
+                                        pagination={{ ...projects, data: groupProjects, links: [] }} // Hide pagination in groups or keep it? Pagination applies to total.
+                                        actions={actions}
+                                    />
+                                </div>
+                            ))
+                        ) : (
+                            <DataTable
+                                columns={columns}
+                                data={projects.data}
+                                pagination={projects}
+                                actions={actions}
+                            />
+                        )
                     ) : (
                         <KanbanBoard projects={projects.data} />
                     )}

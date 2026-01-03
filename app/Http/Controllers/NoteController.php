@@ -18,8 +18,18 @@ class NoteController extends Controller
         $query = auth()->user()->notes()->with(['recordings', 'attachments', 'project', 'task'])->latest();
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%')
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
                   ->orWhere('content', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        if ($request->filled('search_title')) {
+             $query->where('title', 'like', '%' . $request->search_title . '%');
+        }
+        
+        if ($request->filled('search_content')) {
+             $query->where('content', 'like', '%' . $request->search_content . '%');
         }
 
         if ($request->filled('has_drawing')) {
@@ -40,7 +50,7 @@ class NoteController extends Controller
 
         return Inertia::render('Notes/Index', [
             'notes' => $notes,
-            'filters' => $request->only(['search', 'has_drawing', 'has_attachment'])
+            'filters' => $request->only(['search', 'search_title', 'search_content', 'has_drawing', 'has_attachment'])
         ]);
     }
 

@@ -3,8 +3,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus, Edit, Trash2, FileText, Download, Mic, Paperclip, Youtube, Table, CheckSquare, PenTool } from 'lucide-react';
 import Pagination from '@/Components/Pagination';
-
-import Pagination from '@/Components/Pagination';
 import FilterBar from '@/Components/FilterBar';
 import { useState, useEffect } from 'react';
 
@@ -12,8 +10,11 @@ export default function Index({ auth, notes, filters = {} }) {
     const { flash } = usePage().props;
     const [filterData, setFilterData] = useState({
         search: filters.search || '',
+        search_title: filters.search_title || '',
+        search_content: filters.search_content || '',
         has_drawing: filters.has_drawing || '',
         has_attachment: filters.has_attachment || '',
+        groupBy: filters.groupBy || '',
     });
 
     const handleFilterChange = (key, value) => {
@@ -80,7 +81,14 @@ export default function Index({ auth, notes, filters = {} }) {
                                     { key: 'has_drawing', value: 'true', label: 'Has Drawing' },
                                     { key: 'has_attachment', value: 'true', label: 'Has Attachment' },
                                 ]}
-                                groupByOptions={[]}
+                                searchableFields={[
+                                    { key: 'search_title', label: 'Title' },
+                                    { key: 'search_content', label: 'Content' }
+                                ]}
+                                groupByOptions={[
+                                    { value: 'project_id', label: 'Project' },
+                                    { value: 'task_id', label: 'Task' }
+                                ]}
                                 activeFilters={filterData}
                                 onFilterChange={handleFilterChange}
                             />
@@ -93,115 +101,139 @@ export default function Index({ auth, notes, filters = {} }) {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {notes.length > 0 ? (
-                            notes.map((note) => (
-                                <div key={note.id} className="bg-white overflow-hidden shadow-sm rounded-lg flex flex-col h-full border border-gray-100">
-                                    <div className="p-4 flex-1">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
-                                                <Link href={route('notes.show', note.id)} className="hover:text-indigo-600 hover:underline">
-                                                    {note.title || 'Untitled Note'}
-                                                </Link>
-                                            </h3>
-                                            <div className="flex items-center gap-2">
-                                                {/* Voice */}
-                                                {note.recordings && note.recordings.length > 0 && (
-                                                    <Mic className="w-4 h-4 text-indigo-500" title="Has Voice Note" />
-                                                )}
-                                                {/* Files */}
-                                                {note.attachments && note.attachments.some(a => a.type === 'file') && (
-                                                    <Paperclip className="w-4 h-4 text-gray-500" title="Has Attachments" />
-                                                )}
-                                                {/* YouTube */}
-                                                {note.attachments && note.attachments.some(a => a.type === 'youtube') && (
-                                                    <Youtube className="w-4 h-4 text-red-500" title="Has Video" />
-                                                )}
-                                                {/* Drawing */}
-                                                {note.drawing_data && (
-                                                    <PenTool className="w-4 h-4 text-indigo-500" title="Has Drawing" />
-                                                )}
-                                                {/* Spreadsheet */}
-                                                {note.spreadsheet_data && (
-                                                    <Table className="w-4 h-4 text-green-500" title="Has Spreadsheet" />
-                                                )}
-                                                {/* Document/Checklist */}
-                                                {note.document_data && (
-                                                    <CheckSquare className="w-4 h-4 text-purple-500" title="Has Document" />
-                                                )}
-                                                <span className="text-xs text-gray-500 whitespace-nowrap">
-                                                    {new Date(note.created_at).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {(note.project || note.task) && (
-                                            <div className="flex flex-wrap gap-2 mb-3">
-                                                {note.project && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                                        {note.project.name}
-                                                    </span>
-                                                )}
-                                                {note.task && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                                        {note.task.title}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {note.drawing_data ? (
-                                            (note.drawing_data.startsWith('data:') || note.drawing_data.startsWith('http')) ? (
-                                                <div className="mb-4 bg-gray-50 rounded border border-gray-200 overflow-hidden h-40 flex items-center justify-center">
-                                                    <img src={note.drawing_data} alt="Drawing" className="max-h-full max-w-full object-contain" />
-                                                </div>
-                                            ) : (
-                                                <div className="mb-4 bg-yellow-50 rounded border border-yellow-200 h-40 flex flex-col items-center justify-center text-yellow-600">
-                                                    <FileText className="w-12 h-12 mb-2" />
-                                                    <span className="text-xs font-semibold">Drawing Attached</span>
-                                                </div>
-                                            )
-                                        ) : (
-                                            <div className="mb-4 bg-gray-50 rounded border border-gray-200 h-40 flex items-center justify-center text-gray-300">
-                                                <FileText className="w-12 h-12" />
-                                            </div>
-                                        )}
-
-                                        <p className="text-gray-600 text-sm line-clamp-3">
-                                            {note.content || 'No text content.'}
-                                        </p>
-                                    </div>
-                                    <div className="bg-gray-50 px-4 py-3 flex justify-between items-center border-t border-gray-100">
-                                        <div>
-                                            {note.drawing_data && (
-                                                <button
-                                                    onClick={(e) => handleDownload(e, note)}
-                                                    className="text-gray-500 hover:text-gray-700 mr-3"
-                                                    title="Download Drawing"
-                                                >
-                                                    <Download className="w-4 h-4" />
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <Link href={route('notes.edit', note.id)} className="text-indigo-600 hover:text-indigo-900">
-                                                <Edit className="w-4 h-4" />
-                                            </Link>
-                                            <button onClick={() => handleDelete(note.id)} className="text-red-600 hover:text-red-900">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
+                    {filterData.groupBy ? (
+                        Object.entries(notes.reduce((groups, note) => {
+                            const key = note[filterData.groupBy]
+                                ? (filterData.groupBy === 'project_id' ? note.project?.name : note.task?.title)
+                                : 'Ungrouped';
+                            if (!groups[key]) groups[key] = [];
+                            groups[key].push(note);
+                            return groups;
+                        }, {})).map(([groupName, groupNotes]) => (
+                            <div key={groupName} className="mb-8">
+                                <h3 className="font-bold text-lg text-gray-700 mb-4 px-2 border-l-4 border-indigo-500 bg-gray-50 py-1">{groupName}</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {groupNotes.map(note => (
+                                        <NoteCard key={note.id} note={note} handleDelete={handleDelete} handleDownload={handleDownload} />
+                                    ))}
                                 </div>
-                            ))
-                        ) : (
-                            <div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
-                                No notes found. Create one to get started!
                             </div>
-                        )}
-                    </div>
+                        ))
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {notes.length > 0 ? (
+                                notes.map((note) => (
+                                    <NoteCard key={note.id} note={note} handleDelete={handleDelete} handleDownload={handleDownload} />
+                                ))
+                            ) : (
+                                <div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+                                    No notes found. Create one to get started!
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>
     );
 }
+
+const NoteCard = ({ note, handleDelete, handleDownload }) => (
+    <div className="bg-white overflow-hidden shadow-sm rounded-lg flex flex-col h-full border border-gray-100">
+        <div className="p-4 flex-1">
+            <div className="flex justify-between items-start mb-2">
+                <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
+                    <Link href={route('notes.show', note.id)} className="hover:text-indigo-600 hover:underline">
+                        {note.title || 'Untitled Note'}
+                    </Link>
+                </h3>
+                <div className="flex items-center gap-2">
+                    {/* Voice */}
+                    {note.recordings && note.recordings.length > 0 && (
+                        <Mic className="w-4 h-4 text-indigo-500" title="Has Voice Note" />
+                    )}
+                    {/* Files */}
+                    {note.attachments && note.attachments.some(a => a.type === 'file') && (
+                        <Paperclip className="w-4 h-4 text-gray-500" title="Has Attachments" />
+                    )}
+                    {/* YouTube */}
+                    {note.attachments && note.attachments.some(a => a.type === 'youtube') && (
+                        <Youtube className="w-4 h-4 text-red-500" title="Has Video" />
+                    )}
+                    {/* Drawing */}
+                    {note.drawing_data && (
+                        <PenTool className="w-4 h-4 text-indigo-500" title="Has Drawing" />
+                    )}
+                    {/* Spreadsheet */}
+                    {note.spreadsheet_data && (
+                        <Table className="w-4 h-4 text-green-500" title="Has Spreadsheet" />
+                    )}
+                    {/* Document/Checklist */}
+                    {note.document_data && (
+                        <CheckSquare className="w-4 h-4 text-purple-500" title="Has Document" />
+                    )}
+                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                        {new Date(note.created_at).toLocaleDateString()}
+                    </span>
+                </div>
+            </div>
+
+            {(note.project || note.task) && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                    {note.project && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            {note.project.name}
+                        </span>
+                    )}
+                    {note.task && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            {note.task.title}
+                        </span>
+                    )}
+                </div>
+            )}
+
+            {note.drawing_data ? (
+                (note.drawing_data.startsWith('data:') || note.drawing_data.startsWith('http')) ? (
+                    <div className="mb-4 bg-gray-50 rounded border border-gray-200 overflow-hidden h-40 flex items-center justify-center">
+                        <img src={note.drawing_data} alt="Drawing" className="max-h-full max-w-full object-contain" />
+                    </div>
+                ) : (
+                    <div className="mb-4 bg-yellow-50 rounded border border-yellow-200 h-40 flex flex-col items-center justify-center text-yellow-600">
+                        <FileText className="w-12 h-12 mb-2" />
+                        <span className="text-xs font-semibold">Drawing Attached</span>
+                    </div>
+                )
+            ) : (
+                <div className="mb-4 bg-gray-50 rounded border border-gray-200 h-40 flex items-center justify-center text-gray-300">
+                    <FileText className="w-12 h-12" />
+                </div>
+            )}
+
+            <p className="text-gray-600 text-sm line-clamp-3">
+                {note.content || 'No text content.'}
+            </p>
+        </div>
+        <div className="bg-gray-50 px-4 py-3 flex justify-between items-center border-t border-gray-100">
+            <div>
+                {note.drawing_data && (
+                    <button
+                        onClick={(e) => handleDownload(e, note)}
+                        className="text-gray-500 hover:text-gray-700 mr-3"
+                        title="Download Drawing"
+                    >
+                        <Download className="w-4 h-4" />
+                    </button>
+                )}
+            </div>
+            <div className="flex space-x-2">
+                <Link href={route('notes.edit', note.id)} className="text-indigo-600 hover:text-indigo-900">
+                    <Edit className="w-4 h-4" />
+                </Link>
+                <button onClick={() => handleDelete(note.id)} className="text-red-600 hover:text-red-900">
+                    <Trash2 className="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+    </div>
+);

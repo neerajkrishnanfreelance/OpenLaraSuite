@@ -21,8 +21,15 @@ class HrContactController extends Controller
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('email', 'like', '%' . $request->search . '%')
-                  ->orWhere('company', 'like', '%' . $request->search . '%');
+                  ->orWhere('company', 'like', '%' . $request->search . '%')
+                  ->orWhere('position', 'like', '%' . $request->search . '%');
             });
+        }
+        
+        foreach (['name', 'email', 'company', 'position'] as $field) {
+             if ($request->filled("search_{$field}")) {
+                $query->where($field, 'like', '%' . $request->input("search_{$field}") . '%');
+             }
         }
 
         if ($request->filled('status')) {
@@ -31,7 +38,7 @@ class HrContactController extends Controller
 
         return Inertia::render('HrContacts/Index', [
             'contacts' => $query->get(),
-            'filters' => $request->only(['search', 'status'])
+            'filters' => $request->only(['search', 'search_name', 'search_email', 'search_company', 'search_position', 'status'])
         ]);
     }
 

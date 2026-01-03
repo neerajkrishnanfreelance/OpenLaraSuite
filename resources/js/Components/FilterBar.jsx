@@ -3,6 +3,7 @@ import { router } from '@inertiajs/react';
 
 export default function FilterBar({
     placeholder = "Search...",
+    searchableFields = [], // [{ key: 'search_name', label: 'Name' }]
     filters = [],
     groupByOptions = [],
     activeFilters = {},
@@ -11,6 +12,7 @@ export default function FilterBar({
     const [isOpen, setIsOpen] = useState(false);
     const [searchText, setSearchText] = useState('');
     const dropdownRef = useRef(null);
+    const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -28,9 +30,17 @@ export default function FilterBar({
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (searchText.trim()) {
+            // Default search (or first field if strict)
             onFilterChange('search', searchText);
             setSearchText('');
+            setShowSearchSuggestions(false);
         }
+    };
+
+    const handleFieldSearch = (key, value) => {
+        onFilterChange(key, value);
+        setSearchText('');
+        setShowSearchSuggestions(false);
     };
 
     const toggleFilter = (key, value) => {
@@ -62,9 +72,22 @@ export default function FilterBar({
                     if (filterOption) label = filterOption.label;
 
                     // Handle Group By labels
-                    if (key === 'groupBy') {
-                        const groupOption = groupByOptions.find(g => g.value === value);
-                        if (groupOption) label = `Group By: ${groupOption.label}`;
+                    const groupOption = groupByOptions.find(g => g.value === value);
+                    if (groupOption) label = `Group By: ${groupOption.label}`;
+
+                    // Handle Search Labels
+                    if (key.startsWith('search_') || key === 'search') {
+                        return (
+                            <div key={key} className="flex items-center bg-indigo-100 text-indigo-800 text-sm px-2 py-1 rounded-full border border-indigo-200">
+                                <span className="mr-1"><span className="font-semibold">{key === 'search' ? 'Search' : key.replace('search_', '')}:</span> {value}</span>
+                                <button
+                                    onClick={() => removeFilter(key)}
+                                    className="text-indigo-500 hover:text-indigo-700 focus:outline-none"
+                                >
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                </button>
+                            </div>
+                        );
                     }
 
                     return (
@@ -89,10 +112,48 @@ export default function FilterBar({
                             placeholder={placeholder}
                             className="border-none focus:ring-0 p-1 text-sm w-full bg-transparent"
                             value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            onFocus={() => setIsOpen(true)}
+                            onChange={(e) => {
+                                setSearchText(e.target.value);
+                                setShowSearchSuggestions(e.target.value.length > 0);
+                                setIsOpen(e.target.value.length === 0); // Open filters only if empty
+                            }}
+                            onFocus={() => {
+                                if (searchText) setShowSearchSuggestions(true);
+                                else setIsOpen(true);
+                            }}
                         />
                     </form>
+
+                    {/* Search Suggestions Dropdown */}
+                    {showSearchSuggestions && searchText && (
+                        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white shadow-lg rounded-md border border-gray-200">
+                            <ul className="py-1">
+                                {searchableFields.length > 0 ? (
+                                    searchableFields.map(field => (
+                                        <li key={field.key}>
+                                            <button
+                                                onClick={() => handleFieldSearch(field.key, searchText)}
+                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                            >
+                                                <span className="text-indigo-600 font-medium mr-1">Search {field.label} for:</span>
+                                                <span className="font-bold">"{searchText}"</span>
+                                            </button>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li>
+                                        <button
+                                            onClick={(e) => handleSearchSubmit(e)}
+                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                        >
+                                            <span className="text-indigo-600 font-medium mr-1">Search for:</span>
+                                            <span className="font-bold">"{searchText}"</span>
+                                        </button>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
                 {/* Dropdown Toggle (Carret) */}

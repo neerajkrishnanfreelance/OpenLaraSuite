@@ -65,6 +65,10 @@ class Project extends Model
                 $query->where('name', 'like', '%'.$search.'%')
                       ->orWhere('description', 'like', '%'.$search.'%');
             });
+        })->when($filters['search_name'] ?? null, function ($query, $search) {
+            $query->where('name', 'like', '%'.$search.'%');
+        })->when($filters['search_description'] ?? null, function ($query, $search) {
+            $query->where('description', 'like', '%'.$search.'%');
         })->when($filters['status'] ?? null, function ($query, $status) {
             if ($status !== 'all') {
                 $query->where('status', $status);
